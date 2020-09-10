@@ -1,12 +1,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient;
-using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.OpenMrs.Mappings;
 using Optional;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
+    using In.ProjectEKA.HipLibrary.Patient.Model;
     public class OpenMrsPatientRepository : IPatientRepository
     {
         private readonly IPatientDal _patientDal;

@@ -75,7 +75,6 @@ namespace In.ProjectEKA.HipServiceTest.Consent
                 new Consent(notification.ConsentDetail.ConsentId,
                     notification.ConsentDetail,
                     notification.Signature,
-<<<<<<< HEAD
                     consentStatus,
                     consentMangerId);
             consentRepository.Setup(x => x.AddAsync(consent));
@@ -88,13 +87,7 @@ namespace In.ProjectEKA.HipServiceTest.Consent
         private void ShouldEnqueueConsentNotificationAndReturnAccepted()
         {
             var correlationId = Uuid.Generate().ToString();
-=======
-                    ConsentStatus.GRANTED,
-                    consentMangerId)));
-            var correlationId = Uuid.Generate().ToString();
-
->>>>>>> f7c263e... [Correlation_916] Bipul/Aditi | Add CorrelationId to trace request flow (#380)
-            var result = consentNotificationController.ConsentNotification(correlationId, consentNotification);
+           var result = consentNotificationController.ConsentNotification(correlationId, consentNotification);
 
             backgroundJobClient.Verify(client => client.Create(
                 It.Is<Job>(job => job.Method.Name == "StoreConsent" && job.Args[0] == consentNotification),

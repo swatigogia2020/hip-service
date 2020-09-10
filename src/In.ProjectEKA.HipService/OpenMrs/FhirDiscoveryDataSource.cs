@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using System.Web;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Patient = Hl7.Fhir.Model.Patient;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
+    using Hl7.Fhir.Model;
     public class FhirDiscoveryDataSource : IPatientDal
     {
         private readonly IOpenMrsClient openMrsClient;
