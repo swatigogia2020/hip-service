@@ -60,8 +60,12 @@ namespace In.ProjectEKA.HipService.Link
         /// </remarks>
         /// <response code="202">Request accepted</response>
         [HttpPost(PATH_LINKS_LINK_CONFIRM)]
+<<<<<<< HEAD
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         public AcceptedResult LinkPatientFor( 
+=======
+        public AcceptedResult LinkPatientFor(
+>>>>>>> 72cd72a... JAS-971 | Mahendra/Meghna/Sangita | Refactors for Sharing the user demo on confirm (#391)
             [FromHeader(Name = CORRELATION_ID)] string correlationId,
             [FromBody] LinkPatientRequest request)
         {
@@ -150,7 +154,7 @@ namespace In.ProjectEKA.HipService.Link
             }
         }
         [HttpPost(PATH_ON_AUTH_INIT)]
-        public AcceptedResult OnAuthInit(AuthOnInitRequest request)
+        public ActionResult OnAuthInit(AuthOnInitRequest request)
         {
             Log.Information("Auth on init request received." +
                             $" RequestId:{request.RequestId}, " +
@@ -160,14 +164,14 @@ namespace In.ProjectEKA.HipService.Link
                 Log.Information($" Error Code:{request.Error.Code}," +
                                 $" Error Message:{request.Error.Message},");
             }
-            else if (request.AuthInit != null)
+            else
             {
-                Log.Information($" Transaction Id:{request.AuthInit.TransactionId},");
-                Log.Information($" Auth Type:{request.AuthInit.AuthType},");
-                Log.Information($" Auth Meta Mode:{request.AuthInit.Meta.Mode},");
-                Log.Information($" Auth Meta Hint:{request.AuthInit.Meta.Hint},");
-                Log.Information($" Auth Meta Expiry:{request.AuthInit.Meta.Expiry},");
+                Log.Information($" Transaction Id:{request.Auth.TransactionId},");
+                Log.Information($" Auth Meta Mode:{request.Auth.Mode},");
+                Log.Information($" Auth Meta Hint:{request.Auth.Meta.Hint},");
+                Log.Information($" Auth Meta Expiry:{request.Auth.Meta.Expiry},");
             }
+
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");
             return Accepted();
         }

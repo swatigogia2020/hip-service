@@ -95,7 +95,11 @@ namespace In.ProjectEKA.HipService.Link
             return (patientLinkReferenceResponse, null);
         }
 
+<<<<<<< HEAD
         private async Task<ValueTuple<Patient, ErrorRepresentation>> PatientAndCareContextValidation(
+=======
+        private ValueTuple<HipLibrary.Patient.Model.Patient, ErrorRepresentation> PatientAndCareContextValidation(
+>>>>>>> 72cd72a... JAS-971 | Mahendra/Meghna/Sangita | Refactors for Sharing the user demo on confirm (#391)
             PatientLinkEnquiry request)
         {
             var patient = await patientRepository.PatientWithAsync(request.Patient.ReferenceNumber);
