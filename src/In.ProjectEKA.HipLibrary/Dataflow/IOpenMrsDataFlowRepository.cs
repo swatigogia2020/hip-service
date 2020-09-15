@@ -5,6 +5,6 @@ namespace In.ProjectEKA.HipLibrary.DataFlow
 {
     public interface IOpenMrsDataFlowRepository
     {
-        Task<Bundle> GetMedicationsForVisits(string patientId, string linkedCareContextVisitType);
+        Task<Bundle> GetBundleForCareContext(string patientId, string linkedCareContextVisitType);
     }
 }

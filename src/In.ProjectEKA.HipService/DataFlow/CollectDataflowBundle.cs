@@ -22,9 +22,9 @@ namespace In.ProjectEKA.HipService.DataFlow
                 .CareContexts
                 .Select(async cc =>
                 {
-                    var medications =
-                        await _openMrsDataFlowRepository.GetMedicationsForVisits(cc.PatientReference, cc.CareContextReference);
-                    return new CareBundle(cc.CareContextReference, medications);
+                    var bundleForCareContext =
+                        await _openMrsDataFlowRepository.GetBundleForCareContext(cc.PatientReference, cc.CareContextReference);
+                    return new CareBundle(cc.CareContextReference, bundleForCareContext);
                 })
                 .ToList();
 

@@ -36,7 +36,7 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
             var linkedCareContextVisitType = "OPD";
             var patientId = "1";
             openMrsDataflowRepository
-                .Setup(r => r.GetMedicationsForVisits(patientId, linkedCareContextVisitType))
+                .Setup(r => r.GetBundleForCareContext(patientId, linkedCareContextVisitType))
                 .Returns((string patientId, string visitType) => Task.FromResult(CreateBundle()));
             DataRequest dataRequest = GetDataRequest(patientId, linkedCareContextVisitType);
 
