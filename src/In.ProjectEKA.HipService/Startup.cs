@@ -84,7 +84,7 @@ namespace In.ProjectEKA.HipService
                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
                 .AddHangfire(config => { config.UseMemoryStorage(); })
                 .AddSingleton<IEncryptor, Encryptor>()
-                .AddSingleton<ICollect>(new Collect("demoPatientCareContextDataMap.json"))
+                .AddSingleton<ICollect, CollectDataflowBundle>()
                 .AddRabbit(Configuration)
                 .Configure<OtpServiceConfiguration>(Configuration.GetSection("OtpService"))
                 .Configure<DataFlowConfiguration>(Configuration.GetSection("dataFlow"))
