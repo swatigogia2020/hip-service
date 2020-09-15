@@ -44,6 +44,7 @@ namespace In.ProjectEKA.HipService
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using Serilog;
+    using In.ProjectEKA.HipLibrary.DataFlow;
 
     public class Startup
     {
@@ -94,6 +95,7 @@ namespace In.ProjectEKA.HipService
                 .AddSingleton<IMatchingRepository, OpenMrsPatientMatchingRepository>()
                 .AddScoped<ICareContextRepository, OpenMrsCareContextRepository>()
                 .AddScoped<IDiscoveryRequestRepository, DiscoveryRequestRepository>()
+                .AddScoped<IOpenMrsDataFlowRepository, OpenMrsDataFlowRepository>()
                 .AddScoped<IPatientDiscovery, PatientDiscovery>()
                 .AddScoped<LinkPatient>()
                 .AddScoped<ReferenceNumberGenerator>()
