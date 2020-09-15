@@ -12,6 +12,7 @@ using DataRequest = In.ProjectEKA.HipLibrary.Patient.Model.DataRequest;
 using Optional.Unsafe;
 using System.Linq;
 using FluentAssertions;
+using static Hl7.Fhir.Model.Bundle;
 
 namespace In.ProjectEKA.HipServiceTest.DataFlow
 {
@@ -36,7 +37,7 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
             var patientId = "1";
             openMrsDataflowRepository
                 .Setup(r => r.GetMedicationsForVisits(patientId, linkedCareContextVisitType))
-                .Returns((string patientId, string visitType) => Task.FromResult("test medicine"));
+                .Returns((string patientId, string visitType) => Task.FromResult(CreateBundle()));
             DataRequest dataRequest = GetDataRequest(patientId, linkedCareContextVisitType);
 
             //act
@@ -80,6 +81,19 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
                 consentId,
                 "sometext");
             return dataRequest;
+        }
+
+        private Bundle CreateBundle()
+        {
+            var medicationRequest = new MedicationRequest();
+            medicationRequest.Children.Append(new Medication());
+            var entryComponent = new EntryComponent();
+            entryComponent.Resource = medicationRequest;
+            var bundle = new Bundle();
+            bundle.Type = BundleType.Collection;
+            bundle.Id = "bundle-1";
+            bundle.Entry.Add(entryComponent);
+            return bundle;
         }
     }
 }

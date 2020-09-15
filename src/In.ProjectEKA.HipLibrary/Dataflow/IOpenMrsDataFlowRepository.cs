@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
+using Hl7.Fhir.Model;
 
 namespace In.ProjectEKA.HipLibrary.DataFlow
 {
     public interface IOpenMrsDataFlowRepository
     {
-        Task<string> GetMedicationsForVisits(string patientId, string linkedCareContextVisitType);
+        Task<Bundle> GetMedicationsForVisits(string patientId, string linkedCareContextVisitType);
     }
 }

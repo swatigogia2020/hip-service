@@ -4,10 +4,6 @@ using In.ProjectEKA.HipLibrary.DataFlow;
 using In.ProjectEKA.HipLibrary.Patient;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using Optional;
-using Bundle = Hl7.Fhir.Model.Bundle;
-using MedicationRequest = Hl7.Fhir.Model.MedicationRequest;
-using Medication = Hl7.Fhir.Model.Medication;
-using static Hl7.Fhir.Model.Bundle;
 
 namespace In.ProjectEKA.HipService.DataFlow
 {
@@ -28,15 +24,7 @@ namespace In.ProjectEKA.HipService.DataFlow
                 {
                     var medications =
                         await _openMrsDataFlowRepository.GetMedicationsForVisits(cc.PatientReference, cc.CareContextReference);
-                    var medicationRequest = new MedicationRequest();
-                    medicationRequest.Children.Append(new Medication());
-                    var entryComponent = new EntryComponent();
-                    entryComponent.Resource = medicationRequest;
-                    var bundle = new Bundle();
-                    bundle.Type = BundleType.Collection;
-                    bundle.Id = "bundle-1";
-                    bundle.Entry.Add(entryComponent);
-                    return new CareBundle(cc.CareContextReference, bundle);
+                    return new CareBundle(cc.CareContextReference, medications);
                 })
                 .ToList();
 
