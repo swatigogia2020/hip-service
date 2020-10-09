@@ -2,18 +2,11 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
 {
     using System.Collections.Generic;
     using System.IO;
-    using System.Net.Http;
-    using System.Net;
     using System.Threading.Tasks;
-    using System.Threading;
     using System;
     using FluentAssertions;
     using In.ProjectEKA.HipService.OpenMrs.HealthCheck;
-    using In.ProjectEKA.HipService.OpenMrs;
-    using In.ProjectEKA.HipService;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
-    using Moq.Protected;
     using Moq;
     using Newtonsoft.Json;
     using Xunit;

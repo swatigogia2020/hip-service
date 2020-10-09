@@ -28,7 +28,7 @@ public class HealthCheckMiddleware
     {
         Dictionary<string, string> healthStatus = healthCheckStatus.GetStatus("health");
         bool healthy = true;
-        String errorMessage = null;
+        String errorMessage = "";
         if (healthStatus != null)
         {
             foreach (var entry in healthStatus)
@@ -36,8 +36,7 @@ public class HealthCheckMiddleware
                 if (entry.Value != "Healthy")
                 {
                     healthy = false;
-                    errorMessage = entry.Key + " is " + entry.Value;
-                    break;
+                    errorMessage = entry.Key + " is " + entry.Value + "," + errorMessage;
                 }
             }
         }
