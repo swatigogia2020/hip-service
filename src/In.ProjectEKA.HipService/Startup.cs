@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace In.ProjectEKA.HipService
 {
     using System;
@@ -194,15 +196,19 @@ namespace In.ProjectEKA.HipService
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = 
+                SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol &= ~SecurityProtocolType.Ssl3;
             app.Use(async (context, next) =>
             {
                 Stopwatch timer = new Stopwatch();
                 timer.Start();
                 var traceId = Guid.NewGuid();
                 Log.Information($"Request {traceId} received.");
-
+            
                 await next.Invoke();
-
+            
                 timer.Stop();
                 Log.Information($"Request {traceId} served in {timer.ElapsedMilliseconds}ms.");
             });
