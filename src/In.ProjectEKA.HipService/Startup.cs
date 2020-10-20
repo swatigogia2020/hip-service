@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace In.ProjectEKA.HipService
 {
     using System;
@@ -105,11 +103,14 @@ namespace In.ProjectEKA.HipService
                 .AddSingleton<DataEntryFactory>()
                 .AddSingleton<DataFlowMessageHandler>()
                 .AddSingleton(HttpClient)
-                .AddScoped<IHealthCheckClient> (_ => new OpenMrsHealthCheckClient (new Dictionary<string, string> { 
-                { "OpenMRS-FHIR", Constants.OPENMRS_FHIR },
-                { "OpenMRS-REST", Constants.OPENMRS_REST }}, 
-                new OpenMrsClient (HttpClient,Configuration.GetSection (Constants.CONFIG_KEY).Get<OpenMrsConfiguration> ())))
-                .AddSingleton<IHealthCheckStatus,HealthCheckStatus>()
+                .AddScoped<IHealthCheckClient>(_ => new OpenMrsHealthCheckClient(new Dictionary<string, string>
+                    {
+                        {"OpenMRS-FHIR", Constants.OPENMRS_FHIR},
+                        {"OpenMRS-REST", Constants.OPENMRS_REST}
+                    },
+                    new OpenMrsClient(HttpClient,
+                        Configuration.GetSection(Constants.CONFIG_KEY).Get<OpenMrsConfiguration>())))
+                .AddSingleton<IHealthCheckStatus, HealthCheckStatus>()
                 .AddSingleton<HealthChecker>()
                 .AddScoped<IPatientVerification, PatientVerification>()
                 .AddScoped<IConsentRepository, ConsentRepository>()
@@ -189,35 +190,28 @@ namespace In.ProjectEKA.HipService
                         }
                     };
                 })
-                .Services.AddHealthChecks ();
+                .Services.AddHealthChecks();
         }
 
         private HttpClient HttpClient { get; }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            ServicePointManager.Expect100Continue = true;
-            ServicePointManager.SecurityProtocol = 
-                SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-            ServicePointManager.SecurityProtocol &= ~SecurityProtocolType.Ssl3;
             app.Use(async (context, next) =>
             {
                 Stopwatch timer = new Stopwatch();
                 timer.Start();
                 var traceId = Guid.NewGuid();
                 Log.Information($"Request {traceId} received.");
-            
+
                 await next.Invoke();
-            
+
                 timer.Stop();
                 Log.Information($"Request {traceId} served in {timer.ElapsedMilliseconds}ms.");
             });
 
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "HIP Service");
-            });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "HIP Service"); });
 
             app.UseStaticFilesWithYaml()
                 .UseRouting()
@@ -227,7 +221,8 @@ namespace In.ProjectEKA.HipService
                 .UseAuthentication()
                 .UseAuthorization()
                 .UseHealthCheckMiddleware()
-                .UseEndpoints(endpoints => { 
+                .UseEndpoints(endpoints =>
+                {
                     endpoints.MapControllers();
                     endpoints.MapHealthChecks("/health");
                 })
