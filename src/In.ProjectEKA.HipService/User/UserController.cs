@@ -69,13 +69,8 @@ namespace In.ProjectEKA.HipService.User
                 }
             }
             else
-<<<<<<< HEAD
-                logger.LogInformation($" Error Code:{authOnConfirmResponse.Error.Code}," +
-                                      $" Error Message:{authOnConfirmResponse.Error.Message}");
-=======
                 Log.Error($" Error Code:{authOnConfirmResponse.Error.Code}," +
                                       $" Error Message:{authOnConfirmResponse.Error.Message}.");
->>>>>>> dc93db2... 971 | Fixes log issue (#392)
         }
     }
 }

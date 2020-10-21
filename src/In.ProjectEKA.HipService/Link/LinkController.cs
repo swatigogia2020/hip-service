@@ -60,12 +60,8 @@ namespace In.ProjectEKA.HipService.Link
         /// </remarks>
         /// <response code="202">Request accepted</response>
         [HttpPost(PATH_LINKS_LINK_CONFIRM)]
-<<<<<<< HEAD
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        public AcceptedResult LinkPatientFor( 
-=======
         public AcceptedResult LinkPatientFor(
->>>>>>> 72cd72a... JAS-971 | Mahendra/Meghna/Sangita | Refactors for Sharing the user demo on confirm (#391)
             [FromHeader(Name = CORRELATION_ID)] string correlationId,
             [FromBody] LinkPatientRequest request)
         {
