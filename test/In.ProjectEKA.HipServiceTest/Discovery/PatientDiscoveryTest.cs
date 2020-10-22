@@ -105,65 +105,18 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [Fact]
         private async void ShouldReturnAPatientWhichIsNotLinkedAtAll()
         {
-            var patientDiscovery = new PatientDiscovery(
-                matchingRepository.Object,
-                discoveryRequestRepository.Object,
-                linkPatientRepository.Object,
-                patientRepository.Object,
-                careContextRepository.Object,
-                logger.Object);
-            var referenceNumber = Faker().Random.String();
-            var name = Faker().Random.String();
-            var phoneNumber = Faker().Phone.PhoneNumber();
-            var consentManagerUserId = Faker().Random.String();
-            var transactionId = Faker().Random.String();
-            const ushort yearOfBirth = 2019;
-            var careContextRepresentations = new[]
+            CareContextRepresentation alreadyLinked=null;
+            var unlinkedCareContext = new List<CareContextRepresentation>
             {
-                new CareContextRepresentation(Faker().Random.String(), Faker().Random.String()),
-                new CareContextRepresentation(Faker().Random.String(), Faker().Random.String())
+                new CareContextRepresentation(Faker().Random.Uuid().ToString(), Faker().Random.String())
             };
-            var expectedPatient = new PatientEnquiryRepresentation(referenceNumber,
-                name,
-                careContextRepresentations,
-                new List<string>
-                {
-                    Match.Mobile.ToString(),
-                    Match.Name.ToString(),
-                    Match.Gender.ToString(),
-                    Match.Mr.ToString()
-                });
-            var verifiedIdentifiers = new List<Identifier>
-            {
-                new Identifier(IdentifierType.MOBILE, phoneNumber)
-            };
-            var unverifiedIdentifiers = new List<Identifier>
-            {
-                new Identifier(IdentifierType.MR, referenceNumber)
-            };
-            var patientRequest = new PatientEnquiry(consentManagerUserId,
-                verifiedIdentifiers,
-                unverifiedIdentifiers,
-                name,
-                HipLibrary.Patient.Model.Gender.M,
-                yearOfBirth);
-            var discoveryRequest = new DiscoveryRequest(patientRequest, RandomString(), transactionId, DateTime.Now);
-            linkPatientRepository.Setup(e => e.GetLinkedCareContexts(consentManagerUserId))
-                .ReturnsAsync(new Tuple<IEnumerable<LinkedAccounts>, Exception>(new List<LinkedAccounts>(), null));
-            matchingRepository
-                .Setup(repo => repo.Where(discoveryRequest))
-                .Returns(Task.FromResult(new List<HipLibrary.Patient.Model.Patient>
-                {
-                    new HipLibrary.Patient.Model.Patient
-                    {
-                        Gender = HipLibrary.Patient.Model.Gender.M,
-                        Identifier = referenceNumber,
-                        Name = name,
-                        CareContexts = careContextRepresentations,
-                        PhoneNumber = phoneNumber,
-                        YearOfBirth = yearOfBirth
-                    }
-                }.AsQueryable()));
+            var expectedPatient = BuildExpectedPatientByExpectedMatchTypes(
+                expectedCareContextRepresentation: unlinkedCareContext,
+                expectedMatchTypes: Match.ConsentManagerUserId);
+            var discoveryRequest = discoveryRequestBuilder.Build();
+            SetupPatientRepository(alreadyLinked, unlinkedCareContext.First());
+            SetupLinkRepositoryWithLinkedPatient(alreadyLinked, openMrsPatientIdentifier);
+
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
             discoveryResponse.Patient.Should().BeEquivalentTo(expectedPatient);
