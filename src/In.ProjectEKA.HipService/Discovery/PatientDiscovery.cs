@@ -79,6 +79,7 @@ namespace In.ProjectEKA.HipService.Discovery
                     })
                     .ValueOr(Task.FromResult(GetError(ErrorCode.NoPatientFound, ErrorMessage.NoPatientFound)));
             }
+            
             IQueryable<HipLibrary.Patient.Model.Patient> patients;
 
             try {
