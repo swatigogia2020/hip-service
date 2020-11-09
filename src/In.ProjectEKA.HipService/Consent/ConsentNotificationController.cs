@@ -31,16 +31,18 @@ namespace In.ProjectEKA.HipService.Consent
             this.backgroundJob = backgroundJob;
             this.gatewayClient = gatewayClient;
         }
-
-        [HttpPost]
-        public AcceptedResult ConsentNotification([FromBody] ConsentArtefactRepresentation consentArtefact)
+        
+        [HttpPost(PATH_CONSENTS_HIP)]
+        public AcceptedResult ConsentNotification(
+            [FromHeader(Name = CORRELATION_ID)] string correlationId, 
+            [FromBody] ConsentArtefactRepresentation consentArtefact)
         {
-            backgroundJob.Enqueue(() => StoreConsent(consentArtefact));
+            backgroundJob.Enqueue(() => StoreConsent(consentArtefact, correlationId));
             return Accepted();
         }
-
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public async Task StoreConsent(ConsentArtefactRepresentation consentArtefact)
+        
+        [NonAction]
+        public async Task StoreConsent(ConsentArtefactRepresentation consentArtefact, String correlationId)
         {
             var notification = consentArtefact.Notification;
 
@@ -52,6 +54,14 @@ namespace In.ProjectEKA.HipService.Consent
                     notification.Status,
                     notification.ConsentId);
                 await consentRepository.AddAsync(consent);
+                var cmSuffix = consent.ConsentArtefact.ConsentManager.Id;
+                var gatewayResponse = new GatewayConsentRepresentation(
+                    Guid.NewGuid(),
+                    DateTime.Now.ToUniversalTime(),
+                    new ConsentUpdateResponse(ConsentUpdateStatus.OK.ToString(), notification.ConsentId),
+                    null,
+                    new Resp(consentArtefact.RequestId));
+                await gatewayClient.SendDataToGateway(PATH_CONSENT_ON_NOTIFY, gatewayResponse, cmSuffix, correlationId);
             }
             else
             {
@@ -60,14 +70,14 @@ namespace In.ProjectEKA.HipService.Consent
                 {
                     var consent = await consentRepository.GetFor(notification.ConsentId);
                     var cmSuffix = consent.ConsentArtefact.ConsentManager.Id;
-                    var gatewayResponse = new GatewayRevokedConsentRepresentation(
+                    var gatewayResponse = new GatewayConsentRepresentation(
                         Guid.NewGuid(),
                         DateTime.Now.ToUniversalTime(), 
                         new ConsentUpdateResponse(ConsentUpdateStatus.OK.ToString(),
                             notification.ConsentId),
                         null,
                         new Resp(consentArtefact.RequestId));
-                    await gatewayClient.SendDataToGateway(PATH_CONSENT_ON_NOTIFY, gatewayResponse, cmSuffix);
+                    await gatewayClient.SendDataToGateway(PATH_CONSENT_ON_NOTIFY, gatewayResponse, cmSuffix, correlationId);
                 }
             }
         }

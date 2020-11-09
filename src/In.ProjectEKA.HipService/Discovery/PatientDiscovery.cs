@@ -79,7 +79,8 @@ namespace In.ProjectEKA.HipService.Discovery
                     })
                     .ValueOr(Task.FromResult(GetError(ErrorCode.NoPatientFound, ErrorMessage.NoPatientFound)));
             }
-            IQueryable<Patient> patients;
+            
+            IQueryable<HipLibrary.Patient.Model.Patient> patients;
 
             try {
                 patients = await matchingRepository.Where(request);
@@ -133,7 +134,7 @@ namespace In.ProjectEKA.HipService.Discovery
 
         private static IEnumerable<CareContextRepresentation> GetUnlinkedCareContexts(
             IEnumerable<LinkedAccounts> linkedAccounts,
-            Patient patient)
+            HipLibrary.Patient.Model.Patient patient)
         {
             var allLinkedCareContexts = linkedAccounts
                 .SelectMany(account => account.CareContexts)

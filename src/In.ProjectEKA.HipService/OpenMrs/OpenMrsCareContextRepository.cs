@@ -40,7 +40,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             }
             if (query.ToString() != "")
             {
-                path = $"{path}/?{query}";
+                path = $"{path}?{query}";
             }
 
             var response = await openMrsClient.GetAsync(path);
