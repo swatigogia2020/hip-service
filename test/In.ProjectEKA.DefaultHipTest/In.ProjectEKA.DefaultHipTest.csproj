@@ -24,4 +24,8 @@
         <ProjectReference Include="..\..\src\In.ProjectEKA.DefaultHip\In.ProjectEKA.DefaultHip.csproj" />
         <ProjectReference Include="..\..\src\In.ProjectEKA.HipLibrary\In.ProjectEKA.HipLibrary.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="DataFlow" />
+    </ItemGroup>
 </Project>

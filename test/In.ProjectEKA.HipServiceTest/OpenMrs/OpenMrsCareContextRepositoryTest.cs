@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using FluentAssertions;
+using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.OpenMrs;
 using Moq;
 using Xunit;
-using In.ProjectEKA.HipLibrary.Patient.Model;
-using System.Collections.Generic;
-using System;
-using System.Threading.Tasks;
 
 namespace In.ProjectEKA.HipServiceTest.OpenMrs
 {
@@ -18,9 +18,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         private readonly Mock<IOpenMrsClient> openmrsClientMock;
         private readonly OpenMrsCareContextRepository careContextRepository;
 
-        private const string programReferenceNumber = "c1720ca0-8ea3-4ef7-a4fa-a7849ab99d87";
-        private const string programDisplayName = "HIV Program";
-
         public OpenMrsCareContextRepositoryTest()
         {
             openmrsClientMock = new Mock<IOpenMrsClient>();
@@ -28,10 +25,10 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ShouldReturnListOfProgramEnrollments()
+        public async Task ShouldReturnListOfProgramEnrollments()
         {
             //Given
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleFull);
+            OpenMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, programEnrollmentSampleFull);
 
             //When
             var programenrollments = await careContextRepository.LoadProgramEnrollments(null);
@@ -51,7 +48,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         {
             //Given
             var invalidSample = ProgramEnrollmentSample(attribute, display);
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, invalidSample);
+            OpenMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, invalidSample);
 
             //When
             Func<Task> loadProgramEnrollments = async () => { await careContextRepository.LoadProgramEnrollments(null); };
@@ -61,10 +58,10 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ShouldReturnEmptyListIfNoProgramEnrollmentsCareContexts()
+        public async Task ShouldReturnEmptyListIfNoProgramEnrollmentsCareContexts()
         {
             //Given
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, EmptySample);
+            OpenMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, EmptySample);
 
             //When
             var programenrollments = await careContextRepository.LoadProgramEnrollments(null);
@@ -74,10 +71,10 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ShouldReturnListOfVisits()
+        public async Task ShouldReturnListOfVisits()
         {
             //Given
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnVisitPath, VisitSample);
+            OpenMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnVisitPath, VisitSample);
 
             //When
             var visits = await careContextRepository.LoadVisits(null);
@@ -89,10 +86,10 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ShouldReturnListOfVisitsGroupedByType()
+        public async Task ShouldReturnListOfVisitsGroupedByType()
         {
             //Given
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnVisitPath, VisitSample);
+            OpenMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnVisitPath, VisitSample);
 
             //When
             var visits = await careContextRepository.LoadVisits(null);
@@ -107,10 +104,10 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ShouldReturnEmptyListIfNoVisitCareContexts()
+        public async Task ShouldReturnEmptyListIfNoVisitCareContexts()
         {
             //Given
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnVisitPath, EmptySample);
+            OpenMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnVisitPath, EmptySample);
 
             //When
             var visits = await careContextRepository.LoadVisits(null);
@@ -120,7 +117,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ShouldReturnCombinedListOfCareContexts()
+        public async Task ShouldReturnCombinedListOfCareContexts()
         {
             //Given
             Mock<OpenMrsCareContextRepository> careContextRepository = new Mock<OpenMrsCareContextRepository>(openmrsClientMock.Object);
@@ -160,7 +157,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             combinedCareContexts[2].Display.Should().Be(null);
         }
 
-        private void openMrsClientReturnsCareContexts(string path, string response)
+        private void OpenMrsClientReturnsCareContexts(string path, string response)
         {
             openmrsClientMock
                 .Setup(x => x.GetAsync(path))
@@ -172,9 +169,9 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
         }
 
-        private string ProgramEnrollmentSampleFull = ProgramEnrollmentSample(AttributesOfProgramEnrollment, ProgramDisplay);
+        private readonly string programEnrollmentSampleFull = ProgramEnrollmentSample(AttributesOfProgramEnrollment, ProgramDisplay);
 
-        private static Func<string, string, string> ProgramEnrollmentSample = (string attribute, string display) => @"{
+        private static readonly Func<string, string, string> ProgramEnrollmentSample = (attribute, display) => @"{
             ""results"": [
                 {
                     ""uuid"": ""c1720ca0-8ea3-4ef7-a4fa-a7849ab99d87"",

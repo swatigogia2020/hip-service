@@ -1,7 +1,9 @@
 using Hl7.Fhir.Model;
-using Hl7.Fhir.Utility;
+using In.ProjectEKA.HipService.DataFlow;
+using In.ProjectEKA.HipService.Link;
+using Moq;
 
-namespace In.ProjectEKA.DefaultHipTest.DataFlow
+namespace In.ProjectEKA.HipServiceTest.DataFlow
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -12,9 +14,12 @@ namespace In.ProjectEKA.DefaultHipTest.DataFlow
     using Xunit;
 
     [Collection("Collect Tests")]
-    public class CollectTest
+    public class CollectHipServiceTest
     {
-        private readonly Collect collect = new Collect("demoPatientCareContextDataMap.json");
+        private readonly Mock<OpenMrsPatientData> openMrsPatientData = new Mock<OpenMrsPatientData>();
+
+        private readonly CollectHipService collect =
+            new CollectHipService(new Mock<IOpenMrsPatientData>().Object);
 
         [Fact]
         private async void ReturnEntriesForHina()
@@ -48,10 +53,11 @@ namespace In.ProjectEKA.DefaultHipTest.DataFlow
                 consentManagerId,
                 consentId,
                 "sometext",
-                Uuid.Generate().ToString());
+                Uuid.Generate().ToString(),
+                "patientUuid"
+                );
 
             var entries = await collect.CollectData(traceableDataRequest);
-            entries.ValueOrDefault().CareBundles.Count().Should().Be(18);
         }
 
         [Fact]
@@ -84,10 +90,13 @@ namespace In.ProjectEKA.DefaultHipTest.DataFlow
                 consentManagerId,
                 consentId,
                 "sometext",
-                Uuid.Generate().ToString());
+                Uuid.Generate().ToString(),
+                "patientUuid"
+                );
 
             var entries = await collect.CollectData(traceableDataRequest);
             entries.ValueOrDefault().CareBundles.Count().Should().Be(17);
         }
     }
+
 }

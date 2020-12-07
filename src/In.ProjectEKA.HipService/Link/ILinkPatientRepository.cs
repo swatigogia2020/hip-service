@@ -13,7 +13,8 @@ namespace In.ProjectEKA.HipService.Link
             string consentManagerId,
             string consentManagerUserId,
             string patientReferenceNumber,
-            IEnumerable<string> careContextReferenceNumbers);
+            IEnumerable<string> careContextReferenceNumbers
+        );
 
         Task<Tuple<LinkEnquires, Exception>> GetPatientFor(string linkReferenceNumber);
 
@@ -21,7 +22,9 @@ namespace In.ProjectEKA.HipService.Link
             string consentManagerUserId,
             string patientReferenceNumber,
             string linkReferenceNumber,
-            IEnumerable<string> careContextReferenceNumbers);
+            IEnumerable<string> careContextReferenceNumbers,
+            Guid patientUuid
+            );
 
         Task<Tuple<IEnumerable<LinkedAccounts>, Exception>> GetLinkedCareContexts(string consentManagerUserId);
 
@@ -30,5 +33,7 @@ namespace In.ProjectEKA.HipService.Link
         Task<Option<IEnumerable<InitiatedLinkRequest>>> Get(string linkReferenceNumber);
 
         Task<bool> Update(InitiatedLinkRequest linkRequest);
+        Task<Tuple<Guid, Exception>> GetPatientUuid(string patientReferenceNumber);
+
     }
 }

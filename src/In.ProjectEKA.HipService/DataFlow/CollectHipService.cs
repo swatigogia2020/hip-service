@@ -1,40 +1,42 @@
-namespace In.ProjectEKA.DefaultHip.DataFlow
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using Hl7.Fhir.Utility;
+using In.ProjectEKA.HipLibrary.Patient.Model;
+
+namespace In.ProjectEKA.HipService.DataFlow
 {
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using HipLibrary.Patient;
-    using HipLibrary.Patient.Model;
-    using Hl7.Fhir.Model;
-    using Hl7.Fhir.Utility;
     using Newtonsoft.Json;
     using Optional;
-    using Patient;
     using Serilog;
 
-    public class Collect : ICollect
+    public class CollectHipService : ICollectHipService
     {
-        private readonly string careContextMapFile;
+        private readonly IOpenMrsPatientData openMrsPatientData;
 
-        public Collect(string careContextMapFile)
+        public CollectHipService(IOpenMrsPatientData openMrsPatientData)
         {
-            this.careContextMapFile = careContextMapFile;
+            this.openMrsPatientData = openMrsPatientData;
         }
 
         public async Task<Option<Entries>> CollectData(TraceableDataRequest dataRequest)
         {
             var bundles = new List<CareBundle>();
-            var patientData = FindPatientData(dataRequest);
+            var patientData = await FindPatientData(dataRequest);
             var careContextReferences = patientData.Keys.ToList();
             foreach (var careContextReference in careContextReferences)
+            {
                 foreach (var result in patientData.GetOrDefault(careContextReference))
                 {
                     Log.Information($"Returning file: {result}");
-                    bundles.Add(new CareBundle(careContextReference, await FileReader.ReadJsonAsync<Bundle>(result)));
+                    var bundle = new FhirJsonParser().Parse<Bundle>(result);
+                    bundles.Add(new CareBundle(careContextReference, bundle));
                 }
+            }
 
             var entries = new Entries(bundles);
             return Option.Some(entries);
@@ -51,11 +53,11 @@ namespace In.ProjectEKA.DefaultHip.DataFlow
         {
             var formatStrings = new[]
             {
-                "yyyy-MM-dd", "yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd hh:mm:ss tt", "yyyy-MM-ddTHH:mm:ss.fffzzz",
+                "yyyy-MM-dd"/*, "yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd hh:mm:ss tt", "yyyy-MM-ddTHH:mm:ss.fffzzz",
                 "yyyy-MM-dd'T'HH:mm:ss.fff", "yyyy-MM-dd'T'HH:mm:ss.ffff", "yyyy-MM-dd'T'HH:mm:ss.fffff",
                 "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss.ff", "yyyy-MM-dd'T'HH:mm:ss.ff",
                 "dd/MM/yyyy", "dd/MM/yyyy hh:mm:ss", "dd/MM/yyyy hh:mm:ss tt", "dd/MM/yyyyTHH:mm:ss.fffzzz",
-                "yyyy-MM-dd'T'HH:mm:ss.ffffff"
+                "yyyy-MM-dd'T'HH:mm:ss.ffffff", "yyyy-MM-dd'T'HH:mm:ss.fff'Z'"*/
             };
             var tryParseExact = DateTime.TryParseExact(dateString,
                 formatStrings,
@@ -68,36 +70,27 @@ namespace In.ProjectEKA.DefaultHip.DataFlow
             return aDateTime;
         }
 
-        private Dictionary<string, List<string>> FindPatientData(TraceableDataRequest request)
+        private async Task<Dictionary<string, List<string>>> FindPatientData(TraceableDataRequest request)
         {
             try
             {
-                LogDataRequest(request);
-                var jsonData = File.ReadAllText(careContextMapFile);
-                var patientDataMap = JsonConvert
-                    .DeserializeObject<Dictionary<string, Dictionary<string, List<CareContextRecord>>>>(jsonData);
-
+                LogDataRequest(request);    
+                var toDate = request.DateRange.To;
+                var fromDate = request.DateRange.From;
                 var careContextsAndListOfDataFiles = new Dictionary<string, List<string>>();
-
-                foreach (var grantedContext in request.CareContexts)
+                foreach (var grantedContext in request.CareContexts) 
                 {
-                    var refData = patientDataMap[grantedContext.PatientReference];
-                    var ccData = refData?[grantedContext.CareContextReference];
                     var listOfDataFiles = new List<string>();
-                    if (ccData == null) continue;
-                    // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-                    foreach (var ccRecord in ccData)
+                    foreach (var hiType in request.HiType)
                     {
-                        var captureTime = ParseDate(ccRecord.CapturedOn);
-                        if (!WithinRange(request.DateRange, captureTime)) continue;
-                        foreach (var hiType in request.HiType)
-                        {
-                            var hiTypeStr = hiType.ToString().ToLower();
-                            var dataFiles = ccRecord.Data.GetValueOrDefault(hiTypeStr) ?? new List<string>();
-                            if (dataFiles.Count > 0)
-                                listOfDataFiles.AddRange(dataFiles);
-                        }
+                        var hiTypeStr = hiType.ToString().ToLower();
+                        var dataFiles =   openMrsPatientData
+                            .GetPatientData(request.PatientUuid, grantedContext.CareContextReference, toDate, fromDate,
+                                hiTypeStr).Result;
+                        if (dataFiles.Length > 0) 
+                            listOfDataFiles.Add(dataFiles);
                     }
+
                     careContextsAndListOfDataFiles.Add(grantedContext.CareContextReference, listOfDataFiles);
                 }
 
@@ -121,7 +114,8 @@ namespace In.ProjectEKA.DefaultHip.DataFlow
                             $"HiTypes:{requestedHiTypes}," +
                             $" From date:{request.DateRange.From}," +
                             $" To date:{request.DateRange.To}, " +
-                            $"CallbackUrl:{request.DataPushUrl}");
+                            $"CallbackUrl:{request.DataPushUrl}, " +
+                            $"PatientUuid:{request.PatientUuid}");
         }
     }
 }

@@ -157,7 +157,7 @@ namespace In.ProjectEKA.HipService.Link
                             linkEnquires.PatientReferenceNumber,
                             $"{patient.Name}",
                             representations));
-                    return await SaveLinkedAccounts(linkEnquires)
+                    return await SaveLinkedAccounts(linkEnquires,patient.Uuid)
                         ? (patientLinkResponse,cmId, (ErrorRepresentation) null)
                         : (null,cmId,
                             new ErrorRepresentation(new Error(ErrorCode.NoPatientFound,
@@ -168,13 +168,15 @@ namespace In.ProjectEKA.HipService.Link
                             ErrorMessage.CareContextNotFound)))));
         }
 
-        private async Task<bool> SaveLinkedAccounts(LinkEnquires linkEnquires)
+        private async Task<bool> SaveLinkedAccounts(LinkEnquires linkEnquires,string patientUuid)
         {
             var linkedAccount = await linkPatientRepository.Save(
                 linkEnquires.ConsentManagerUserId,
                 linkEnquires.PatientReferenceNumber,
                 linkEnquires.LinkReferenceNumber,
-                linkEnquires.CareContexts.Select(context => context.CareContextNumber).ToList())
+                linkEnquires.CareContexts.Select(context => context.CareContextNumber).ToList(),
+                Guid.Parse( patientUuid)     
+                )
                 .ConfigureAwait(false);
             return linkedAccount.HasValue;
         }

@@ -5,12 +5,15 @@ namespace In.ProjectEKA.HipService.Common.Model
 
     public class ConsentArtefact
     {
-        public ConsentArtefact(string schemaVersion,
+        public ConsentArtefact(
+            string schemaVersion,
             string consentId,
             DateTime createdAt,
             ConsentPurpose purpose,
             PatientReference patient,
-            HIPReference hip, IEnumerable<HiType> hiTypes, ConsentPermission permission,
+            HIPReference hip,
+            IEnumerable<HiType> hiTypes,
+            ConsentPermission permission,
             IEnumerable<GrantedContext> careContexts,
             OrganizationReference consentManager)
         {

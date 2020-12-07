@@ -210,7 +210,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
                 , It.IsAny<string>(), linkedCareContext);
             var testLinkedAccounts = new LinkedAccounts(testLinkRequest.PatientReferenceNumber,
                 testLinkRequest.LinkReferenceNumber,
-                testLinkRequest.ConsentManagerUserId, It.IsAny<string>(), new[] {programRefNo}.ToList());
+                testLinkRequest.ConsentManagerUserId, It.IsAny<string>(), new[] {programRefNo}.ToList(),It.IsAny<string>());
             patientVerification.Setup(e => e.Verify(sessionId, otpToken))
                 .ReturnsAsync((OtpMessage) null);
             linkRepository.Setup(e => e.GetPatientFor(sessionId))
@@ -220,7 +220,9 @@ namespace In.ProjectEKA.HipServiceTest.Link
             linkRepository.Setup(x => x.Save(testLinkRequest.ConsentManagerUserId,
                     testLinkRequest.PatientReferenceNumber,
                     testLinkRequest.LinkReferenceNumber,
-                    new[] {programRefNo}))
+                    new[] {programRefNo},
+                    It.IsAny<string>()
+                    ))
                 .ReturnsAsync(Option.Some(testLinkedAccounts));
             var expectedLinkResponse = new PatientLinkConfirmationRepresentation(
                 new LinkConfirmationRepresentation(

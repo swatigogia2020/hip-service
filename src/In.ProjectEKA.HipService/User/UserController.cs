@@ -22,7 +22,7 @@ namespace In.ProjectEKA.HipService.User
         }
 
         [HttpPost(Constants.AUTH_CONFIRM)]
-        public AcceptedResult authConfirm(
+        public AcceptedResult AuthConfirm(
             [FromHeader(Name = CORRELATION_ID)] string correlationId,
             [FromBody] JObject request)
         {
@@ -45,33 +45,37 @@ namespace In.ProjectEKA.HipService.User
         }
 
         [NonAction]
-        public async Task OnAuthConfirmFor(JObject response)
+        private async Task OnAuthConfirmFor(JObject response)
         {
-            var authOnConfirmResponse = response.ToObject<AuthOnConfirmResponse>();
-            if (authOnConfirmResponse.Error == null)
+            var authOnConfirmResponse =  response.ToObject<AuthOnConfirmResponse>();
+            if (authOnConfirmResponse != null)
             {
-                if (authOnConfirmResponse.Auth.AccessToken != null)
-                    Log.Information($"Access Token is: {authOnConfirmResponse.Auth.AccessToken}");
-                if (authOnConfirmResponse.Auth.Patient != null)
+                if (authOnConfirmResponse.Error == null)
                 {
-                    Log.Information($"Patient Demographics Details: "+
-                                    $"Name: {authOnConfirmResponse.Auth.Patient.Name}, "+
-                                    $"Id: {authOnConfirmResponse.Auth.Patient.Id}, "+
-                                    $"Birth Year: {authOnConfirmResponse.Auth.Patient.YearOfBirth}, "+
-                                    $"Gender: {authOnConfirmResponse.Auth.Patient.Gender}, ");
-                    if (authOnConfirmResponse.Auth.Patient.Address != null)
+                    if (authOnConfirmResponse.Auth.AccessToken != null)
+                        Log.Information($"Access Token is: {authOnConfirmResponse.Auth.AccessToken}");
+                    if (authOnConfirmResponse.Auth.Patient != null)
                     {
-                        Log.Information("Patient Address Details: "+
-                                    $"District: {authOnConfirmResponse.Auth.Patient.Address.District}, "+
-                                    $"State: {authOnConfirmResponse.Auth.Patient.Address.State}, "+ 
-                                    $"Line: {authOnConfirmResponse.Auth.Patient.Address.Line}, "+
-                                    $"Pincode: {authOnConfirmResponse.Auth.Patient.Address.PinCode}");
+                        Log.Information($"Patient Demographics Details: "+
+                                        $"Name: {authOnConfirmResponse.Auth.Patient.Name}, "+
+                                        $"Id: {authOnConfirmResponse.Auth.Patient.Id}, "+
+                                        $"Birth Year: {authOnConfirmResponse.Auth.Patient.YearOfBirth}, "+
+                                        $"Gender: {authOnConfirmResponse.Auth.Patient.Gender}, ");
+                        if (authOnConfirmResponse.Auth.Patient.Address != null)
+                        {
+                            Log.Information("Patient Address Details: "+
+                                            $"District: {authOnConfirmResponse.Auth.Patient.Address.District}, "+
+                                            $"State: {authOnConfirmResponse.Auth.Patient.Address.State}, "+ 
+                                            $"Line: {authOnConfirmResponse.Auth.Patient.Address.Line}, "+
+                                            $"Pincode: {authOnConfirmResponse.Auth.Patient.Address.PinCode}");
+                        }
                     }
                 }
+                else
+                    Log.Error($" Error Code:{authOnConfirmResponse.Error.Code}," +
+                              $" Error Message:{authOnConfirmResponse.Error.Message}.");
+                
             }
-            else
-                Log.Error($" Error Code:{authOnConfirmResponse.Error.Code}," +
-                                      $" Error Message:{authOnConfirmResponse.Error.Message}.");
         }
     }
 }

@@ -28,7 +28,6 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             return combinedCareContexts;
         }
-
         public virtual async Task<List<CareContextRepresentation>> LoadProgramEnrollments(string uuid)
         {
             var path = DiscoveryPathConstants.OnProgramEnrollmentPath;

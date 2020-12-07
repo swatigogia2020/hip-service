@@ -32,7 +32,7 @@ namespace In.ProjectEKA.HipService.Consent
             this.gatewayClient = gatewayClient;
         }
         
-        [HttpPost(PATH_CONSENTS_HIP)]
+        // [HttpPost(PATH_CONSENTS_HIP)]
         public AcceptedResult ConsentNotification(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, 
             [FromBody] ConsentArtefactRepresentation consentArtefact)

@@ -1,0 +1,681 @@
+diff --git a/docker-compose.yml b/docker-compose.yml
+index cb06b26..af40409 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -11,11 +11,15 @@ services:
+     environment: 
+       - HEALTH_CHECK_DURATION=5000
+       - Gateway:clientSecret=93ef283e-1968-46ab-8731-cfccda83680a
+-      - OpenMrs:url=https://qa-02.hip.bahmni-covid19.in/openmrs/
++      - OpenMrs:url=https://192.168.33.10/openmrs/
+   otp:
+     image: "ganesan92/otp-service"
+     depends_on:
+       - db
++    environment:
++      "ConnectionStcrings:DefaultConnection": "Host=postgres;Port=5432;Username=postgres;Password=password;Database=otpservice;"
++    ports:
++      - "5000:80"
+   gateway:
+     build: gatewayStubConfigurations/.
+     ports:
+diff --git a/src/In.ProjectEKA.HipLibrary/Patient/Model/DataRequest.cs b/src/In.ProjectEKA.HipLibrary/Patient/Model/DataRequest.cs
+index 3c52d8a..e4522b5 100644
+--- a/src/In.ProjectEKA.HipLibrary/Patient/Model/DataRequest.cs
++++ b/src/In.ProjectEKA.HipLibrary/Patient/Model/DataRequest.cs
+@@ -5,7 +5,8 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
+ 
+     public class DataRequest
+     {
+-        public DataRequest(IEnumerable<GrantedContext> careContexts,
++        public DataRequest(
++            IEnumerable<GrantedContext> careContexts,
+             DateRange dateRange,
+             string dataPushUrl,
+             IEnumerable<HiType> hiType,
+diff --git a/src/In.ProjectEKA.HipService/Common/Constants.cs b/src/In.ProjectEKA.HipService/Common/Constants.cs
+index 76801c7..379ad23 100644
+--- a/src/In.ProjectEKA.HipService/Common/Constants.cs
++++ b/src/In.ProjectEKA.HipService/Common/Constants.cs
+@@ -33,6 +33,8 @@ namespace In.ProjectEKA.HipService.Common
+         
+         public static readonly string OPENMRS_FHIR = "ws/fhir2/R4/Patient";
+         public static readonly string OPENMRS_REST = "ws/rest/v1/visit";
++        public static readonly string OPENMRS_PRESCRIPTION = "ws/rest/v1/hip/prescriptions";
++        public static readonly string OPENMRS_MEDICATION = "ws/rest/v1/hip/medication";
+         public static readonly string CONFIG_KEY = "OpenMrs";
+         
+         public const string CORRELATION_ID = "CORRELATION-ID";
+diff --git a/src/In.ProjectEKA.HipService/Common/Model/ConsentArtefact.cs b/src/In.ProjectEKA.HipService/Common/Model/ConsentArtefact.cs
+index 0ea0663..59dc2d2 100644
+--- a/src/In.ProjectEKA.HipService/Common/Model/ConsentArtefact.cs
++++ b/src/In.ProjectEKA.HipService/Common/Model/ConsentArtefact.cs
+@@ -5,12 +5,15 @@ namespace In.ProjectEKA.HipService.Common.Model
+ 
+     public class ConsentArtefact
+     {
+-        public ConsentArtefact(string schemaVersion,
++        public ConsentArtefact(
++            string schemaVersion,
+             string consentId,
+             DateTime createdAt,
+             ConsentPurpose purpose,
+             PatientReference patient,
+-            HIPReference hip, IEnumerable<HiType> hiTypes, ConsentPermission permission,
++            HIPReference hip,
++            IEnumerable<HiType> hiTypes,
++            ConsentPermission permission,
+             IEnumerable<GrantedContext> careContexts,
+             OrganizationReference consentManager)
+         {
+diff --git a/src/In.ProjectEKA.HipService/Consent/Model/Consent.cs b/src/In.ProjectEKA.HipService/Consent/Model/Consent.cs
+index c4e84af..397c4a7 100644
+--- a/src/In.ProjectEKA.HipService/Consent/Model/Consent.cs
++++ b/src/In.ProjectEKA.HipService/Consent/Model/Consent.cs
+@@ -6,7 +6,8 @@ namespace In.ProjectEKA.HipService.Consent.Model
+ 
+     public class Consent
+     {
+-        public Consent(string consentArtefactId,
++        public Consent(
++            string consentArtefactId,
+             ConsentArtefact consentArtefact,
+             string signature,
+             ConsentStatus status,
+diff --git a/src/In.ProjectEKA.DefaultHip/DataFlow/Collect.cs b/src/In.ProjectEKA.HipService/DataFlow/CollectHipService.cs
+similarity index 65%
+rename from src/In.ProjectEKA.DefaultHip/DataFlow/Collect.cs
+rename to src/In.ProjectEKA.HipService/DataFlow/CollectHipService.cs
+index 38700fc..c14d16e 100644
+--- a/src/In.ProjectEKA.DefaultHip/DataFlow/Collect.cs
++++ b/src/In.ProjectEKA.HipService/DataFlow/CollectHipService.cs
+@@ -1,30 +1,30 @@
+-namespace In.ProjectEKA.DefaultHip.DataFlow
++using Hl7.Fhir.Model;
++using Hl7.Fhir.Serialization;
++using Hl7.Fhir.Utility;
++using In.ProjectEKA.HipLibrary.Patient.Model;
++
++namespace In.ProjectEKA.HipService.DataFlow
+ {
+     using System;
+     using System.Collections.Generic;
+     using System.Globalization;
+-    using System.IO;
+     using System.Linq;
+     using System.Threading.Tasks;
+-    using HipLibrary.Patient;
+-    using HipLibrary.Patient.Model;
+-    using Hl7.Fhir.Model;
+-    using Hl7.Fhir.Utility;
++    
+     using Newtonsoft.Json;
+     using Optional;
+-    using Patient;
+     using Serilog;
+ 
+-    public class Collect : ICollect
++    public class CollectHipService : ICollectHipService
+     {
+-        private readonly string careContextMapFile;
++        private IOpenMrsPatientData openMrsPatientData;
+ 
+-        public Collect(string careContextMapFile)
++        public CollectHipService(IOpenMrsPatientData openMrsPatientData)
+         {
+-            this.careContextMapFile = careContextMapFile;
++            this.openMrsPatientData = openMrsPatientData;
+         }
+-
+-        public async Task<Option<Entries>> CollectData(TraceableDataRequest dataRequest)
++        
++        public async Task<Option<Entries>> CollectData(HipLibrary.Patient.Model.DataRequest dataRequest)
+         {
+             var bundles = new List<CareBundle>();
+             var patientData = FindPatientData(dataRequest);
+@@ -33,7 +33,8 @@ namespace In.ProjectEKA.DefaultHip.DataFlow
+                 foreach (var result in patientData.GetOrDefault(careContextReference))
+                 {
+                     Log.Information($"Returning file: {result}");
+-                    bundles.Add(new CareBundle(careContextReference, await FileReader.ReadJsonAsync<Bundle>(result)));
++                    var bundle = new FhirJsonParser().Parse<Bundle>(result);
++                    bundles.Add(new CareBundle(careContextReference, bundle));
+                 }
+ 
+             var entries = new Entries(bundles);
+@@ -55,7 +56,7 @@ namespace In.ProjectEKA.DefaultHip.DataFlow
+                 "yyyy-MM-dd'T'HH:mm:ss.fff", "yyyy-MM-dd'T'HH:mm:ss.ffff", "yyyy-MM-dd'T'HH:mm:ss.fffff",
+                 "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss.ff", "yyyy-MM-dd'T'HH:mm:ss.ff",
+                 "dd/MM/yyyy", "dd/MM/yyyy hh:mm:ss", "dd/MM/yyyy hh:mm:ss tt", "dd/MM/yyyyTHH:mm:ss.fffzzz",
+-                "yyyy-MM-dd'T'HH:mm:ss.ffffff"
++                "yyyy-MM-dd'T'HH:mm:ss.ffffff", "yyyy-MM-dd'T'HH:mm:ss.fff'Z'"
+             };
+             var tryParseExact = DateTime.TryParseExact(dateString,
+                 formatStrings,
+@@ -68,37 +69,27 @@ namespace In.ProjectEKA.DefaultHip.DataFlow
+             return aDateTime;
+         }
+ 
+-        private Dictionary<string, List<string>> FindPatientData(TraceableDataRequest request)
++        private Dictionary<string, List<string>> FindPatientData(HipLibrary.Patient.Model.DataRequest request)
+         {
+             try
+             {
+                 LogDataRequest(request);
+-                var jsonData = File.ReadAllText(careContextMapFile);
+-                var patientDataMap = JsonConvert
+-                    .DeserializeObject<Dictionary<string, Dictionary<string, List<CareContextRecord>>>>(jsonData);
+-
++                var toDate = request.DateRange.To;
++                var fromDate = request.DateRange.From;
+                 var careContextsAndListOfDataFiles = new Dictionary<string, List<string>>();
+-
+                 foreach (var grantedContext in request.CareContexts)
+                 {
+-                    var refData = patientDataMap[grantedContext.PatientReference];
+-                    var ccData = refData?[grantedContext.CareContextReference];
+                     var listOfDataFiles = new List<string>();
+-                    if (ccData == null) continue;
+-                    // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+-                    foreach (var ccRecord in ccData)
++                    foreach (var hiType in request.HiType)
+                     {
+-                        var captureTime = ParseDate(ccRecord.CapturedOn);
+-                        if (!WithinRange(request.DateRange, captureTime)) continue;
+-                        foreach (var hiType in request.HiType)
+-                        {
+-                            var hiTypeStr = hiType.ToString().ToLower();
+-                            var dataFiles = ccRecord.Data.GetValueOrDefault(hiTypeStr) ?? new List<string>();
+-                            if (dataFiles.Count > 0)
+-                                listOfDataFiles.AddRange(dataFiles);
+-                        }
++                        var hiTypeStr = hiType.ToString().ToLower();
++                        var dataFiles = openMrsPatientData
++                            .GetPatientData(request.ConsentId,grantedContext.CareContextReference, toDate, fromDate, hiTypeStr).Result;
++                        if (dataFiles.Length > 0)
++                            listOfDataFiles.Add(dataFiles);
+                     }
+                     careContextsAndListOfDataFiles.Add(grantedContext.CareContextReference, listOfDataFiles);
++                    
+                 }
+ 
+                 return careContextsAndListOfDataFiles;
+@@ -111,7 +102,7 @@ namespace In.ProjectEKA.DefaultHip.DataFlow
+             return new Dictionary<string, List<string>>();
+         }
+ 
+-        private static void LogDataRequest(TraceableDataRequest request)
++        private static void LogDataRequest(HipLibrary.Patient.Model.DataRequest request)
+         {
+             var ccList = JsonConvert.SerializeObject(request.CareContexts);
+             var requestedHiTypes = string.Join(", ", request.HiType.Select(hiType => hiType.ToString()));
+diff --git a/src/In.ProjectEKA.HipService/DataFlow/DataFlow.cs b/src/In.ProjectEKA.HipService/DataFlow/DataFlow.cs
+index 2f0e9b2..3ca129b 100644
+--- a/src/In.ProjectEKA.HipService/DataFlow/DataFlow.cs
++++ b/src/In.ProjectEKA.HipService/DataFlow/DataFlow.cs
+@@ -61,7 +61,7 @@ namespace In.ProjectEKA.HipService.DataFlow
+                 return new Tuple<HealthInformationTransactionResponse, ErrorRepresentation>(null, errorResponse);
+             }).ValueOr(new Tuple<HealthInformationTransactionResponse,
+                 ErrorRepresentation>(new HealthInformationTransactionResponse(request.TransactionId), null));
+-
++            
+             if (errorRepresentation != null)
+             {
+                 logger.Log(LogLevel.Error,
+@@ -145,7 +145,8 @@ namespace In.ProjectEKA.HipService.DataFlow
+                 "yyyy-MM-dd'T'HH:mm:ss.ffff", "yyyy-MM-dd'T'HH:mm:ss.fffff",
+                 "yyyy-MM-dd'T'HH:mm:ss", "dd/MM/yyyy", "dd/MM/yyyy hh:mm:ss", "dd/MM/yyyy hh:mm:ss tt",
+                 "dd/MM/yyyyTHH:mm:ss.fffzzz",
+-                "yyyy-MM-dd'T'HH:mm:ss.ffffff"
++                "yyyy-MM-dd'T'HH:mm:ss.ffffff",
++                "yyyy-MM-dd'T'HH:mm:ss.fff'Z'"
+             };
+             var tryParseExact = DateTime.TryParseExact(expiryDate,
+                 formatStrings,
+diff --git a/src/In.ProjectEKA.HipService/DataFlow/DataFlowMessageHandler.cs b/src/In.ProjectEKA.HipService/DataFlow/DataFlowMessageHandler.cs
+index 7012382..b55b45a 100644
+--- a/src/In.ProjectEKA.HipService/DataFlow/DataFlowMessageHandler.cs
++++ b/src/In.ProjectEKA.HipService/DataFlow/DataFlowMessageHandler.cs
+@@ -3,20 +3,19 @@ using In.ProjectEKA.HipLibrary.Patient.Model;
+ namespace In.ProjectEKA.HipService.DataFlow
+ {
+     using System.Threading.Tasks;
+-    using HipLibrary.Patient;
+ 
+     public class DataFlowMessageHandler
+     {
+-        private readonly ICollect collect;
++        private readonly ICollectHipService collectHipService;
+         private readonly DataEntryFactory dataEntryFactory;
+         private readonly DataFlowClient dataFlowClient;
+ 
+         public DataFlowMessageHandler(
+-            ICollect collect,
++            ICollectHipService collectHipService,
+             DataFlowClient dataFlowClient,
+             DataEntryFactory dataEntryFactory)
+         {
+-            this.collect = collect;
++            this.collectHipService = collectHipService;
+             this.dataFlowClient = dataFlowClient;
+             this.dataEntryFactory = dataEntryFactory;
+         }
+@@ -24,7 +23,7 @@ namespace In.ProjectEKA.HipService.DataFlow
+         public async Task HandleDataFlowMessage(TraceableDataRequest dataRequest)
+         {
+             var sentKeyMaterial = dataRequest.KeyMaterial;
+-            var data = await collect.CollectData(dataRequest).ConfigureAwait(false);
++            var data = await collectHipService.CollectData(dataRequest).ConfigureAwait(false);
+             var encryptedEntries = data.FlatMap(entries =>
+                 dataEntryFactory.Process(entries, sentKeyMaterial, dataRequest.TransactionId));
+             encryptedEntries.MatchSome(async entries =>
+diff --git a/src/In.ProjectEKA.HipService/DataFlow/ICollectHipService.cs b/src/In.ProjectEKA.HipService/DataFlow/ICollectHipService.cs
+new file mode 100644
+index 0000000..a5bb0c9
+--- /dev/null
++++ b/src/In.ProjectEKA.HipService/DataFlow/ICollectHipService.cs
+@@ -0,0 +1,12 @@
++using In.ProjectEKA.HipLibrary.Patient.Model;
++
++namespace In.ProjectEKA.HipService.DataFlow
++{
++    using System.Threading.Tasks;
++    using Optional;
++
++    public interface ICollectHipService
++    {
++        Task<Option<Entries>> CollectData(HipLibrary.Patient.Model.DataRequest dataRequest);
++    }
++}
+\ No newline at end of file
+diff --git a/src/In.ProjectEKA.HipService/DataFlow/IOpenMrsPatientData.cs b/src/In.ProjectEKA.HipService/DataFlow/IOpenMrsPatientData.cs
+new file mode 100644
+index 0000000..3d83f26
+--- /dev/null
++++ b/src/In.ProjectEKA.HipService/DataFlow/IOpenMrsPatientData.cs
+@@ -0,0 +1,11 @@
++using System.Threading.Tasks;
++using Hl7.Fhir.Model;
++
++namespace In.ProjectEKA.HipService.DataFlow
++{
++    public interface IOpenMrsPatientData
++    {
++        public Task<string> GetPatientData(string consentId, string grantedContext, string toDate, string fromDate,
++            string hiType);
++    }
++}
+\ No newline at end of file
+diff --git a/src/In.ProjectEKA.HipService/DataFlow/MessagingQueueConstants.cs b/src/In.ProjectEKA.HipService/DataFlow/MessagingQueueConstants.cs
+index 8abc971..0f91bab 100644
+--- a/src/In.ProjectEKA.HipService/DataFlow/MessagingQueueConstants.cs
++++ b/src/In.ProjectEKA.HipService/DataFlow/MessagingQueueConstants.cs
+@@ -3,7 +3,7 @@ namespace In.ProjectEKA.HipService.DataFlow
+     public static class MessagingQueueConstants
+     {
+         public static readonly string DataRequestExchangeName = "hiservice.exchange.dataflowrequest";
+-        public static readonly string DataRequestRoutingKey = "*.queue.durable.dataflowrequest.#";
++        public static readonly string DataRequestRoutingKey = "*.queue.durable.dataflowrequest5.#";
+         public static readonly string DataRequestExchangeType = "topic";
+     }
+ }
+\ No newline at end of file
+diff --git a/src/In.ProjectEKA.HipService/DataFlow/OpenMrsPatientData.cs b/src/In.ProjectEKA.HipService/DataFlow/OpenMrsPatientData.cs
+new file mode 100644
+index 0000000..9bb164f
+--- /dev/null
++++ b/src/In.ProjectEKA.HipService/DataFlow/OpenMrsPatientData.cs
+@@ -0,0 +1,84 @@
++using System.Threading.Tasks;
++using System.Web;
++using In.ProjectEKA.HipService.Common;
++using In.ProjectEKA.HipService.OpenMrs;
++using Serilog;
++
++namespace In.ProjectEKA.HipService.DataFlow
++{
++    public class OpenMrsPatientData : IOpenMrsPatientData
++
++    {
++        private readonly IOpenMrsClient openMrsClient;
++
++        public OpenMrsPatientData(IOpenMrsClient openMrsClient)
++        {
++            this.openMrsClient = openMrsClient;
++        }
++
++        public async Task<string> GetPatientData(string consentId, string grantedContext, string toDate,
++            string fromDate, string hiType)
++        {
++            //Do something about default value of path
++            string path = Constants.OPENMRS_MEDICATION;
++            switch (hiType.ToLower())
++            {
++                case "medicationrequest": path = pathForOpenMRSMedication(consentId,grantedContext);
++                    break;
++                case "prescription" : path = pathForOpenMRSPrescription(consentId,grantedContext,toDate,fromDate);
++                    break;
++                
++                default: 
++                    Log.Information("Wrong HiType");
++                    break;
++            }
++           
++            var response = await openMrsClient.GetAsync(path);
++            var content = await response.Content.ReadAsStringAsync();
++            //To be removed before pushing: Logging information received from OpenMrsEndPoint For Medication 
++            Log.Information(content);
++            return content;
++        }
++
++        private string pathForOpenMRSMedication(string consentId, string grantedContext)
++        {
++            var pathForMedication = $"{Constants.OPENMRS_MEDICATION}";
++            var query = HttpUtility.ParseQueryString(string.Empty);
++            if (!string.IsNullOrEmpty(consentId))
++            {
++                query["patientId"] = consentId;
++                query["visitType"] = grantedContext;
++            }
++            if (query.ToString() != "")
++            {
++                pathForMedication = $"{pathForMedication}/?{query}";
++            }
++            return pathForMedication;
++        }
++
++        private string pathForOpenMRSPrescription(string consentId, string grantedContext, string toDate, string fromDate)
++        {
++            var pathForPrescription = $"{Constants.OPENMRS_PRESCRIPTION}";
++            var query = HttpUtility.ParseQueryString(string.Empty);
++            if (
++                !string.IsNullOrEmpty(consentId) &&
++                !string.IsNullOrEmpty(grantedContext) &&
++                !string.IsNullOrEmpty(toDate) &&
++                !string.IsNullOrEmpty(fromDate)
++                )
++            {
++                query["patientId"] = consentId;
++                query["visitType"] = grantedContext;
++                query["fromDate"] = fromDate;
++                query["toDate"] = toDate;
++            }
++
++            if (query.ToString() != "")
++            {
++                pathForPrescription = $"{pathForPrescription}/?{query}";
++            }
++            return pathForPrescription;
++        }
++    
++    }
++}
+\ No newline at end of file
+diff --git a/src/In.ProjectEKA.HipService/Link/LinkController.cs b/src/In.ProjectEKA.HipService/Link/LinkController.cs
+index 60fcd8b..6128180 100644
+--- a/src/In.ProjectEKA.HipService/Link/LinkController.cs
++++ b/src/In.ProjectEKA.HipService/Link/LinkController.cs
+@@ -73,8 +73,7 @@ namespace In.ProjectEKA.HipService.Link
+         public async Task LinkPatient(LinkReferenceRequest request, string correlationId)
+         {
+             var cmUserId = request.Patient.Id;
+-            var cmSuffix = cmUserId.Substring(
+-                cmUserId.LastIndexOf("@", StringComparison.Ordinal) + 1);
++            var cmSuffix = cmUserId.Substring(cmUserId.LastIndexOf("@", StringComparison.Ordinal) + 1);
+             var patient = new LinkEnquiry(
+                 cmSuffix,
+                 cmUserId,
+diff --git a/src/In.ProjectEKA.HipService/OpenMrs/OpenMrsCareContextRepository.cs b/src/In.ProjectEKA.HipService/OpenMrs/OpenMrsCareContextRepository.cs
+index 806027f..fff43c0 100644
+--- a/src/In.ProjectEKA.HipService/OpenMrs/OpenMrsCareContextRepository.cs
++++ b/src/In.ProjectEKA.HipService/OpenMrs/OpenMrsCareContextRepository.cs
+@@ -28,7 +28,6 @@ namespace In.ProjectEKA.HipService.OpenMrs
+ 
+             return combinedCareContexts;
+         }
+-
+         public virtual async Task<List<CareContextRepresentation>> LoadProgramEnrollments(string uuid)
+         {
+             var path = DiscoveryPathConstants.OnProgramEnrollmentPath;
+@@ -102,8 +101,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
+             for (int i = 0; i < results.GetArrayLength(); i++)
+             {
+                 var visitType = results[i].GetProperty("visitType");
+-                var referenceNumber = visitType.GetProperty("display").GetString();
+-                careContexts.Add(new CareContextRepresentation(referenceNumber, null));
++                var display = visitType.GetProperty("display").GetString();
++                careContexts.Add(new CareContextRepresentation(display, null));
+             }
+ 
+             List<CareContextRepresentation> uniqueCareContexts = careContexts
+@@ -113,5 +112,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
+ 
+             return uniqueCareContexts;
+         }
++        
++        
+     }
+ }
+\ No newline at end of file
+diff --git a/src/In.ProjectEKA.HipService/Properties/launchSettings.json b/src/In.ProjectEKA.HipService/Properties/launchSettings.json
+index 54b1f20..290dec9 100644
+--- a/src/In.ProjectEKA.HipService/Properties/launchSettings.json
++++ b/src/In.ProjectEKA.HipService/Properties/launchSettings.json
+@@ -14,14 +14,15 @@
+       "launchBrowser": true,
+       "launchUrl": "api/values",
+       "environmentVariables": {
+-        "ASPNETCORE_ENVIRONMENT": "Development"
++        "ASPNETCORE_ENVIRONMENT": "LOCAL"
+       }
+     },
+     "hip_service": {
+       "commandName": "Project",
+       "launchBrowser": false,
+       "environmentVariables": {
+-        "ASPNETCORE_ENVIRONMENT": "Development"
++        "HEALTH_CHECK_DURATION": "5000",
++        "ASPNETCORE_ENVIRONMENT": "LOCAL"
+       },
+       "applicationUrl": "http://localhost:9052"
+     }
+diff --git a/src/In.ProjectEKA.HipService/Startup.cs b/src/In.ProjectEKA.HipService/Startup.cs
+index 7afc00b..b3bb19c 100644
+--- a/src/In.ProjectEKA.HipService/Startup.cs
++++ b/src/In.ProjectEKA.HipService/Startup.cs
+@@ -84,7 +84,6 @@ namespace In.ProjectEKA.HipService
+                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
+                 .AddHangfire(config => { config.UseMemoryStorage(); })
+                 .AddSingleton<IEncryptor, Encryptor>()
+-                .AddSingleton<ICollect>(new Collect("demoPatientCareContextDataMap.json"))
+                 .AddRabbit(Configuration)
+                 .Configure<OtpServiceConfiguration>(Configuration.GetSection("OtpService"))
+                 .Configure<DataFlowConfiguration>(Configuration.GetSection("dataFlow"))
+@@ -125,6 +124,8 @@ namespace In.ProjectEKA.HipService
+                 .AddSingleton(new OpenMrsClient(HttpClient,
+                     Configuration.GetSection("OpenMrs").Get<OpenMrsConfiguration>()))
+                 .AddScoped<IOpenMrsClient, OpenMrsClient>()
++                .AddScoped<IOpenMrsPatientData,OpenMrsPatientData>()
++                .AddSingleton<ICollectHipService,CollectHipService>()
+                 .AddScoped<IPatientDal, FhirDiscoveryDataSource>()
+                 .AddScoped<IPhoneNumberRepository, OpenMrsPhoneNumberRepository>()
+                 .AddTransient<IDataFlow, DataFlow.DataFlow>()
+diff --git a/src/In.ProjectEKA.HipService/appsettings.Development.json b/src/In.ProjectEKA.HipService/appsettings.Development.json
+index bd7ca89..9197fc5 100644
+--- a/src/In.ProjectEKA.HipService/appsettings.Development.json
++++ b/src/In.ProjectEKA.HipService/appsettings.Development.json
+@@ -51,7 +51,7 @@
+     "timeout": 3
+   },
+   "OpenMrs": {
+-    "url": "https://bahmni-0.92.bahmni-covid19.in/openmrs/",
++    "url": "https://192.168.33.10/openmrs/",
+     "username": "superman",
+     "password": "Admin123"
+   },
+diff --git a/src/In.ProjectEKA.HipService/appsettings.json b/src/In.ProjectEKA.HipService/appsettings.json
+index 45b127b..aeeb176 100644
+--- a/src/In.ProjectEKA.HipService/appsettings.json
++++ b/src/In.ProjectEKA.HipService/appsettings.json
+@@ -55,7 +55,7 @@
+     "CmSuffix": "ncg"
+   },
+   "OpenMrs": {
+-    "url": "https://bahmni-0.92.bahmni-covid19.in/openmrs/",
++    "url": "https://192.168.33.10/openmrs/",
+     "username": "superman",
+     "password": "Admin123"
+   },
+diff --git a/src/In.ProjectEKA.HipService/appsettings.local.json b/src/In.ProjectEKA.HipService/appsettings.local.json
+index 6a9914a..bb38794 100644
+--- a/src/In.ProjectEKA.HipService/appsettings.local.json
++++ b/src/In.ProjectEKA.HipService/appsettings.local.json
+@@ -25,7 +25,7 @@
+     ]
+   },
+   "ConnectionStrings": {
+-    "DefaultConnection": "Host=localhost;Port=5432;Username=postgres;Password=password;Database=hipservice;"
++    "DefaultConnection": "Host=localhost;Port=5432;Username=postgres;Password=welcome;Database=hipservice;"
+   },
+   "OtpService": {
+     "BaseUrl": "http://localhost:5000",
+@@ -51,14 +51,14 @@
+     "url": "http://localhost:8000",
+     "timeout": 3,
+     "clientId": "10000005",
+-    "clientSecret": "$CLIENT_SECRET"
++    "clientSecret": "93ef283e-1968-46ab-8731-cfccda83680a"
+   },
+   "OpenMrs": {
+-    "url": "https://bahmni-0.92.bahmni-covid19.in/openmrs/",
++    "url": "https://192.168.33.10/openmrs/",
+     "username": "superman",
+     "password": "Admin123"
+   },
+   "BackgroundJobs": {
+     "cancellationCheckInterval": 5
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/test/In.ProjectEKA.DefaultHipTest/DataFlow/CollectTest.cs b/test/In.ProjectEKA.DefaultHipTest/DataFlow/CollectTest.cs
+deleted file mode 100644
+index e5c848c..0000000
+--- a/test/In.ProjectEKA.DefaultHipTest/DataFlow/CollectTest.cs
++++ /dev/null
+@@ -1,93 +0,0 @@
+-using Hl7.Fhir.Model;
+-using Hl7.Fhir.Utility;
+-
+-namespace In.ProjectEKA.DefaultHipTest.DataFlow
+-{
+-    using System.Collections.Generic;
+-    using System.Linq;
+-    using DefaultHip.DataFlow;
+-    using FluentAssertions;
+-    using HipLibrary.Patient.Model;
+-    using Optional.Unsafe;
+-    using Xunit;
+-
+-    [Collection("Collect Tests")]
+-    public class CollectTest
+-    {
+-        private readonly Collect collect = new Collect("demoPatientCareContextDataMap.json");
+-
+-        [Fact]
+-        private async void ReturnEntriesForHina()
+-        {
+-            const string consentId = "ConsentId";
+-            const string consentManagerId = "ConsentManagerId";
+-            var grantedContexts = new List<GrantedContext>
+-            {
+-                new GrantedContext("RVH1003", "BI-KTH-12.05.0024"),
+-                new GrantedContext("RVH1003", "NCP1008")
+-            };
+-            
+-            var dateRange = new DateRange("2017-12-01T15:43:00.818234", "2021-12-31T15:43:00.818234");
+-            var hiTypes = new List<HiType>
+-            {
+-                HiType.Condition,
+-                HiType.Observation,
+-                HiType.DiagnosticReport,
+-                HiType.MedicationRequest,
+-                HiType.DocumentReference,
+-                HiType.Prescription,
+-                HiType.DischargeSummary,
+-                HiType.OPConsultation
+-            };
+-            var traceableDataRequest = new TraceableDataRequest(grantedContexts,
+-                dateRange,
+-                "/someUrl",
+-                hiTypes,
+-                "someTxnId",
+-                null,
+-                consentManagerId,
+-                consentId,
+-                "sometext",
+-                Uuid.Generate().ToString());
+-
+-            var entries = await collect.CollectData(traceableDataRequest);
+-            entries.ValueOrDefault().CareBundles.Count().Should().Be(18);
+-        }
+-
+-        [Fact]
+-        private async void ReturnEntriesForNavjot()
+-        {
+-            const string consentId = "ConsentId";
+-            const string consentManagerId = "ConsentManagerId";
+-            var grantedContexts = new List<GrantedContext>
+-            {
+-                new GrantedContext("RVH1002", "NCP1007"),
+-                new GrantedContext("RVH1002", "RV-MHD-01.17.0024")
+-            };
+-            var dateRange = new DateRange("2013-12-01T15:43:00.000+0000", "2021-12-31T15:43:19.279+0000");
+-            var hiTypes = new List<HiType>
+-            {
+-                HiType.Condition,
+-                HiType.Observation,
+-                HiType.DiagnosticReport,
+-                HiType.MedicationRequest,
+-                HiType.DocumentReference,
+-                HiType.Prescription,
+-                HiType.DischargeSummary
+-            };
+-            var traceableDataRequest = new TraceableDataRequest(grantedContexts,
+-                dateRange,
+-                "/someUrl",
+-                hiTypes,
+-                "someTxnId",
+-                null,
+-                consentManagerId,
+-                consentId,
+-                "sometext",
+-                Uuid.Generate().ToString());
+-
+-            var entries = await collect.CollectData(traceableDataRequest);
+-            entries.ValueOrDefault().CareBundles.Count().Should().Be(17);
+-        }
+-    }
+-}
+\ No newline at end of file
+diff --git a/test/In.ProjectEKA.HipServiceTest/DataFlow/DataFlowMessageHandlerTest.cs b/test/In.ProjectEKA.HipServiceTest/DataFlow/DataFlowMessageHandlerTest.cs
+index ebcf24d..dcf9b2b 100644
+--- a/test/In.ProjectEKA.HipServiceTest/DataFlow/DataFlowMessageHandlerTest.cs
++++ b/test/In.ProjectEKA.HipServiceTest/DataFlow/DataFlowMessageHandlerTest.cs
+@@ -4,7 +4,6 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
+     using System.Linq;
+     using System.Net.Mime;
+     using Builder;
+-    using HipLibrary.Patient;
+     using HipLibrary.Patient.Model;
+     using HipService.DataFlow;
+     using Hl7.Fhir.Model;
+@@ -17,7 +16,7 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
+         [Fact]
+         private void ShouldProcessMessage()
+         {
+-            var collect = new Mock<ICollect>();
++            var collect = new Mock<ICollectHipService>();
+             var dataFlowClient = new Mock<DataFlowClient>(MockBehavior.Strict, null, null, null);
+             var dataEntryFactory = new Mock<DataEntryFactory>();
+             var dataFlowMessageHandler =

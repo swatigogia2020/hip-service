@@ -5,7 +5,8 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
 
     public class DataRequest
     {
-        public DataRequest(IEnumerable<GrantedContext> careContexts,
+        public DataRequest(
+            IEnumerable<GrantedContext> careContexts,
             DateRange dateRange,
             string dataPushUrl,
             IEnumerable<HiType> hiType,

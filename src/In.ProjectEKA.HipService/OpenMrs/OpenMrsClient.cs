@@ -27,10 +27,14 @@ namespace In.ProjectEKA.HipService.OpenMrs
             if (!responseMessage.IsSuccessStatusCode)
             {
                 var error = await responseMessage.Content.ReadAsStringAsync();
+                if (error.Length > 100)
+                    error = error.Substring(0, 100);
                 Log.Error(
-                    $"Failure in getting the data from OpenMrs with status code {responseMessage.StatusCode} {error}");
+                    $"Failure in getting the data from OpenMrs with status code {responseMessage.StatusCode}" +
+                    $" {error}");
                 throw new OpenMrsConnectionException();
             }
+
             return responseMessage;
         }
 
@@ -38,7 +42,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
         {
             var authToken = Encoding.ASCII.GetBytes($"{configuration.Username}:{configuration.Password}");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(authToken));
+                Convert.ToBase64String(authToken));
         }
     }
 }

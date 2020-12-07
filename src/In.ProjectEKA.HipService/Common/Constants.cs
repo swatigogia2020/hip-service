@@ -33,6 +33,8 @@ namespace In.ProjectEKA.HipService.Common
         
         public static readonly string OPENMRS_FHIR = "ws/fhir2/R4/Patient";
         public static readonly string OPENMRS_REST = "ws/rest/v1/visit";
+        public static readonly string OPENMRS_PRESCRIPTION = "ws/rest/v1/hip/prescriptions";
+        public static readonly string OPENMRS_MEDICATION = "ws/rest/v1/hip/medication";
         public static readonly string CONFIG_KEY = "OpenMrs";
         
         public const string CORRELATION_ID = "CORRELATION-ID";

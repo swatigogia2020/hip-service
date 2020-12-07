@@ -16,9 +16,6 @@ namespace In.ProjectEKA.HipService
     using DataFlow;
     using DataFlow.Database;
     using DataFlow.Encryptor;
-    using DefaultHip.DataFlow;
-    using DefaultHip.Discovery;
-    using DefaultHip.Link;
     using Discovery;
     using Discovery.Database;
     using Gateway;
@@ -84,7 +81,6 @@ namespace In.ProjectEKA.HipService
                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
                 .AddHangfire(config => { config.UseMemoryStorage(); })
                 .AddSingleton<IEncryptor, Encryptor>()
-                .AddSingleton<ICollect>(new Collect("demoPatientCareContextDataMap.json"))
                 .AddRabbit(Configuration)
                 .Configure<OtpServiceConfiguration>(Configuration.GetSection("OtpService"))
                 .Configure<DataFlowConfiguration>(Configuration.GetSection("dataFlow"))
@@ -125,6 +121,8 @@ namespace In.ProjectEKA.HipService
                 .AddSingleton(new OpenMrsClient(HttpClient,
                     Configuration.GetSection("OpenMrs").Get<OpenMrsConfiguration>()))
                 .AddScoped<IOpenMrsClient, OpenMrsClient>()
+                .AddScoped<IOpenMrsPatientData,OpenMrsPatientData>()
+                .AddSingleton<ICollectHipService,CollectHipService>()
                 .AddScoped<IPatientDal, FhirDiscoveryDataSource>()
                 .AddScoped<IPhoneNumberRepository, OpenMrsPhoneNumberRepository>()
                 .AddTransient<IDataFlow, DataFlow.DataFlow>()

@@ -11,11 +11,15 @@ services:
     environment: 
       - HEALTH_CHECK_DURATION=5000
       - Gateway:clientSecret=93ef283e-1968-46ab-8731-cfccda83680a
-      - OpenMrs:url=https://qa-02.hip.bahmni-covid19.in/openmrs/
+      - OpenMrs:url=https://192.168.33.10/openmrs/
   otp:
     image: "ganesan92/otp-service"
     depends_on:
       - db
+    environment:
+      "ConnectionStcrings:DefaultConnection": "Host=postgres;Port=5432;Username=postgres;Password=password;Database=otpservice;"
+    ports:
+      - "5000:80"
   gateway:
     build: gatewayStubConfigurations/.
     ports:

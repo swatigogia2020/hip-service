@@ -96,7 +96,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
             var linkPatientRepository = new LinkPatientRepository(dbContext);
             var consentManagerUserId = faker.Random.Hash();
             var link = await linkPatientRepository.Save(consentManagerUserId, faker.Random.Hash()
-                , faker.Random.Hash(), new[] {faker.Random.Word()});
+                , faker.Random.Hash(), new[] {faker.Random.Word()},faker.Random.Word());
             var (patientFor, _) = await linkPatientRepository.GetLinkedCareContexts(consentManagerUserId);
 
             link.MatchSome(l => l.Should().BeEquivalentTo(patientFor.First()));
@@ -113,9 +113,9 @@ namespace In.ProjectEKA.HipServiceTest.Link
             var consentManagerUserId = faker.Random.Hash();
             var linkReferenceNumber = faker.Random.Hash();
             await linkPatientRepository.Save(consentManagerUserId, faker.Random.Hash()
-                , linkReferenceNumber, new[] {faker.Random.Word()});
+                , linkReferenceNumber, new[] {faker.Random.Word()},faker.Random.Word());
             var linkedAccount = await linkPatientRepository.Save(consentManagerUserId, faker.Random.Hash()
-                , linkReferenceNumber, new[] {faker.Random.Word()});
+                , linkReferenceNumber, new[] {faker.Random.Word()},faker.Random.Word());
 
             linkedAccount.HasValue.Should().BeFalse();
             
@@ -129,8 +129,8 @@ namespace In.ProjectEKA.HipServiceTest.Link
             var dbContext = PatientContext();
             var linkPatientRepository = new LinkPatientRepository(dbContext);
             var consentManagerUserId = faker.Random.Hash();
-            var linkedAccounts = await linkPatientRepository.Save(consentManagerUserId, faker.Random.Hash(), faker.Random.Hash(),
-                new[] {faker.Random.Word()});
+            var linkedAccounts = await linkPatientRepository.Save(consentManagerUserId, faker.Random.Hash()
+                ,faker.Random.Hash(), new[] {faker.Random.Word()},faker.Random.Word());
             var (patientFor, _) = await linkPatientRepository.GetLinkedCareContexts(consentManagerUserId);
 
             linkedAccounts.MatchSome(l =>

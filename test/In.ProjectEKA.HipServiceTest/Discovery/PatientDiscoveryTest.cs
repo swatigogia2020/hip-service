@@ -427,7 +427,8 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     Faker().Random.Hash(),
                     consentManagerUserId,
                     It.IsAny<string>(),
-                    linkedCareContexts.Select(c => c.ReferenceNumber).ToList())
+                    linkedCareContexts.Select(c => c.ReferenceNumber).ToList()
+                    ,Faker().Random.Word())
             );
 
             linkPatientRepository.Setup(e => e.GetLinkedCareContexts(consentManagerUserId))
