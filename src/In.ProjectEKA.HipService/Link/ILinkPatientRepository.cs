@@ -32,7 +32,7 @@ namespace In.ProjectEKA.HipService.Link
 
         Task<Option<IEnumerable<InitiatedLinkRequest>>> Get(string linkReferenceNumber);
 
-        Task<bool> Update(InitiatedLinkRequest linkRequest);
+        bool Update(InitiatedLinkRequest linkRequest);
         Task<Tuple<Guid, Exception>> GetPatientUuid(string patientReferenceNumber);
 
     }

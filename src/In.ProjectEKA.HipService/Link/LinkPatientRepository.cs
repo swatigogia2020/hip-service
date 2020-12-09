@@ -168,12 +168,12 @@ namespace In.ProjectEKA.HipService.Link
             }
         }
 
-        public async Task<bool> Update(InitiatedLinkRequest linkRequest)
+        public bool Update(InitiatedLinkRequest linkRequest)
         {
             try
             {
                 linkPatientContext.InitiatedLinkRequest.Update(linkRequest);
-                await linkPatientContext.SaveChangesAsync();
+                await linkPatientContext.SaveChanges();
                 return true;
             }
             catch (Exception exception)

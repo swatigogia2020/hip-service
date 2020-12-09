@@ -45,13 +45,12 @@ namespace In.ProjectEKA.HipService.DataFlow
             
             var root = jsonDoc.RootElement;
             
-                        
-            var varnew = root.GetProperty("prescriptions")[0].GetProperty("bundle").ToString();
+            if(root.GetProperty("prescriptions").GetArrayLength() > 0 ) {
+                var varnew = root.GetProperty("prescriptions")[0].GetProperty("bundle").ToString();
+                return varnew;
+            }
             
-            return varnew;
-            
-            // Log.Information(content);
-            //return content;
+            return ""; 
         }
 
         private string pathForOpenMRSMedication(string patientUuuid, string grantedContext)
