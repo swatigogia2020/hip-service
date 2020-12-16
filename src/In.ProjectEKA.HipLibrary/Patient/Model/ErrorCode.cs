@@ -1,7 +1,7 @@
 namespace In.ProjectEKA.HipLibrary.Patient.Model
 {
     public enum ErrorCode
-    {
+    {    
         NoPatientFound = 3404,
         MultiplePatientsFound = 3403,
         CareContextNotFound = 3402,

@@ -42,7 +42,7 @@
         
         // [HttpPost(PATH_CARE_CONTEXTS_DISCOVER)]
         public AcceptedResult DiscoverPatientCareContexts(
-            [FromHeader(Name = CORRELATION_ID)] string correlationId, 
+            [FromHeader(Name = CORRELATION_ID)] string correlationId,     
             [FromBody] DiscoveryRequest request)
         {
             logger.LogInformation(LogEvents.Discovery, "discovery request received for {Id} with {RequestId}",

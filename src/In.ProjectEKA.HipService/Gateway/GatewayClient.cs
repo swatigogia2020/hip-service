@@ -77,7 +77,6 @@ namespace In.ProjectEKA.HipService.Gateway
 
         public virtual async Task SendDataToGateway<T>(string urlPath, T response, string cmSuffix, string correlationId)
         {
-            Serilog.Log.Information(configuration.Url);
             await PostTo(configuration.Url + urlPath, response, cmSuffix, correlationId).ConfigureAwait(false);
         }
 

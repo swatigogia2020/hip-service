@@ -64,7 +64,8 @@ namespace In.ProjectEKA.HipService.Link
             }
             catch (Exception exception)
             {
-                Log.Fatal(exception, exception.StackTrace);
+                Log.Error("Can't find patient for the given reference number");
+                // Log.Fatal(exception, exception.StackTrace);
                 return new Tuple<LinkEnquires, Exception>(null, exception);
             }
         }
@@ -173,7 +174,7 @@ namespace In.ProjectEKA.HipService.Link
             try
             {
                 linkPatientContext.InitiatedLinkRequest.Update(linkRequest);
-                await linkPatientContext.SaveChanges();
+                linkPatientContext.SaveChanges();
                 return true;
             }
             catch (Exception exception)

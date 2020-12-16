@@ -105,6 +105,8 @@ namespace In.ProjectEKA.HipService.Link
                 {
                     linkedPatientRepresentation = linkReferenceResponse.Link;
                 }
+                if (error != null)
+                    Log.Error(error.Error.Code.ToString());
                 var response = new GatewayLinkResponse(
                     linkedPatientRepresentation,
                     error?.Error,

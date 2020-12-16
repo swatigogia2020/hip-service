@@ -60,7 +60,7 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
             consentRepository.Setup(d => d.GetFor(request.Consent.Id))
                 .ReturnsAsync(consent);
             linkPatientRepository.Setup(d => d.GetPatientUuid(consent.ConsentArtefact.Patient.Id))
-                .ReturnsAsync(new Tuple<string, Exception>(TestBuilder.RandomString(), null));
+                .ReturnsAsync(new Tuple<Guid, Exception>(Guid.NewGuid(), null));
 
             var (healthInformationResponse, _) =
                 await dataFlowService.HealthInformationRequestFor(request, consentMangerId, Guid.NewGuid().ToString());
@@ -85,7 +85,7 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
             consentRepository.Setup(d => d.GetFor(request.Consent.Id))
                 .ReturnsAsync(consent);
             linkPatientRepository.Setup(d => d.GetPatientUuid(consent.ConsentArtefact.Patient.Id))
-                .ReturnsAsync(new Tuple<string, Exception>(TestBuilder.RandomString(), null));
+                .ReturnsAsync(new Tuple<Guid, Exception>(Guid.NewGuid(), null));
 
             var (_, errorResponse) =
                 await dataFlowService.HealthInformationRequestFor(request, consentMangerId, Guid.NewGuid().ToString());
