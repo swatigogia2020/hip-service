@@ -83,7 +83,8 @@ namespace In.ProjectEKA.HipService.Discovery
             IQueryable<HipLibrary.Patient.Model.Patient> patients;
 
             try {
-                patients = await matchingRepository.Where(request);
+                //patients = await matchingRepository.Where(request);
+                patients = await patientRepository.PatientWithVerifiedID(request.Patient.Name, request.Patient.Gender, request.Patient.YearOfBirth, request.Patient.VerifiedIdentifiers.Where( entry => { entry.Type == "mobile"; }));
             }
             catch (OpenMrsConnectionException)
             {
