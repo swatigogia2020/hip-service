@@ -31,5 +31,19 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             return Option.Some(hipPatient);
         }
+
+        public async Task<Option<Patient>> PatientWithVerifiedID(string name, AdministrativeGender? gender, string yearOfBirth, string PhoneNumber)
+        {
+            var fhirPatients = await _patientDal.LoadPatientsAsync( name,  gender, yearOfBirth);
+            var result ;
+            fhirPatients.ForEach( patient =>  {
+                var bahmniPhoneNumber = await _phoneNumberRepository.GetPhoneNumber(patient.Identifier);
+                if (PhoneNumber == bahmniPhoneNumber) {
+                    result.add (patient.to);
+                }
+            });
+
+            return Option.Some(hipPatient);
+        }
     }
 }

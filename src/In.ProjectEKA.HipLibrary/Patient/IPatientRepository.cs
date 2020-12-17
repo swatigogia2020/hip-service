@@ -7,5 +7,6 @@ namespace In.ProjectEKA.HipLibrary.Patient
     public interface IPatientRepository
     {
         Task<Option<Patient>> PatientWithAsync(string patientIdentifier);
+        Task<List<Patient>> PatientWithVerifiedID(string name, AdministrativeGender? gender, string yearOfBirth, string PhoneNumber);
     }
 }
