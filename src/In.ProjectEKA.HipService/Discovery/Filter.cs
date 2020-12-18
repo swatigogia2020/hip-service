@@ -54,7 +54,7 @@ namespace In.ProjectEKA.HipService.Discovery
         public static IEnumerable<PatientEnquiryRepresentation> Do(IEnumerable<Patient> patients,
             DiscoveryRequest request)
         {
-            return patients
+            var temp =patients
                 .AsEnumerable()
                 .Where(ExpressionFor(request.Patient.Name, request.Patient.YearOfBirth, request.Patient.Gender))
                 .Select(patientInfo => RankPatient(patientInfo, request))
@@ -78,6 +78,7 @@ namespace In.ProjectEKA.HipService.Discovery
                         careContextRepresentations,
                         rankedPatient.Meta.Select(meta => meta.Field));
                 }));
+            return temp;
         }
 
         internal enum IdentifierTypeExt
