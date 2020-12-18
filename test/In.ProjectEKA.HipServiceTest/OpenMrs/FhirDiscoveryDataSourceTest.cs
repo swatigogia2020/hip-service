@@ -197,7 +197,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
 
             //When
-            var patient = await discoveryDataSource.LoadPatientAsyncWithIndentifier(identifier);
+            var patient = await discoveryDataSource.LoadPatientAsyncWithIdentifier(identifier);
 
             //Then
             Assert.NotNull(patient);

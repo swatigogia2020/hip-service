@@ -1,3 +1,5 @@
+using Hl7.Fhir.Model;
+
 namespace In.ProjectEKA.DefaultHip.Link
 {
     using System;
@@ -36,6 +38,12 @@ namespace In.ProjectEKA.DefaultHip.Link
         {
             var patientsInfo = FileReader.ReadJson(filePath);
             return patientsInfo;
+        }
+
+        public Task<IQueryable<Patient>> PatientsWithVerifiedId(string name, AdministrativeGender? gender, string yearOfBirth,
+            string phoneNumber)
+        {
+            return null;
         }
     }
 }
