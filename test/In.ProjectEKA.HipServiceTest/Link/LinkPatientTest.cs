@@ -228,7 +228,8 @@ namespace In.ProjectEKA.HipServiceTest.Link
                 new LinkConfirmationRepresentation(
                     testPatient.Identifier,
                     $"{testPatient.Name}",
-                    new[] {new CareContextRepresentation("129", "National Cancer program")}));
+                    new[] {new CareContextRepresentation("129", "National Cancer program")
+                    }));
 
             var (response,cmId,_) = await linkPatient.VerifyAndLinkCareContext(patientLinkRequest);
 

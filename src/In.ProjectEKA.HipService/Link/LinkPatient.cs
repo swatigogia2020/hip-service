@@ -175,7 +175,7 @@ namespace In.ProjectEKA.HipService.Link
                 linkEnquires.PatientReferenceNumber,
                 linkEnquires.LinkReferenceNumber,
                 linkEnquires.CareContexts.Select(context => context.CareContextNumber).ToList(),
-                Guid.Parse( patientUuid)     
+                (patientUuid!=null?Guid.Parse(patientUuid): Guid.Empty)
                 )
                 .ConfigureAwait(false);
             return linkedAccount.HasValue;
