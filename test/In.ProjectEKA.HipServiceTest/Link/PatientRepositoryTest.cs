@@ -28,7 +28,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
                 new CareContextRepresentation("testReferenceNumber2", "display2")
             };
             var phoneNumber = "+91-9999999999";
-            patientDal.Setup(e => e.LoadPatientAsyncWithIndentifier(It.IsAny<string>()))
+            patientDal.Setup(e => e.LoadPatientAsyncWithIdentifier(It.IsAny<string>()))
                 .Returns(Task.FromResult(
                     new OpenMrsPatient() {
                         Name = new List<OpenMrsPatientName>{
@@ -56,7 +56,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
             var patient = await repo.PatientWithAsync(patientIdentifier);
 
             var patientValue = patient.ValueOr(new Patient());
-            patientDal.Verify( x => x.LoadPatientAsyncWithIndentifier(patientIdentifier), Times.Once);
+            patientDal.Verify( x => x.LoadPatientAsyncWithIdentifier(patientIdentifier), Times.Once);
             careContextRepository.Verify(x => x.GetCareContexts(patientValue.Uuid), Times.Once);
             patientValue.Name.Should().Be("test");
             patientValue.Gender.Should().Be(Gender.F);

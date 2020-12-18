@@ -56,7 +56,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             return patient;
         }
 
-        public async Task<Patient> LoadPatientAsyncWithIndentifier(string patientIdentifier)
+        public async Task<Patient> LoadPatientAsyncWithIdentifier(string patientIdentifier)
         {
             var path = DiscoveryPathConstants.OnPatientPath;
             var query = HttpUtility.ParseQueryString(string.Empty);

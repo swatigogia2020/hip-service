@@ -1,3 +1,5 @@
+using In.ProjectEKA.HipService.OpenMrs.Mappings;
+
 namespace In.ProjectEKA.HipService.Discovery
 {
     using System;
@@ -15,7 +17,7 @@ namespace In.ProjectEKA.HipService.Discovery
     using Common;
 
 
-    public class PatientDiscovery: IPatientDiscovery
+    public class PatientDiscovery : IPatientDiscovery
     {
         private readonly IMatchingRepository matchingRepository;
         private readonly IDiscoveryRequestRepository discoveryRequestRepository;
@@ -45,9 +47,11 @@ namespace In.ProjectEKA.HipService.Discovery
         {
             if (await AlreadyExists(request.TransactionId))
             {
-                logger.Log(LogLevel.Error, LogEvents.Discovery, "Discovery Request already exists for {request.TransactionId}.");
+                logger.Log(LogLevel.Error, LogEvents.Discovery,
+                    "Discovery Request already exists for {request.TransactionId}.");
                 return (null,
-                    new ErrorRepresentation(new Error(ErrorCode.DuplicateDiscoveryRequest, "Discovery Request already exists")));
+                    new ErrorRepresentation(new Error(ErrorCode.DuplicateDiscoveryRequest,
+                        "Discovery Request already exists")));
             }
 
             var (linkedAccounts, exception) = await linkPatientRepository.GetLinkedCareContexts(request.Patient.Id);
@@ -67,7 +71,8 @@ namespace In.ProjectEKA.HipService.Discovery
                     LogEvents.Discovery,
                     "User has already linked care contexts: {TransactionID}",
                     request.TransactionId);
-                var patient = await patientRepository.PatientWithAsync(linkedCareContexts.First().PatientReferenceNumber);
+                var patient =
+                    await patientRepository.PatientWithAsync(linkedCareContexts.First().PatientReferenceNumber);
                 return await patient
                     .Map(async patient =>
                     {
@@ -79,12 +84,20 @@ namespace In.ProjectEKA.HipService.Discovery
                     })
                     .ValueOr(Task.FromResult(GetError(ErrorCode.NoPatientFound, ErrorMessage.NoPatientFound)));
             }
-            
+
             IQueryable<HipLibrary.Patient.Model.Patient> patients;
 
-            try {
-                //patients = await matchingRepository.Where(request);
-                patients = await patientRepository.PatientWithVerifiedID(request.Patient.Name, request.Patient.Gender, request.Patient.YearOfBirth, request.Patient.VerifiedIdentifiers.Where( entry => { entry.Type == "mobile"; }));
+            try
+            {
+                // patients = await matchingRepository.Where(request);
+                var phoneNumber =
+                    request.Patient?.VerifiedIdentifiers?
+                        .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
+                        ?.Value.ToString();
+                patients = await patientRepository.PatientsWithVerifiedId(request.Patient?.Name,
+                    request.Patient?.Gender.ToOpenMrsGender(),
+                    request.Patient?.YearOfBirth?.ToString(),
+                    phoneNumber);
             }
             catch (OpenMrsConnectionException)
             {
@@ -102,7 +115,7 @@ namespace In.ProjectEKA.HipService.Discovery
             catch (OpenMrsFormatException e)
             {
                 logger.Log(LogLevel.Error,
-                    LogEvents.Discovery,$"Could not get care contexts for transaction {request.TransactionId}.", e);
+                    LogEvents.Discovery, $"Could not get care contexts for transaction {request.TransactionId}.", e);
                 return GetError(ErrorCode.CareContextConfiguration, ErrorMessage.HipConfiguration);
             }
 
@@ -119,7 +132,9 @@ namespace In.ProjectEKA.HipService.Discovery
             return (new DiscoveryRepresentation(patientEnquiryRepresentation), null);
         }
 
-        private ValueTuple<DiscoveryRepresentation, ErrorRepresentation> GetError(ErrorCode errorCode, string errorMessage) {
+        private ValueTuple<DiscoveryRepresentation, ErrorRepresentation> GetError(ErrorCode errorCode,
+            string errorMessage)
+        {
             return (null, new ErrorRepresentation(new Error(errorCode, errorMessage)));
         }
 
