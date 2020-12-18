@@ -47,7 +47,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 var hipPatient = patient.ToHipPatient(firstName);
                 var referenceNumber = hipPatient.Uuid;
                 var bahmniPhoneNumber =   _phoneNumberRepository.GetPhoneNumber(referenceNumber).Result;
-                if (phoneNumber == bahmniPhoneNumber)
+                if (phoneNumber.Equals(bahmniPhoneNumber))
                 {
                     result.Add(hipPatient);
                 }

@@ -53,7 +53,7 @@
         [NonAction]
         public async Task GetPatientCareContext(DiscoveryRequest request, string correlationId)
         {
-            var patientId = request.Patient.Id;    
+            var patientId = request.Patient.Id;
             var cmSuffix = patientId.Substring(patientId.LastIndexOf("@", StringComparison.Ordinal) + 1);
             try {
                 var (response, error) = await patientDiscovery.PatientFor(request);
