@@ -10,7 +10,7 @@ namespace In.ProjectEKA.HipService.Discovery
     using HipLibrary.Patient;
     using HipLibrary.Patient.Model;
     using In.ProjectEKA.HipService.Link.Model;
-    using In.ProjectEKA.HipService.OpenMrs;
+    using OpenMrs;
     using Link;
     using Microsoft.Extensions.Logging;
     using Logger;
@@ -89,12 +89,11 @@ namespace In.ProjectEKA.HipService.Discovery
 
             try
             {
-                // patients = await matchingRepository.Where(request);
                 var phoneNumber =
                     request.Patient?.VerifiedIdentifiers?
                         .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
                         ?.Value.ToString();
-                patients = await patientRepository.PatientsWithVerifiedId(request.Patient?.Name,
+                    patients = await patientRepository.PatientsWithVerifiedId(request.Patient?.Name,
                     request.Patient?.Gender.ToOpenMrsGender(),
                     request.Patient?.YearOfBirth?.ToString(),
                     phoneNumber);
