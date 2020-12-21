@@ -31,8 +31,10 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
 
         public IEnumerable<Identifier> UnverifiedIdentifiers { get; }
 
+        [Required(ErrorMessage = "Patient name must be provided.")]
         public string Name { get; }
 
+        [Required(ErrorMessage = "Patient gender must be provided.")]
         public Gender? Gender { get; }
 
         // ReSharper disable once MemberCanBePrivate.Global
