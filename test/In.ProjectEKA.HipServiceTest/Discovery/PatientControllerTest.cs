@@ -49,15 +49,15 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         }
 
         [Theory]
-        [InlineData(HttpStatusCode.NotFound)]
-        [InlineData(HttpStatusCode.NotFound, "RequestId")]
-        [InlineData(HttpStatusCode.NotFound, "RequestId", "PatientGender")]
-        [InlineData(HttpStatusCode.NotFound, "RequestId", "PatientName")]
-        [InlineData(HttpStatusCode.NotFound, "PatientName")]
-        [InlineData(HttpStatusCode.NotFound, "PatientGender")]
-        [InlineData(HttpStatusCode.NotFound, "PatientName", "PatientGender")]
-        [InlineData(HttpStatusCode.NotFound, "TransactionId")]
-        [InlineData(HttpStatusCode.NotFound, "PatientId")]
+        [InlineData(HttpStatusCode.BadRequest)]
+        [InlineData(HttpStatusCode.BadRequest, "RequestId")]
+        [InlineData(HttpStatusCode.BadRequest, "RequestId", "PatientGender")]
+        [InlineData(HttpStatusCode.BadRequest, "RequestId", "PatientName")]
+        [InlineData(HttpStatusCode.BadRequest, "PatientName")]
+        [InlineData(HttpStatusCode.BadRequest, "PatientGender")]
+        [InlineData(HttpStatusCode.BadRequest, "PatientName", "PatientGender")]
+        [InlineData(HttpStatusCode.BadRequest, "TransactionId")]
+        [InlineData(HttpStatusCode.BadRequest, "PatientId")]
         private async void DiscoverPatientCareContexts_ReturnsExpectedStatusCode_WhenRequestIsSentWithParameters(
             HttpStatusCode expectedStatusCode, params string[] missingRequestParameters)
         {

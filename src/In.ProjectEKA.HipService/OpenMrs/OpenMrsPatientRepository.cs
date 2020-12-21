@@ -41,18 +41,16 @@ namespace In.ProjectEKA.HipService.OpenMrs
         {
             var fhirPatients = await _patientDal.LoadPatientsAsync(name, gender, yearOfBirth);
             List<Patient> result = new List<Patient>();
-            fhirPatients.ForEach( patient =>
+            foreach (var patient in fhirPatients)
             {
-                var firstName = patient.Name[0].GivenElement.FirstOrDefault().ToString();
-                var hipPatient = patient.ToHipPatient(firstName);
+                var hipPatient = patient.ToHipPatient(name);
                 var referenceNumber = hipPatient.Uuid;
                 var bahmniPhoneNumber =   _phoneNumberRepository.GetPhoneNumber(referenceNumber).Result;
                 if (phoneNumber.Equals(bahmniPhoneNumber))
                 {
                     result.Add(hipPatient);
                 }
-            });
-
+            }
             return result.ToList().AsQueryable();
         }
     }

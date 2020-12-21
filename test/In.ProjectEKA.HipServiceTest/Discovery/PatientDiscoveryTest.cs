@@ -75,6 +75,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 .WithPatientId(consentManagerUserId)
                 .WithPatientName(name)
                 .WithPatientGender(gender)
+                .WithPatientYearOfBirth(yearOfBirth)
                 .WithVerifiedIdentifiers(IdentifierType.MOBILE, phoneNumber)
                 .WithUnverifiedIdentifiers(IdentifierType.MR, openMrsPatientIdentifier)
                 .WithTransactionId(transactionId);
@@ -144,7 +145,8 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 Match.Mobile,
                 Match.Name,
                 Match.Gender);
-            var discoveryRequest = discoveryRequestBuilder.WithUnverifiedIdentifiers(null).Build();
+            var discoveryRequest = discoveryRequestBuilder.WithUnverifiedIdentifiers(null).WithPatientYearOfBirth(2019)
+                .Build();
             SetupLinkRepositoryWithLinkedPatient();
             SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest);
 
@@ -158,30 +160,29 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             {
                 new HipLibrary.Patient.Model.Patient
                 {
+                    Uuid = openMrsPatientReferenceNumber,
+                    Identifier = openMrsPatientIdentifier,
                     YearOfBirth = yearOfBirth,
                     Gender = gender,
-                    Name = name
-                },
-                new HipLibrary.Patient.Model.Patient
-                {
-                    YearOfBirth = yearOfBirth,
-                    Gender = gender,
-                    Name = name
+                    Name = name,
+                    PhoneNumber = phoneNumber,
+                    CareContexts = careContextRepresentations.ToList()
                 }
             }.AsQueryable()));
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
             discoveryResponse.Patient.Should().BeEquivalentTo(expectedPatient);
-            // discoveryRequestRepository.Verify(
-            //     x => x.Add(It.Is<HipService.Discovery.Model.DiscoveryRequest>(
-            //         r => r.TransactionId == transactionId && r.ConsentManagerUserId == consentManagerUserId)),
-            //     Times.Once);
-            // error.Should().BeNull();
+            discoveryRequestRepository.Verify(
+                x => x.Add(It.Is<HipService.Discovery.Model.DiscoveryRequest>(
+                    r => r.TransactionId == transactionId && r.ConsentManagerUserId == consentManagerUserId)),
+                Times.Once);
+            error.Should().BeNull();
         }
 
         [Theory]
         [ClassData(typeof(EmptyIdentifierTestData))]
-        private async void ReturnMultiplePatientsErrorWhenUnverifiedIdentifierIsEmpty(IEnumerable<Identifier> identifiers)
+        private async void ReturnMultiplePatientsErrorWhenUnverifiedIdentifierIsEmpty(
+            IEnumerable<Identifier> identifiers)
         {
             var expectedError =
                 new ErrorRepresentation(new Error(ErrorCode.MultiplePatientsFound, "Multiple patients found"));
@@ -365,21 +366,20 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             {
                 new HipLibrary.Patient.Model.Patient
                 {
+                    Uuid = openMrsPatientReferenceNumber,
+                    Identifier = openMrsPatientIdentifier,
                     YearOfBirth = yearOfBirth,
                     Gender = gender,
-                    Name = name
-                },
-                new HipLibrary.Patient.Model.Patient
-                {
-                    YearOfBirth = yearOfBirth,
-                    Gender = gender,
-                    Name = name
+                    Name = name,
+                    PhoneNumber = phoneNumber,
+                    CareContexts = careContextRepresentations.ToList()
                 }
             }.AsQueryable()));
+
             careContextRepository.Setup(e => e.GetCareContexts(openMrsPatientReferenceNumber))
                 .Returns(
                     Task.FromResult(new List<CareContextRepresentation>(careContextRepresentations).AsEnumerable()));
-            
+
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
             discoveryResponse.Patient.Should().BeEquivalentTo(expectedPatient);
@@ -403,6 +403,21 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             careContextRepository
                 .Setup(e => e.GetCareContexts(openMrsPatientReferenceNumber))
                 .Throws<OpenMrsFormatException>();
+            patientRepository.Setup(repository => repository.PatientsWithVerifiedId(discoveryRequest.Patient.Name,
+                discoveryRequest.Patient.Gender.ToOpenMrsGender(),
+                discoveryRequest.Patient.YearOfBirth.ToString(),
+                phoneNumber)).Returns(Task.FromResult(new List<HipLibrary.Patient.Model.Patient>
+            {
+                new HipLibrary.Patient.Model.Patient
+                {
+                    Uuid = openMrsPatientReferenceNumber,
+                    Identifier = openMrsPatientIdentifier,
+                    YearOfBirth = yearOfBirth,
+                    Gender = gender,
+                    Name = name,
+                    PhoneNumber = phoneNumber
+                }
+            }.AsQueryable()));
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
@@ -418,9 +433,11 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var discoveryRequest = discoveryRequestBuilder.WithUnverifiedIdentifiers(null).Build();
             SetupLinkRepositoryWithLinkedPatient();
             SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest);
-
-            matchingRepository
-                .Setup(e => e.Where(discoveryRequest))
+            patientRepository
+                .Setup(repository => repository.PatientsWithVerifiedId(discoveryRequest.Patient.Name,
+                    discoveryRequest.Patient.Gender.ToOpenMrsGender(),
+                    discoveryRequest.Patient.YearOfBirth.ToString(),
+                    phoneNumber))
                 .Throws<OpenMrsConnectionException>();
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
