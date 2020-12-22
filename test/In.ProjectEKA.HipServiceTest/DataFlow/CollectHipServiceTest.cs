@@ -1,48 +1,35 @@
+using System.Linq;
+using FluentAssertions;
 using Hl7.Fhir.Model;
 using In.ProjectEKA.HipService.DataFlow;
-using In.ProjectEKA.HipService.Link;
 using Moq;
+using Optional.Unsafe;
 
 namespace In.ProjectEKA.HipServiceTest.DataFlow
 {
     using System.Collections.Generic;
-    using System.Linq;
-    using DefaultHip.DataFlow;
-    using FluentAssertions;
     using HipLibrary.Patient.Model;
-    using Optional.Unsafe;
     using Xunit;
 
     [Collection("Collect Tests")]
     public class CollectHipServiceTest
     {
-        private readonly Mock<OpenMrsPatientData> openMrsPatientData = new Mock<OpenMrsPatientData>();
-
-        private readonly CollectHipService collect =
-            new CollectHipService(new Mock<IOpenMrsPatientData>().Object);
-
         [Fact]
-        private async void ReturnEntriesForHina()
+        private async void ReturnEntriesForCorrectRequest()
         {
+            var openMrsPatientData = new Mock<IOpenMrsPatientData>();
+            var collectHipService = new CollectHipService(openMrsPatientData.Object);
             const string consentId = "ConsentId";
             const string consentManagerId = "ConsentManagerId";
             var grantedContexts = new List<GrantedContext>
             {
                 new GrantedContext("RVH1003", "BI-KTH-12.05.0024"),
-                new GrantedContext("RVH1003", "NCP1008")
             };
-            
+
             var dateRange = new DateRange("2017-12-01T15:43:00.818234", "2021-12-31T15:43:00.818234");
             var hiTypes = new List<HiType>
             {
-                HiType.Condition,
-                HiType.Observation,
-                HiType.DiagnosticReport,
-                HiType.MedicationRequest,
-                HiType.DocumentReference,
                 HiType.Prescription,
-                HiType.DischargeSummary,
-                HiType.OPConsultation
             };
             var traceableDataRequest = new TraceableDataRequest(grantedContexts,
                 dateRange,
@@ -55,31 +42,34 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
                 "sometext",
                 Uuid.Generate().ToString(),
                 "patientUuid"
-                );
-
-            var entries = await collect.CollectData(traceableDataRequest);
+            );
+            openMrsPatientData
+                .Setup(x => x.GetPatientData("patientUuid", grantedContexts[0].CareContextReference,
+                    dateRange.To,
+                    dateRange.From,
+                    HiType.Prescription.ToString().ToLower()))
+                .ReturnsAsync("{\"resourceType\": \"Bundle\"}")
+                .Verifiable();
+            var entries = await collectHipService.CollectData(traceableDataRequest);
+            entries.ValueOrDefault().CareBundles.Count().Should().Be(1);
         }
 
         [Fact]
-        private async void ReturnEntriesForNavjot()
+        private async void ReturnZeroEntriesForWrongRequest()
         {
+            var openMrsPatientData = new Mock<IOpenMrsPatientData>();
+            var collectHipService = new CollectHipService(openMrsPatientData.Object);
             const string consentId = "ConsentId";
             const string consentManagerId = "ConsentManagerId";
             var grantedContexts = new List<GrantedContext>
             {
-                new GrantedContext("RVH1002", "NCP1007"),
-                new GrantedContext("RVH1002", "RV-MHD-01.17.0024")
+                new GrantedContext("RVH1003", "BI-KTH-12.05.0024"),
             };
-            var dateRange = new DateRange("2013-12-01T15:43:00.000+0000", "2021-12-31T15:43:19.279+0000");
+
+            var dateRange = new DateRange("2017-12-01T15:43:00.818234", "2021-12-31T15:43:00.818234");
             var hiTypes = new List<HiType>
             {
-                HiType.Condition,
-                HiType.Observation,
-                HiType.DiagnosticReport,
-                HiType.MedicationRequest,
-                HiType.DocumentReference,
                 HiType.Prescription,
-                HiType.DischargeSummary
             };
             var traceableDataRequest = new TraceableDataRequest(grantedContexts,
                 dateRange,
@@ -92,11 +82,16 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
                 "sometext",
                 Uuid.Generate().ToString(),
                 "patientUuid"
-                );
-
-            var entries = await collect.CollectData(traceableDataRequest);
-            // entries.ValueOrDefault().CareBundles.Count().Should().Be(17);
+            );
+            openMrsPatientData
+                .Setup(x => x.GetPatientData("patientUuid", grantedContexts[0].CareContextReference,
+                    dateRange.To,
+                    dateRange.From,
+                    HiType.Prescription.ToString().ToLower()))
+                .ReturnsAsync("")
+                .Verifiable();
+            var entries = await collectHipService.CollectData(traceableDataRequest);
+            entries.ValueOrDefault().CareBundles.Count().Should().Be(0);
         }
     }
-
 }

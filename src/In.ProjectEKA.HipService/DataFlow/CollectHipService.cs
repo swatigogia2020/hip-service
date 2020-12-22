@@ -42,52 +42,25 @@ namespace In.ProjectEKA.HipService.DataFlow
             return Option.Some(entries);
         }
 
-        private static bool WithinRange(DateRange range, DateTime date)
-        {
-            var fromDate = ParseDate(range.From).AddHours(2);
-            var toDate = ParseDate(range.To);
-            return date > fromDate && date < toDate;
-        }
-
-        private static DateTime ParseDate(string dateString)
-        {
-            var formatStrings = new[]
-            {
-                "yyyy-MM-dd","yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd hh:mm:ss tt", "yyyy-MM-ddTHH:mm:ss.fffzzz",
-                "yyyy-MM-dd'T'HH:mm:ss.fff", "yyyy-MM-dd'T'HH:mm:ss.ffff", "yyyy-MM-dd'T'HH:mm:ss.fffff",
-                "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss.ff", "yyyy-MM-dd'T'HH:mm:ss.ff",
-                "dd/MM/yyyy", "dd/MM/yyyy hh:mm:ss", "dd/MM/yyyy hh:mm:ss tt", "dd/MM/yyyyTHH:mm:ss.fffzzz",
-                "yyyy-MM-dd'T'HH:mm:ss.ffffff", "yyyy-MM-dd'T'HH:mm:ss.fff'Z'"
-            };
-            var tryParseExact = DateTime.TryParseExact(dateString,
-                formatStrings,
-                CultureInfo.CurrentCulture,
-                DateTimeStyles.None,
-                out var aDateTime);
-            if (!tryParseExact)
-                Log.Error($"Error parsing date: {dateString}");
-
-            return aDateTime;
-        }
-
         private async Task<Dictionary<string, List<string>>> FindPatientData(TraceableDataRequest request)
         {
             try
             {
-                LogDataRequest(request);    
+                LogDataRequest(request);
                 var toDate = request.DateRange.To;
                 var fromDate = request.DateRange.From;
                 var careContextsAndListOfDataFiles = new Dictionary<string, List<string>>();
-                foreach (var grantedContext in request.CareContexts) 
+                foreach (var grantedContext in request.CareContexts)
                 {
                     var listOfDataFiles = new List<string>();
                     foreach (var hiType in request.HiType)
                     {
                         var hiTypeStr = hiType.ToString().ToLower();
-                        var dataFiles =   openMrsPatientData
+                        var result = openMrsPatientData
                             .GetPatientData(request.PatientUuid, grantedContext.CareContextReference, toDate, fromDate,
                                 hiTypeStr).Result;
-                        if (dataFiles.Length > 0) 
+                        var dataFiles = result;
+                        if (!string.IsNullOrEmpty(dataFiles))
                             listOfDataFiles.Add(dataFiles);
                     }
 

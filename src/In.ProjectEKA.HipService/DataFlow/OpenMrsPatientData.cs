@@ -18,18 +18,16 @@ namespace In.ProjectEKA.HipService.DataFlow
             this.openMrsClient = openMrsClient;
         }
 
-        public Task<string> GetPatientData(string patientUuid, string grantedContext, string toDate,
+        public async Task<string> GetPatientData(string patientUuid, string grantedContext, string toDate,
             string fromDate, string hiType)
         {
-            string path = Constants.OPENMRS_MEDICATION;
             switch (hiType)
             {
                 case "prescription":
-                    return getPrescription(patientUuid, grantedContext, toDate, fromDate);
-                    break;
+                    return await getPrescription(patientUuid, grantedContext, toDate, fromDate);
                 default:
                     Log.Error("Invalid HiType");
-                    return Task.FromResult("");
+                    return "";
             }
         }
 
