@@ -40,7 +40,6 @@
             this.logger = logger;
         }
         
-        [HttpPost(PATH_CARE_CONTEXTS_DISCOVER)]
         public AcceptedResult DiscoverPatientCareContexts(
             [FromHeader(Name = CORRELATION_ID)] string correlationId,     
             [FromBody] DiscoveryRequest request)

@@ -9,6 +9,7 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
     {
         public PatientEnquiry Patient { get; }
 
+        [Required(ErrorMessage = "Request id must be provided")]
         public string RequestId { get; }
 
         [Required, MaxLength(50)]
