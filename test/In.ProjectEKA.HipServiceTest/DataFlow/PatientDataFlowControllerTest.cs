@@ -39,7 +39,9 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
             patientDataFlowController = new PatientDataFlowController(dataFlow.Object,
                 backgroundJobClient.Object,
                 gatewayClient.Object,
-                logger.Object);
+                logger.Object,
+                gatewayConfiguration
+                );
         }
 
         [Fact]

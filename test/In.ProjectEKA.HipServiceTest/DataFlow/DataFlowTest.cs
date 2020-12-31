@@ -1,4 +1,6 @@
+using Bogus;
 using Hl7.Fhir.Model;
+using In.ProjectEKA.HipService.Link;
 
 namespace In.ProjectEKA.HipServiceTest.DataFlow
 {
@@ -21,6 +23,7 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
     {
         private readonly Mock<IDataFlowRepository> dataFlowRepository = new Mock<IDataFlowRepository>();
         private readonly Mock<IConsentRepository> consentRepository = new Mock<IConsentRepository>();
+        private readonly Mock<ILinkPatientRepository> linkPatientRepository = new Mock<ILinkPatientRepository>();
         private readonly Mock<ILogger<DataFlow>> loggerMock = new Mock<ILogger<DataFlow>>();
 
         private readonly Mock<IHealthInformationRepository> healthInformationRepository =
@@ -40,7 +43,9 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
                 consentRepository.Object,
                 healthInformationRepository.Object,
                 dataFlowConfiguration,
-                loggerMock.Object);
+                loggerMock.Object,
+                linkPatientRepository.Object
+            );
         }
 
         [Fact]
@@ -49,13 +54,16 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
             var consentMangerId = TestBuilder.Faker().Random.String();
             var transactionId = TestBuilder.Faker().Random.Hash();
             var request = TestBuilder.HealthInformationRequest(transactionId);
+            var consent = TestBuilder.DataFlowConsent();
             dataFlowRepository.Setup(d => d.SaveRequest(transactionId, request))
                 .ReturnsAsync(Option.None<Exception>());
             consentRepository.Setup(d => d.GetFor(request.Consent.Id))
-                .ReturnsAsync(TestBuilder.DataFlowConsent());
+                .ReturnsAsync(consent);
+            linkPatientRepository.Setup(d => d.GetPatientUuid(consent.ConsentArtefact.Patient.Id))
+                .ReturnsAsync(new Tuple<Guid, Exception>(Guid.NewGuid(), null));
 
             var (healthInformationResponse, _) =
-                await dataFlowService.HealthInformationRequestFor(request, consentMangerId, Uuid.Generate().ToString());
+                await dataFlowService.HealthInformationRequestFor(request, consentMangerId, Guid.NewGuid().ToString());
 
             dataFlowRepository.Verify();
             healthInformationResponse.AcknowledgementId.Should().BeEquivalentTo(transactionId);
@@ -68,14 +76,19 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
 
             var transactionId = TestBuilder.Faker().Random.Hash();
             var request = TestBuilder.HealthInformationRequest(transactionId);
+            var consent = TestBuilder.DataFlowConsent();
+            
             dataFlowRepository.Setup(d => d.SaveRequest(transactionId, request))
                 .ReturnsAsync(Option.Some(new Exception()));
             var expectedError = new ErrorRepresentation(new Error(ErrorCode.ServerInternalError,
                 ErrorMessage.InternalServerError));
             consentRepository.Setup(d => d.GetFor(request.Consent.Id))
-                .ReturnsAsync(TestBuilder.DataFlowConsent());
+                .ReturnsAsync(consent);
+            linkPatientRepository.Setup(d => d.GetPatientUuid(consent.ConsentArtefact.Patient.Id))
+                .ReturnsAsync(new Tuple<Guid, Exception>(Guid.NewGuid(), null));
 
-            var (_, errorResponse) = await dataFlowService.HealthInformationRequestFor(request, consentMangerId, Uuid.Generate().ToString());
+            var (_, errorResponse) =
+                await dataFlowService.HealthInformationRequestFor(request, consentMangerId, Guid.NewGuid().ToString());
 
             dataFlowRepository.Verify();
             errorResponse.Should().BeEquivalentTo(expectedError);

@@ -73,8 +73,7 @@ namespace In.ProjectEKA.HipService.Link
         public async Task LinkPatient(LinkReferenceRequest request, string correlationId)
         {
             var cmUserId = request.Patient.Id;
-            var cmSuffix = cmUserId.Substring(
-                cmUserId.LastIndexOf("@", StringComparison.Ordinal) + 1);
+            var cmSuffix = cmUserId.Substring(cmUserId.LastIndexOf("@", StringComparison.Ordinal) + 1);
             var patient = new LinkEnquiry(
                 cmSuffix,
                 cmUserId,
@@ -106,6 +105,8 @@ namespace In.ProjectEKA.HipService.Link
                 {
                     linkedPatientRepresentation = linkReferenceResponse.Link;
                 }
+                if (error != null)
+                    Log.Error(error.Error.Code.ToString());
                 var response = new GatewayLinkResponse(
                     linkedPatientRepresentation,
                     error?.Error,

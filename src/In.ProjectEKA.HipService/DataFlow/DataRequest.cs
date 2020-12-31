@@ -2,6 +2,7 @@ namespace In.ProjectEKA.HipService.DataFlow
 {
     using System.Collections.Generic;
     using Common.Model;
+    using System;
 
     public class DataRequest
     {
@@ -14,7 +15,9 @@ namespace In.ProjectEKA.HipService.DataFlow
             string gatewayId,
             string consentId,
             string cmSuffix,
-            string correlationId)
+            string correlationId,
+            Guid patientUuid
+            )
         {
             CareContexts = careContexts;
             DateRange = dateRange;
@@ -26,6 +29,7 @@ namespace In.ProjectEKA.HipService.DataFlow
             ConsentId = consentId;
             CmSuffix = cmSuffix;
             CorrelationId = correlationId;
+            PatientUuid = patientUuid;
         }
 
         public IEnumerable<GrantedContext> CareContexts { get; }
@@ -38,5 +42,6 @@ namespace In.ProjectEKA.HipService.DataFlow
         public string ConsentId { get; }
         public string CmSuffix { get; }
         public string CorrelationId { get; }
+        public Guid PatientUuid { get; }
     }
 }

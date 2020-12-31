@@ -5,7 +5,8 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
 
     public class TraceableDataRequest
     {
-        public TraceableDataRequest(IEnumerable<GrantedContext> careContexts,
+        public TraceableDataRequest(
+            IEnumerable<GrantedContext> careContexts,
             DateRange dateRange,
             string dataPushUrl,
             IEnumerable<HiType> hiType,
@@ -14,7 +15,9 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
             string consentManagerId,
             string consentId,
             string cmSuffix,
-            string correlationId)
+            string correlationId,
+            string patientUuid
+            )
         {
             CareContexts = careContexts;
             DateRange = dateRange;
@@ -26,6 +29,7 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
             ConsentId = consentId;
             CmSuffix = cmSuffix;
             CorrelationId = correlationId;
+            PatientUuid = patientUuid;
         }
 
         public IEnumerable<GrantedContext> CareContexts { get; }
@@ -38,6 +42,7 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
         public string ConsentId { get; }
         public string CmSuffix { get; }
         public string CorrelationId { get; }
+        public string PatientUuid { get; }
 
         public override string ToString()
         {

@@ -7,16 +7,16 @@ namespace In.ProjectEKA.HipService.DataFlow
 
     public class DataFlowMessageHandler
     {
-        private readonly ICollect collect;
+        private readonly ICollectHipService collectHipService;
         private readonly DataEntryFactory dataEntryFactory;
         private readonly DataFlowClient dataFlowClient;
 
         public DataFlowMessageHandler(
-            ICollect collect,
+            ICollectHipService collectHipService,
             DataFlowClient dataFlowClient,
             DataEntryFactory dataEntryFactory)
         {
-            this.collect = collect;
+            this.collectHipService = collectHipService;
             this.dataFlowClient = dataFlowClient;
             this.dataEntryFactory = dataEntryFactory;
         }
@@ -24,7 +24,7 @@ namespace In.ProjectEKA.HipService.DataFlow
         public async Task HandleDataFlowMessage(TraceableDataRequest dataRequest)
         {
             var sentKeyMaterial = dataRequest.KeyMaterial;
-            var data = await collect.CollectData(dataRequest).ConfigureAwait(false);
+            var data = await collectHipService.CollectData(dataRequest).ConfigureAwait(false);
             var encryptedEntries = data.FlatMap(entries =>
                 dataEntryFactory.Process(entries, sentKeyMaterial, dataRequest.TransactionId));
             encryptedEntries.MatchSome(async entries =>

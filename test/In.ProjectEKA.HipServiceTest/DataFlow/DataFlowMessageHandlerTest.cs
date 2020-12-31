@@ -4,7 +4,6 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
     using System.Linq;
     using System.Net.Mime;
     using Builder;
-    using HipLibrary.Patient;
     using HipLibrary.Patient.Model;
     using HipService.DataFlow;
     using Hl7.Fhir.Model;
@@ -17,7 +16,7 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
         [Fact]
         private void ShouldProcessMessage()
         {
-            var collect = new Mock<ICollect>();
+            var collect = new Mock<ICollectHipService>();
             var dataFlowClient = new Mock<DataFlowClient>(MockBehavior.Strict, null, null, null);
             var dataEntryFactory = new Mock<DataEntryFactory>();
             var dataFlowMessageHandler =

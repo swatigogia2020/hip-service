@@ -210,7 +210,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
                 , It.IsAny<string>(), linkedCareContext);
             var testLinkedAccounts = new LinkedAccounts(testLinkRequest.PatientReferenceNumber,
                 testLinkRequest.LinkReferenceNumber,
-                testLinkRequest.ConsentManagerUserId, It.IsAny<string>(), new[] {programRefNo}.ToList());
+                testLinkRequest.ConsentManagerUserId, It.IsAny<string>(), new[] {programRefNo}.ToList(),It.IsAny<Guid>());
             patientVerification.Setup(e => e.Verify(sessionId, otpToken))
                 .ReturnsAsync((OtpMessage) null);
             linkRepository.Setup(e => e.GetPatientFor(sessionId))
@@ -220,13 +220,16 @@ namespace In.ProjectEKA.HipServiceTest.Link
             linkRepository.Setup(x => x.Save(testLinkRequest.ConsentManagerUserId,
                     testLinkRequest.PatientReferenceNumber,
                     testLinkRequest.LinkReferenceNumber,
-                    new[] {programRefNo}))
+                    new[] {programRefNo},
+                    It.IsAny<Guid>()
+                    ))
                 .ReturnsAsync(Option.Some(testLinkedAccounts));
             var expectedLinkResponse = new PatientLinkConfirmationRepresentation(
                 new LinkConfirmationRepresentation(
                     testPatient.Identifier,
                     $"{testPatient.Name}",
-                    new[] {new CareContextRepresentation("129", "National Cancer program")}));
+                    new[] {new CareContextRepresentation("129", "National Cancer program")
+                    }));
 
             var (response,cmId,_) = await linkPatient.VerifyAndLinkCareContext(patientLinkRequest);
 

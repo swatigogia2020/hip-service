@@ -40,9 +40,8 @@
             this.logger = logger;
         }
         
-        [HttpPost(PATH_CARE_CONTEXTS_DISCOVER)]
         public AcceptedResult DiscoverPatientCareContexts(
-            [FromHeader(Name = CORRELATION_ID)] string correlationId, 
+            [FromHeader(Name = CORRELATION_ID)] string correlationId,     
             [FromBody] DiscoveryRequest request)
         {
             logger.LogInformation(LogEvents.Discovery, "discovery request received for {Id} with {RequestId}",
@@ -54,7 +53,7 @@
         [NonAction]
         public async Task GetPatientCareContext(DiscoveryRequest request, string correlationId)
         {
-            var patientId = request.Patient.Id;
+            var patientId = request.Patient.Id;    
             var cmSuffix = patientId.Substring(patientId.LastIndexOf("@", StringComparison.Ordinal) + 1);
             try {
                 var (response, error) = await patientDiscovery.PatientFor(request);

@@ -1,4 +1,5 @@
-   
+using Serilog;
+
 namespace In.ProjectEKA.HipService.DataFlow
 {
     using System;
@@ -10,13 +11,12 @@ namespace In.ProjectEKA.HipService.DataFlow
     using Microsoft.AspNetCore.Mvc;
     using HipService.Gateway.Model;
     using Microsoft.Extensions.Logging;
-    using In.ProjectEKA.HipService.Common;
+    using Common;
     using Model;
     using Gateway;
-    using Logger;
     using static Common.Constants;
-    
-    
+
+
     [ApiController]
     public class DataFlowController : ControllerBase
     {
@@ -72,20 +72,24 @@ namespace In.ProjectEKA.HipService.DataFlow
         private readonly GatewayClient gatewayClient;
         private readonly GatewayConfiguration gatewayConfiguration;
         private readonly ILogger<PatientDataFlowController> logger;
-        public PatientDataFlowController(IDataFlow dataFlow, 
-            IBackgroundJobClient backgroundJob, 
+
+        public PatientDataFlowController(IDataFlow dataFlow,
+            IBackgroundJobClient backgroundJob,
             GatewayClient gatewayClient,
-            ILogger<PatientDataFlowController> logger)
+            ILogger<PatientDataFlowController> logger,
+            GatewayConfiguration gatewayConfiguration
+        )
         {
             this.dataFlow = dataFlow;
             this.backgroundJob = backgroundJob;
             this.gatewayClient = gatewayClient;
             this.logger = logger;
+            this.gatewayConfiguration = gatewayConfiguration;
         }
 
         [HttpPost(PATH_HEALTH_INFORMATION_HIP_REQUEST)]
         public AcceptedResult HealthInformationRequestFor(PatientHealthInformationRequest healthInformationRequest,
-            [FromHeader(Name = CORRELATION_ID)] string correlationId, 
+            [FromHeader(Name = CORRELATION_ID)] string correlationId,
             [FromHeader(Name = "X-GatewayID")] string gatewayId)
         {
             logger.Log(LogLevel.Information, LogEvents.DataFlow, "Data request received");
@@ -105,7 +109,7 @@ namespace In.ProjectEKA.HipService.DataFlow
                     hiRequest.DateRange,
                     hiRequest.DataPushUrl,
                     hiRequest.KeyMaterial);
-             var (_, error) = await dataFlow.HealthInformationRequestFor(request, gatewayId, correlationId);
+                var (_, error) = await dataFlow.HealthInformationRequestFor(request, gatewayId, correlationId);
                 GatewayDataFlowRequestResponse gatewayResponse;
 
                 if (error != null)
@@ -135,8 +139,8 @@ namespace In.ProjectEKA.HipService.DataFlow
                         LogEvents.DataFlow,
                         "Response for data request {@GatewayResponse}",
                         gatewayResponse);
-                   
                 }
+
                 await gatewayClient.SendDataToGateway(PATH_HEALTH_INFORMATION_ON_REQUEST,
                     gatewayResponse,
                     gatewayConfiguration.CmSuffix, correlationId);

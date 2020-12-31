@@ -83,8 +83,9 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow.Builder
                 consentManagerId,
                 consentId,
                 faker.Random.Word(),
-                Uuid.Generate().ToString()
-                );
+                Uuid.Generate().ToString(),
+                faker.Random.String()
+            );
         }
 
         internal static DataNotificationRequest DataNotificationRequest(string transactionId)

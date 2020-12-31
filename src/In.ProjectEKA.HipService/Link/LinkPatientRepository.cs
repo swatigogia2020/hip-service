@@ -1,3 +1,6 @@
+using System.Runtime.InteropServices.ComTypes;
+using Org.BouncyCastle.Ocsp;
+
 namespace In.ProjectEKA.HipService.Link
 {
     using System;
@@ -61,7 +64,8 @@ namespace In.ProjectEKA.HipService.Link
             }
             catch (Exception exception)
             {
-                Log.Fatal(exception, exception.StackTrace);
+                Log.Error("Can't find patient for the given reference number");
+                // Log.Fatal(exception, exception.StackTrace);
                 return new Tuple<LinkEnquires, Exception>(null, exception);
             }
         }
@@ -69,13 +73,16 @@ namespace In.ProjectEKA.HipService.Link
         public async Task<Option<LinkedAccounts>> Save(string consentManagerUserId,
             string patientReferenceNumber,
             string linkReferenceNumber,
-            IEnumerable<string> careContextReferenceNumbers)
+            IEnumerable<string> careContextReferenceNumbers,
+            Guid patientUuid
+        )
         {
             var linkedAccounts = new LinkedAccounts(patientReferenceNumber,
                 linkReferenceNumber,
                 consentManagerUserId,
                 DateTime.Now.ToUniversalTime().ToString(Constants.DateTimeFormat),
-                careContextReferenceNumbers.ToList());
+                careContextReferenceNumbers.ToList(),
+                patientUuid);
             try
             {
                 await linkPatientContext.LinkedAccounts.AddAsync(linkedAccounts).ConfigureAwait(false);
@@ -146,11 +153,28 @@ namespace In.ProjectEKA.HipService.Link
             }
         }
 
-        public async Task<bool> Update(InitiatedLinkRequest linkRequest)
+
+        public async Task<Tuple<Guid, Exception>> GetPatientUuid(string consentManagerId)
+        {
+            try
+            {
+                var linkRequest = await linkPatientContext.LinkedAccounts
+                    .FirstOrDefaultAsync(request => request.ConsentManagerUserId == consentManagerId);
+                return new Tuple<Guid, Exception>( linkRequest.PatientUuid, null);
+            }
+            catch (Exception exception)
+            {
+                Log.Fatal(exception, exception.StackTrace);
+                return new Tuple<Guid, Exception>(Guid.Empty, exception);
+            }
+        }
+
+        public bool Update(InitiatedLinkRequest linkRequest)
         {
             try
             {
                 linkPatientContext.InitiatedLinkRequest.Update(linkRequest);
+                linkPatientContext.SaveChanges();
                 return true;
             }
             catch (Exception exception)

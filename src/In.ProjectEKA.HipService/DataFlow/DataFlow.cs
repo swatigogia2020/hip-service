@@ -1,3 +1,6 @@
+using System.Security.Permissions;
+using In.ProjectEKA.HipService.Link;
+
 namespace In.ProjectEKA.HipService.DataFlow
 {
     using System;
@@ -19,13 +22,14 @@ namespace In.ProjectEKA.HipService.DataFlow
         private readonly IHealthInformationRepository healthInformationRepository;
         private readonly ILogger<DataFlow> logger;
         private readonly IMessagingQueueManager messagingQueueManager;
-
+        private readonly ILinkPatientRepository linkPatientRepository;
         public DataFlow(IDataFlowRepository dataFlowRepository,
             IMessagingQueueManager messagingQueueManager,
             IConsentRepository consentRepository,
             IHealthInformationRepository healthInformationRepository,
             IOptions<DataFlowConfiguration> dataFlowConfiguration,
-            ILogger<DataFlow> logger)
+            ILogger<DataFlow> logger,
+            ILinkPatientRepository linkPatientRepository)
         {
             this.dataFlowRepository = dataFlowRepository;
             this.messagingQueueManager = messagingQueueManager;
@@ -33,6 +37,7 @@ namespace In.ProjectEKA.HipService.DataFlow
             this.healthInformationRepository = healthInformationRepository;
             this.dataFlowConfiguration = dataFlowConfiguration;
             this.logger = logger;
+            this.linkPatientRepository = linkPatientRepository;
         }
 
         public async Task<Tuple<HealthInformationTransactionResponse, ErrorRepresentation>> HealthInformationRequestFor(
@@ -42,6 +47,7 @@ namespace In.ProjectEKA.HipService.DataFlow
         {
             var consent = await consentRepository.GetFor(request.Consent.Id);
             if (consent == null) return ConsentArtefactNotFound();
+            var (patientUuid,exception) = await linkPatientRepository.GetPatientUuid(consent.ConsentArtefact.Patient.Id);
 
             var dataRequest = new DataRequest(consent.ConsentArtefact.CareContexts,
                 request.DateRange,
@@ -52,7 +58,9 @@ namespace In.ProjectEKA.HipService.DataFlow
                 gatewayId,
                 consent.ConsentArtefactId,
                 consent.ConsentArtefact.ConsentManager.Id,
-                correlationId);
+                correlationId,
+                patientUuid
+                );
             var result = await dataFlowRepository.SaveRequest(request.TransactionId, request).ConfigureAwait(false);
             var (response, errorRepresentation) = result.Map(r =>
             {
@@ -145,7 +153,8 @@ namespace In.ProjectEKA.HipService.DataFlow
                 "yyyy-MM-dd'T'HH:mm:ss.ffff", "yyyy-MM-dd'T'HH:mm:ss.fffff",
                 "yyyy-MM-dd'T'HH:mm:ss", "dd/MM/yyyy", "dd/MM/yyyy hh:mm:ss", "dd/MM/yyyy hh:mm:ss tt",
                 "dd/MM/yyyyTHH:mm:ss.fffzzz",
-                "yyyy-MM-dd'T'HH:mm:ss.ffffff"
+                "yyyy-MM-dd'T'HH:mm:ss.ffffff",
+                "yyyy-MM-dd'T'HH:mm:ss.fff'Z'"
             };
             var tryParseExact = DateTime.TryParseExact(expiryDate,
                 formatStrings,
