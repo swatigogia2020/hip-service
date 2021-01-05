@@ -1,4 +1,6 @@
-﻿namespace In.ProjectEKA.HipServiceTest.Discovery.Builder
+﻿using Serilog;
+
+namespace In.ProjectEKA.HipServiceTest.Discovery.Builder
 {
     using System;
     using System.Collections.Generic;
@@ -127,7 +129,6 @@
                     default: throw new ArgumentException("Invalid request parameter name in test", nameof(p));
                 }
             });
-
             return this;
         }
 

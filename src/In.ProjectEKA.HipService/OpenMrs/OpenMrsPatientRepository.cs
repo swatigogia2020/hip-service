@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Hl7.Fhir.Model;
 using In.ProjectEKA.HipLibrary.Patient;
 using In.ProjectEKA.HipService.OpenMrs.Mappings;
 using Optional;
@@ -7,13 +9,15 @@ using Optional;
 namespace In.ProjectEKA.HipService.OpenMrs
 {
     using In.ProjectEKA.HipLibrary.Patient.Model;
+
     public class OpenMrsPatientRepository : IPatientRepository
     {
         private readonly IPatientDal _patientDal;
         private readonly ICareContextRepository _careContextRepository;
         private readonly IPhoneNumberRepository _phoneNumberRepository;
 
-        public OpenMrsPatientRepository(IPatientDal patientDal, ICareContextRepository careContextRepository, IPhoneNumberRepository phoneNumberRepository)
+        public OpenMrsPatientRepository(IPatientDal patientDal, ICareContextRepository careContextRepository,
+            IPhoneNumberRepository phoneNumberRepository)
         {
             _patientDal = patientDal;
             _careContextRepository = careContextRepository;
@@ -22,7 +26,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         public async Task<Option<Patient>> PatientWithAsync(string patientIdentifier)
         {
-            var fhirPatient = await _patientDal.LoadPatientAsyncWithIndentifier(patientIdentifier);
+            var fhirPatient = await _patientDal.LoadPatientAsyncWithIdentifier(patientIdentifier);
             var firstName = fhirPatient.Name[0].GivenElement.FirstOrDefault().ToString();
             var hipPatient = fhirPatient.ToHipPatient(firstName);
             var referenceNumber = hipPatient.Uuid;
@@ -30,6 +34,24 @@ namespace In.ProjectEKA.HipService.OpenMrs
             hipPatient.PhoneNumber = await _phoneNumberRepository.GetPhoneNumber(referenceNumber);
 
             return Option.Some(hipPatient);
+        }
+
+        public async Task<IQueryable<Patient>> PatientsWithVerifiedId(string name, AdministrativeGender? gender,
+            string yearOfBirth, string phoneNumber)
+        {
+            var fhirPatients = await _patientDal.LoadPatientsAsync(name, gender, yearOfBirth);
+            List<Patient> result = new List<Patient>();
+            foreach (var patient in fhirPatients)
+            {
+                var hipPatient = patient.ToHipPatient(name);
+                var referenceNumber = hipPatient.Uuid;
+                var bahmniPhoneNumber =   _phoneNumberRepository.GetPhoneNumber(referenceNumber).Result;
+                if (phoneNumber.Equals(bahmniPhoneNumber))
+                {
+                    result.Add(hipPatient);
+                }
+            }
+            return result.ToList().AsQueryable();
         }
     }
 }
