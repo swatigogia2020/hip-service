@@ -41,8 +41,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
                     Log.Fatal(exception, exception.StackTrace);
                 }
             }
+
             return result;
         }
-
     }
 }

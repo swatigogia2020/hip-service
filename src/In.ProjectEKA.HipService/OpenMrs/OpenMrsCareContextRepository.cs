@@ -1,42 +1,31 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
 using In.ProjectEKA.HipLibrary.Patient;
 using In.ProjectEKA.HipLibrary.Patient.Model;
-using In.ProjectEKA.HipService.Logger;
+using Log = In.ProjectEKA.HipService.Logger.Log;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
     public class OpenMrsCareContextRepository : ICareContextRepository
     {
         private readonly IOpenMrsClient openMrsClient;
+
         public OpenMrsCareContextRepository(IOpenMrsClient openMrsClient)
         {
             this.openMrsClient = openMrsClient;
         }
 
-        public async Task<IEnumerable<CareContextRepresentation>> GetCareContexts(string patientReferenceNumber)
+        public async Task<IEnumerable<CareContextRepresentation>> GetCareContexts(string patientUuid)
         {
-            var combinedCareContexts = new List<CareContextRepresentation>();
-            var programCareContexts = await LoadProgramEnrollments(patientReferenceNumber);
-            combinedCareContexts.AddRange(programCareContexts);
-
-            var visitCareContexts = await LoadVisits(patientReferenceNumber);
-            combinedCareContexts.AddRange(visitCareContexts);
-
-            return combinedCareContexts;
-        }
-        public virtual async Task<List<CareContextRepresentation>> LoadProgramEnrollments(string uuid)
-        {
-            var path = DiscoveryPathConstants.OnProgramEnrollmentPath;
+            var path = DiscoveryPathConstants.OnCareContextPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
-            if (!string.IsNullOrEmpty(uuid))
+            if (!string.IsNullOrEmpty(patientUuid))
             {
-                query["patient"] = uuid;
-                query["v"] = "full";
+                query["patientUuid"] = patientUuid;
             }
+
             if (query.ToString() != "")
             {
                 path = $"{path}?{query}";
@@ -44,73 +33,62 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             var response = await openMrsClient.GetAsync(path);
             var content = await response.Content.ReadAsStringAsync();
-
             var jsonDoc = JsonDocument.Parse(content);
             var root = jsonDoc.RootElement;
-
-            var careContexts = new List<CareContextRepresentation>();
-            var results = root.GetProperty("results");
-            for (int i = 0; i < results.GetArrayLength(); i++)
+            var combinedCareContexts = new List<CareContextRepresentation>();
+            var visitCareContexts = new List<CareContextRepresentation>();
+            var programCareContexts = new List<CareContextRepresentation>();
+            
+            for (int i = 0; i < root.GetArrayLength(); i++)
             {
-                var attributes = TryGetProperty(results[i], "attributes");
-                if (attributes.GetArrayLength() == 0) {
-                    LogAndThrowException($"Property 'attributes' is empty when getting program enrollments.");
+                var careContextType = TryGetProperty(root[i],"careContextType").GetString();
+
+                switch (careContextType)
+                {
+                    case "VISIT_TYPE":
+                        visitCareContexts.Add(Visits(root[i]));
+                        break;
+
+                    case "PROGRAM":
+                        programCareContexts.Add(Programs(root[i]));
+                        break;
                 }
-                var referenceNumber = TryGetProperty(attributes[0], "value");
-                var display = TryGetProperty(results[i], "display");
-                careContexts.Add(new CareContextRepresentation(referenceNumber.GetString(), display.GetString()));
             }
 
-            return careContexts;
+            combinedCareContexts.AddRange(visitCareContexts);
+            combinedCareContexts.AddRange(programCareContexts);
+
+            return combinedCareContexts;
         }
 
-        private JsonElement TryGetProperty(JsonElement data, string propertyName) {
-            if (!data.TryGetProperty(propertyName, out var property)) {
+        private CareContextRepresentation Programs(JsonElement root)
+        {
+            var careContextName = root.GetProperty("careContextName").GetString();
+            var careContextReferenceNumber = root.GetProperty("careContextReference").ToString();
+            return new CareContextRepresentation(careContextReferenceNumber, careContextName);
+        }
+
+        private CareContextRepresentation Visits(JsonElement root)
+        {
+            var careContextName = root.GetProperty("careContextName").GetString();
+            var careContextReferenceNumber = root.GetProperty("careContextReference").ToString();
+            return new CareContextRepresentation(careContextName, null);
+        }
+
+        private JsonElement TryGetProperty(JsonElement data, string propertyName)
+        {
+            if (!data.TryGetProperty(propertyName, out var property))
+            {
                 LogAndThrowException($"Property '{propertyName}' is missing when getting program enrollments.");
             }
+
             return property;
         }
 
-        private void LogAndThrowException(string message) {
+        private void LogAndThrowException(string message)
+        {
             Log.Error(message);
             throw new OpenMrsFormatException();
-        }
-
-        public virtual async Task<List<CareContextRepresentation>> LoadVisits(string uuid)
-        {
-            var path = DiscoveryPathConstants.OnVisitPath;
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            if (!string.IsNullOrEmpty(uuid))
-            {
-                query["patient"] = uuid;
-                query["v"] = "full";
-            }
-            if (query.ToString() != "")
-            {
-                path = $"{path}/?{query}";
-            }
-
-            var response = await openMrsClient.GetAsync(path);
-            var content = await response.Content.ReadAsStringAsync();
-
-            var jsonDoc = JsonDocument.Parse(content);
-            var root = jsonDoc.RootElement;
-
-            var careContexts = new List<CareContextRepresentation>();
-            var results = root.GetProperty("results");
-            for (int i = 0; i < results.GetArrayLength(); i++)
-            {
-                var visitType = results[i].GetProperty("visitType");
-                var referenceNumber = visitType.GetProperty("display").GetString();
-                careContexts.Add(new CareContextRepresentation(referenceNumber, null));
-            }
-
-            List<CareContextRepresentation> uniqueCareContexts = careContexts
-                .GroupBy(careContext => careContext.ReferenceNumber)
-                .Select(visitType => visitType.First())
-                .ToList();
-
-            return uniqueCareContexts;
         }
     }
 }
