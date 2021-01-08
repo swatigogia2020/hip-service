@@ -67,7 +67,7 @@ namespace In.ProjectEKA.HipService.Link
             }
             catch (Exception exception)
             {
-                Log.Error("OTP server is down");
+                Log.Fatal(exception, exception.StackTrace);
                 return Option.Some(new OtpMessage(ResponseType.InternalServerError,
                     ErrorMessage.OtpServiceError));
             }
