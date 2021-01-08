@@ -24,7 +24,7 @@
     {
         private const string SuccessMessage = "Patient record with one or more care contexts found";
         private const string ErrorMessage = "No Matching Record Found or More than one Record Found";
-        
+
         private readonly IPatientDiscovery patientDiscovery;
         private readonly IGatewayClient gatewayClient;
         private readonly IBackgroundJobClient backgroundJob;
@@ -39,9 +39,9 @@
             this.backgroundJob = backgroundJob;
             this.logger = logger;
         }
-        
+
         public AcceptedResult DiscoverPatientCareContexts(
-            [FromHeader(Name = CORRELATION_ID)] string correlationId,     
+            [FromHeader(Name = CORRELATION_ID)] string correlationId,
             [FromBody] DiscoveryRequest request)
         {
             logger.LogInformation(LogEvents.Discovery, "discovery request received for {Id} with {RequestId}",
@@ -53,9 +53,10 @@
         [NonAction]
         public async Task GetPatientCareContext(DiscoveryRequest request, string correlationId)
         {
-            var patientId = request.Patient.Id;    
+            var patientId = request.Patient.Id;
             var cmSuffix = patientId.Substring(patientId.LastIndexOf("@", StringComparison.Ordinal) + 1);
-            try {
+            try
+            {
                 var (response, error) = await patientDiscovery.PatientFor(request);
                 var gatewayDiscoveryRepresentation = new GatewayDiscoveryRepresentation(
                     response?.Patient,
@@ -63,12 +64,15 @@
                     DateTime.Now.ToUniversalTime(),
                     request.TransactionId, //TODO: should be reading transactionId from contract
                     error?.Error,
-                    new DiscoveryResponse(request.RequestId, error == null ? HttpStatusCode.OK : HttpStatusCode.NotFound, error == null ? SuccessMessage : ErrorMessage));
+                    new DiscoveryResponse(request.RequestId,
+                        error == null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
+                        error == null ? SuccessMessage : ErrorMessage));
                 logger.LogInformation(LogEvents.Discovery,
                     "Response about to be send for {RequestId} with {@Patient}",
                     request.RequestId,
                     response?.Patient);
-                await gatewayClient.SendDataToGateway(PATH_ON_DISCOVER, gatewayDiscoveryRepresentation, cmSuffix, correlationId);
+                await gatewayClient.SendDataToGateway(PATH_ON_DISCOVER, gatewayDiscoveryRepresentation, cmSuffix,
+                    correlationId);
             }
             catch (Exception exception)
             {
@@ -78,8 +82,10 @@
                     DateTime.Now.ToUniversalTime(),
                     request.TransactionId, //TODO: should be reading transactionId from contract
                     new Error(ErrorCode.ServerInternalError, "Unreachable external service"),
-                    new DiscoveryResponse(request.RequestId, HttpStatusCode.InternalServerError, "Unreachable external service"));
-                await gatewayClient.SendDataToGateway(PATH_ON_DISCOVER, gatewayDiscoveryRepresentation, cmSuffix,correlationId);
+                    new DiscoveryResponse(request.RequestId, HttpStatusCode.InternalServerError,
+                        "Unreachable external service"));
+                await gatewayClient.SendDataToGateway(PATH_ON_DISCOVER, gatewayDiscoveryRepresentation, cmSuffix,
+                    correlationId);
                 logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", request.RequestId);
             }
         }

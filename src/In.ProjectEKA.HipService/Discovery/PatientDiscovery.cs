@@ -8,7 +8,7 @@ namespace In.ProjectEKA.HipService.Discovery
     using HipLibrary.Patient;
     using HipLibrary.Patient.Model;
     using In.ProjectEKA.HipService.Link.Model;
-    using In.ProjectEKA.HipService.OpenMrs;
+    using OpenMrs;
     using Link;
     using Microsoft.Extensions.Logging;
     using Logger;

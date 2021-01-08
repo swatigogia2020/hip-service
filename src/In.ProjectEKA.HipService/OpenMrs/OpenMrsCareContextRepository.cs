@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Web;
 using In.ProjectEKA.HipLibrary.Patient;
 using In.ProjectEKA.HipLibrary.Patient.Model;
-using Log = In.ProjectEKA.HipService.Logger.Log;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
@@ -35,60 +34,15 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var content = await response.Content.ReadAsStringAsync();
             var jsonDoc = JsonDocument.Parse(content);
             var root = jsonDoc.RootElement;
-            var combinedCareContexts = new List<CareContextRepresentation>();
-            var visitCareContexts = new List<CareContextRepresentation>();
-            var programCareContexts = new List<CareContextRepresentation>();
+            var careContexts = new List<CareContextRepresentation>();
             
-            for (int i = 0; i < root.GetArrayLength(); i++)
+            for (var i = 0; i < root.GetArrayLength(); i++)
             {
-                var careContextType = TryGetProperty(root[i],"careContextType").GetString();
-
-                switch (careContextType)
-                {
-                    case "VISIT_TYPE":
-                        visitCareContexts.Add(Visits(root[i]));
-                        break;
-
-                    case "PROGRAM":
-                        programCareContexts.Add(Programs(root[i]));
-                        break;
-                }
+                var careContextName = root[i].GetProperty("careContextName").GetString();
+                var careContextReferenceNumber = root[i].GetProperty("careContextReference").ToString();
+                careContexts.Add(new CareContextRepresentation(careContextReferenceNumber, careContextName));
             }
-
-            combinedCareContexts.AddRange(visitCareContexts);
-            combinedCareContexts.AddRange(programCareContexts);
-
-            return combinedCareContexts;
-        }
-
-        private CareContextRepresentation Programs(JsonElement root)
-        {
-            var careContextName = root.GetProperty("careContextName").GetString();
-            var careContextReferenceNumber = root.GetProperty("careContextReference").ToString();
-            return new CareContextRepresentation(careContextReferenceNumber, careContextName);
-        }
-
-        private CareContextRepresentation Visits(JsonElement root)
-        {
-            var careContextName = root.GetProperty("careContextName").GetString();
-            var careContextReferenceNumber = root.GetProperty("careContextReference").ToString();
-            return new CareContextRepresentation(careContextName, null);
-        }
-
-        private JsonElement TryGetProperty(JsonElement data, string propertyName)
-        {
-            if (!data.TryGetProperty(propertyName, out var property))
-            {
-                LogAndThrowException($"Property '{propertyName}' is missing when getting program enrollments.");
-            }
-
-            return property;
-        }
-
-        private void LogAndThrowException(string message)
-        {
-            Log.Error(message);
-            throw new OpenMrsFormatException();
+            return careContexts;
         }
     }
 }
