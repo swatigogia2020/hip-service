@@ -35,6 +35,19 @@ namespace In.ProjectEKA.HipService.Link.Database.Migrations
                     b.ToTable("CareContext");
                 });
 
+            modelBuilder.Entity("In.ProjectEKA.HipService.Link.Model.CareContextMap", b =>
+                {
+                    b.Property<string>("CareContextName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CareContextType")
+                        .HasColumnType("text");
+
+                    b.HasKey("CareContextName");
+
+                    b.ToTable("CareContextMap");
+                });
+
             modelBuilder.Entity("In.ProjectEKA.HipService.Link.Model.InitiatedLinkRequest", b =>
                 {
                     b.Property<string>("RequestId")
