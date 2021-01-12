@@ -1,10 +1,10 @@
+using System.Collections.Generic;
+using In.ProjectEKA.HipService.Link.Model;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+
 namespace In.ProjectEKA.HipService.Link.Database
 {
-    using System.Collections.Generic;
-    using Microsoft.EntityFrameworkCore;
-    using Model;
-    using Newtonsoft.Json;
-
     public class LinkPatientContext : DbContext
     {
         public LinkPatientContext(DbContextOptions<LinkPatientContext> options) : base(options)
@@ -14,6 +14,8 @@ namespace In.ProjectEKA.HipService.Link.Database
         public DbSet<LinkEnquires> LinkEnquires { get; set; }
 
         public DbSet<LinkedAccounts> LinkedAccounts { get; set; }
+
+        public DbSet<CareContextMap> CareContextMap { get; set; }
 
         public DbSet<InitiatedLinkRequest> InitiatedLinkRequest { get; set; }
 
@@ -33,6 +35,13 @@ namespace In.ProjectEKA.HipService.Link.Database
             {
                 builder.Property(p => p.DateTimeStamp)
                     .HasDefaultValueSql("now()");
+            });
+
+            modelBuilder.Entity<CareContextMap>(builder =>
+            {
+                builder.HasKey(p=>p.CareContextName);
+                builder.Property(p => p.CareContextName);
+                builder.Property(p => p.CareContextType);
             });
 
             modelBuilder.Entity<InitiatedLinkRequest>(builder =>
