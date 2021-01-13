@@ -1,5 +1,4 @@
-using System.Runtime.InteropServices.ComTypes;
-using Org.BouncyCastle.Ocsp;
+using In.ProjectEKA.HipLibrary.Patient.Model;
 
 namespace In.ProjectEKA.HipService.Link
 {
@@ -136,6 +135,24 @@ namespace In.ProjectEKA.HipService.Link
             }
         }
 
+        public async Task<Option<CareContextMap>> SaveCareContextMap(
+            CareContextRepresentation careContextRepresentation)
+        {
+            try
+            {
+                var careContextMap =
+                    new CareContextMap(careContextRepresentation.Display, careContextRepresentation.Type);
+                await linkPatientContext.CareContextMap.AddAsync(careContextMap).ConfigureAwait(false);
+                await linkPatientContext.SaveChangesAsync();
+                return Option.Some(careContextMap);
+            }
+            catch (Exception exception)
+            {
+                Log.Fatal(exception, exception.StackTrace);
+                return Option.None<CareContextMap>();
+            }
+        }
+
         public async Task<Option<IEnumerable<InitiatedLinkRequest>>> Get(string linkReferenceNumber)
         {
             try
@@ -160,7 +177,7 @@ namespace In.ProjectEKA.HipService.Link
             {
                 var linkRequest = await linkPatientContext.LinkedAccounts
                     .FirstOrDefaultAsync(request => request.ConsentManagerUserId == consentManagerId);
-                return new Tuple<Guid, Exception>( linkRequest.PatientUuid, null);
+                return new Tuple<Guid, Exception>(linkRequest.PatientUuid, null);
             }
             catch (Exception exception)
             {

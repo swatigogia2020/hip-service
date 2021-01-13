@@ -108,6 +108,10 @@ namespace In.ProjectEKA.HipService.Discovery
                 foreach (var patient in patients)
                 {
                     var careContexts = await careContextRepository.GetCareContexts(patient.Uuid);
+                    foreach (var careContext in careContexts)
+                    {
+                       await linkPatientRepository.SaveCareContextMap(careContext);
+                    }
                     patient.CareContexts = careContexts;
                 }
             }

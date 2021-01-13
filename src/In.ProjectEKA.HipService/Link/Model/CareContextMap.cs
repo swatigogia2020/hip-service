@@ -18,6 +18,7 @@ namespace In.ProjectEKA.HipService.Link.Model
         }
 
         public string CareContextType { get; set; }
-        [Key]public string CareContextName { get; set; }
+
+        [Key] public string CareContextName { get; set; }
     }
 }
