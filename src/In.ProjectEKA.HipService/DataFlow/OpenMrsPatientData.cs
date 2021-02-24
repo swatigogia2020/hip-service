@@ -6,12 +6,12 @@ using Serilog;
 using System.Text.Json;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using In.ProjectEKA.HipService.Common.Model;
 
 namespace In.ProjectEKA.HipService.DataFlow
 {
     public class OpenMrsPatientData : IOpenMrsPatientData
-
     {
         private readonly Dictionary<string, string> hiTypeToRootElement = new Dictionary<string, string>()
         {
@@ -26,33 +26,34 @@ namespace In.ProjectEKA.HipService.DataFlow
             this.openMrsClient = openMrsClient;
         }
 
+        private static bool IsValidProgramCareContext(string careContextName)
+        {
+            string pattern = @"\(ID Number:(\d+)\)";
+            return Regex.Match(careContextName, pattern).Success;
+        }
+
         public async Task<string> GetPatientData(string patientUuid, string careContextReference, string toDate,
             string fromDate, string hiType)
         {
-            if (hiType.Equals(HiType.Prescription.ToString().ToLower()) ||
-                hiType.Equals(HiType.DiagnosticReport.ToString().ToLower()))
-            {
-                if (!careContextReference.Contains("ID Number"))
-                    return await GetForVisits(hiType, patientUuid, careContextReference, toDate, fromDate);
-                var programName = careContextReference
-                    .Substring(0, careContextReference.IndexOf("(", StringComparison.Ordinal))
-                    .Trim();
-                var indexOfClosingBracket = careContextReference.IndexOf(")", StringComparison.Ordinal);
-                var indexOfColon = careContextReference.IndexOf(":", StringComparison.Ordinal);
-                var programId = careContextReference
-                    .Substring(indexOfColon + 1, indexOfClosingBracket - indexOfColon - 1)
-                    .Trim();
+            if (!hiTypeToRootElement.ContainsKey(hiType)) return "";
+            if (!IsValidProgramCareContext(careContextReference))
+                return await GetForVisits(hiType, patientUuid, careContextReference, toDate, fromDate);
+            var programName = careContextReference
+                .Substring(0, careContextReference.IndexOf("(", StringComparison.Ordinal))
+                .Trim();
+            var indexOfClosingBracket = careContextReference.IndexOf(")", StringComparison.Ordinal);
+            var indexOfColon = careContextReference.IndexOf(":", StringComparison.Ordinal);
+            var programId = careContextReference
+                .Substring(indexOfColon + 1, indexOfClosingBracket - indexOfColon - 1)
+                .Trim();
 
-                return await GetForPrograms(hiType, patientUuid, programName, programId, toDate, fromDate);
-            }
-
-            return "";
+            return await GetForPrograms(hiType, patientUuid, programName, programId, toDate, fromDate);
         }
 
         private async Task<string> GetForVisits(string hiType, string consentId, string grantedContext, string toDate,
             string fromDate)
         {
-            var pathForVisit = $"{Constants.OPENMRS_HITYPE}{hiTypeToRootElement[hiType]}";
+            var pathForVisit = $"{Constants.OPENMRS_HITYPE}{hiTypeToRootElement[hiType]}/visit/";
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (
                 !string.IsNullOrEmpty(consentId) &&
@@ -69,7 +70,7 @@ namespace In.ProjectEKA.HipService.DataFlow
 
             if (query.ToString() != "")
             {
-                pathForVisit = $"{pathForVisit}/visit/?{query}";
+                pathForVisit = $"{pathForVisit}?{query}";
             }
 
             Log.Information("OMOD endpoint being called: " + pathForVisit);
@@ -89,7 +90,7 @@ namespace In.ProjectEKA.HipService.DataFlow
             string toDate,
             string fromDate)
         {
-            var pathForProgram = $"{Constants.OPENMRS_HITYPE}{hiTypeToRootElement[hiType]}";
+            var pathForProgram = $"{Constants.OPENMRS_HITYPE}{hiTypeToRootElement[hiType]}/program/";
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (
                 !string.IsNullOrEmpty(consentId) &&
@@ -107,7 +108,7 @@ namespace In.ProjectEKA.HipService.DataFlow
 
             if (query.ToString() != "")
             {
-                pathForProgram = $"{pathForProgram}/program/?{query}";
+                pathForProgram = $"{pathForProgram}?{query}";
             }
 
             Log.Information("OMOD endpoint being called: " + pathForProgram);
