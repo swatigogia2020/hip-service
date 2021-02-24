@@ -27,5 +27,6 @@
 
     <ItemGroup>
       <Folder Include="DataFlow" />
+      <Folder Include="Discovery" />
     </ItemGroup>
 </Project>

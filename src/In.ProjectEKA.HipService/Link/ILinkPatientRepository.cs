@@ -1,3 +1,5 @@
+using In.ProjectEKA.HipLibrary.Patient.Model;
+
 namespace In.ProjectEKA.HipService.Link
 {
     using System;
@@ -34,6 +36,6 @@ namespace In.ProjectEKA.HipService.Link
 
         bool Update(InitiatedLinkRequest linkRequest);
         Task<Tuple<Guid, Exception>> GetPatientUuid(string patientReferenceNumber);
-
+        Task<Option<CareContextMap>> SaveCareContextMap(CareContextRepresentation careContextRepresentation);
     }
 }

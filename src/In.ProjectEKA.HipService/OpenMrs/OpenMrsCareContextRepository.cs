@@ -35,13 +35,16 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var jsonDoc = JsonDocument.Parse(content);
             var root = jsonDoc.RootElement;
             var careContexts = new List<CareContextRepresentation>();
-            
+
             for (var i = 0; i < root.GetArrayLength(); i++)
             {
                 var careContextName = root[i].GetProperty("careContextName").GetString();
                 var careContextReferenceNumber = root[i].GetProperty("careContextReference").ToString();
-                careContexts.Add(new CareContextRepresentation(careContextReferenceNumber, careContextName));
+                var careContextType = root[i].GetProperty("careContextType").ToString();
+                careContexts.Add(new CareContextRepresentation(careContextReferenceNumber, careContextName,
+                    careContextType));
             }
+
             return careContexts;
         }
     }
