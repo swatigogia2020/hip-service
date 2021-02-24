@@ -7,7 +7,6 @@ namespace In.ProjectEKA.HipService.DataFlow
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
@@ -53,7 +52,7 @@ namespace In.ProjectEKA.HipService.DataFlow
                 foreach (var grantedContext in request.CareContexts)
                 {
                     var listOfDataFiles = new List<string>();
-                    foreach (var hiType in request.HiType)
+                    foreach (var hiType in request.HiType) 
                     {
                         var hiTypeStr = hiType.ToString().ToLower();
                         var result = openMrsPatientData
