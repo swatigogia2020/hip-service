@@ -682,5 +682,9 @@
       <Link>MAXLIVNO15PrescriptionDoc20161211.json</Link>
     </Content>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Discovery" />
+  </ItemGroup>
   
 </Project>
