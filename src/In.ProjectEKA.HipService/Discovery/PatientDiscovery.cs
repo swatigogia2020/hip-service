@@ -15,6 +15,7 @@ namespace In.ProjectEKA.HipService.Discovery
     using Microsoft.Extensions.Logging;
     using Logger;
     using Common;
+    using Link.Model;
 
 
     public class PatientDiscovery : IPatientDiscovery
@@ -77,9 +78,10 @@ namespace In.ProjectEKA.HipService.Discovery
                     .Map(async patient =>
                     {
                         await discoveryRequestRepository.Add(new Model.DiscoveryRequest(request.TransactionId,
-                            request.Patient.Id, patient.Identifier));
+                            request.Patient.Id,
+                            patient.Identifier));
                         return (new DiscoveryRepresentation(patient.ToPatientEnquiryRepresentation(
-                                GetUnlinkedCareContexts(linkedCareContexts, patient))),
+                            GetUnlinkedCareContexts(linkedCareContexts, patient))),
                             (ErrorRepresentation) null);
                     })
                     .ValueOr(Task.FromResult(GetError(ErrorCode.NoPatientFound, ErrorMessage.NoPatientFound)));

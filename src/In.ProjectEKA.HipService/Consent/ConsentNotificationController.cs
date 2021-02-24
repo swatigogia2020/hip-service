@@ -1,3 +1,4 @@
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace In.ProjectEKA.HipService.Consent
 {
@@ -16,10 +17,8 @@ namespace In.ProjectEKA.HipService.Consent
     [Route(PATH_CONSENTS_HIP)]
     public class ConsentNotificationController : ControllerBase
     {
-        private readonly IConsentRepository consentRepository;
-
         private readonly IBackgroundJobClient backgroundJob;
-
+        private readonly IConsentRepository consentRepository;
         private readonly GatewayClient gatewayClient;
 
         public ConsentNotificationController(
@@ -31,7 +30,8 @@ namespace In.ProjectEKA.HipService.Consent
             this.backgroundJob = backgroundJob;
             this.gatewayClient = gatewayClient;
         }
-        
+
+        [HttpPost(PATH_CONSENTS_HIP)]
         public AcceptedResult ConsentNotification(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, 
             [FromBody] ConsentArtefactRepresentation consentArtefact)
@@ -71,9 +71,8 @@ namespace In.ProjectEKA.HipService.Consent
                     var cmSuffix = consent.ConsentArtefact.ConsentManager.Id;
                     var gatewayResponse = new GatewayConsentRepresentation(
                         Guid.NewGuid(),
-                        DateTime.Now.ToUniversalTime(), 
-                        new ConsentUpdateResponse(ConsentUpdateStatus.OK.ToString(),
-                            notification.ConsentId),
+                        DateTime.Now.ToUniversalTime(),
+                        new ConsentUpdateResponse(ConsentUpdateStatus.OK.ToString(), notification.ConsentId),
                         null,
                         new Resp(consentArtefact.RequestId));
                     await gatewayClient.SendDataToGateway(PATH_CONSENT_ON_NOTIFY, gatewayResponse, cmSuffix, correlationId);

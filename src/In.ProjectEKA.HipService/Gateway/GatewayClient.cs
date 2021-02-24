@@ -8,10 +8,10 @@ namespace In.ProjectEKA.HipService.Gateway
     using Common;
     using In.ProjectEKA.HipService.Gateway.Model;
     using Logger;
+    using static Common.HttpRequestHelper;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using Optional;
-    using static Common.HttpRequestHelper;
 
     public interface IGatewayClient
     {
