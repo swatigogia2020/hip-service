@@ -27,8 +27,6 @@ namespace In.ProjectEKA.HipService.OpenMrs
             if (!responseMessage.IsSuccessStatusCode)
             {
                 var error = await responseMessage.Content.ReadAsStringAsync();
-                if (error.Length > 100)
-                    error = error.Substring(0, 100);
                 Log.Error(
                     $"Failure in getting the data from OpenMrs with status code {responseMessage.StatusCode}" +
                     $" {error}");
