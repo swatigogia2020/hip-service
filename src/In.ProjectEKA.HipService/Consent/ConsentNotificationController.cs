@@ -14,7 +14,6 @@ namespace In.ProjectEKA.HipService.Consent
     using static Common.Constants;
 
     [ApiController]
-    [Route(PATH_CONSENTS_HIP)]
     public class ConsentNotificationController : ControllerBase
     {
         private readonly IBackgroundJobClient backgroundJob;

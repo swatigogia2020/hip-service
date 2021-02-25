@@ -12,7 +12,6 @@ namespace In.ProjectEKA.HipService.DataFlow
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using HipService.Gateway.Model;
     using Microsoft.Extensions.Logging;
     using Model;
     using static Common.Constants;

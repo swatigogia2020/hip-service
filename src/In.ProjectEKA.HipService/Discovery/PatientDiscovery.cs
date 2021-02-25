@@ -15,7 +15,6 @@ namespace In.ProjectEKA.HipService.Discovery
     using Microsoft.Extensions.Logging;
     using Logger;
     using Common;
-    using Link.Model;
 
 
     public class PatientDiscovery : IPatientDiscovery
