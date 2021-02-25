@@ -30,13 +30,12 @@ namespace In.ProjectEKA.HipService.Common
                                                                                "/health-information/notify";
 
         public static readonly string PATH_AUTH_CONFIRM = "/" + CURRENT_VERSION + "/users/auth/confirm";
-        
+
         public static readonly string OPENMRS_FHIR = "ws/fhir2/R4/Patient";
         public static readonly string OPENMRS_REST = "ws/rest/v1/visit";
-        public static readonly string OPENMRS_PRESCRIPTION = "ws/rest/v1/hip/prescriptions";
-        public static readonly string OPENMRS_MEDICATION = "ws/rest/v1/hip/medication";
+        public static readonly string OPENMRS_HITYPE = "ws/rest/v1/hip/";
         public static readonly string CONFIG_KEY = "OpenMrs";
-        
+
         public const string CORRELATION_ID = "CORRELATION-ID";
         public const string PATH_PATIENT_PROFILE_SHARE = "/" + CURRENT_VERSION + "/patients/profile/share";
         public const string PATH_PATIENT_PROFILE_ON_SHARE = "/" + CURRENT_VERSION + "/patients/profile/on-share";

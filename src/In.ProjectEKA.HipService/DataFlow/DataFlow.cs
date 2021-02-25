@@ -1,4 +1,3 @@
-using System.Security.Permissions;
 using In.ProjectEKA.HipService.Link;
 
 namespace In.ProjectEKA.HipService.DataFlow
@@ -23,6 +22,7 @@ namespace In.ProjectEKA.HipService.DataFlow
         private readonly ILogger<DataFlow> logger;
         private readonly IMessagingQueueManager messagingQueueManager;
         private readonly ILinkPatientRepository linkPatientRepository;
+
         public DataFlow(IDataFlowRepository dataFlowRepository,
             IMessagingQueueManager messagingQueueManager,
             IConsentRepository consentRepository,
@@ -47,7 +47,8 @@ namespace In.ProjectEKA.HipService.DataFlow
         {
             var consent = await consentRepository.GetFor(request.Consent.Id);
             if (consent == null) return ConsentArtefactNotFound();
-            var (patientUuid,exception) = await linkPatientRepository.GetPatientUuid(consent.ConsentArtefact.Patient.Id);
+            var (patientUuid, _) =
+                await linkPatientRepository.GetPatientUuid(consent.ConsentArtefact.Patient.Id);
 
             var dataRequest = new DataRequest(consent.ConsentArtefact.CareContexts,
                 request.DateRange,
@@ -59,8 +60,7 @@ namespace In.ProjectEKA.HipService.DataFlow
                 consent.ConsentArtefactId,
                 consent.ConsentArtefact.ConsentManager.Id,
                 correlationId,
-                patientUuid
-                );
+                patientUuid);
             var result = await dataFlowRepository.SaveRequest(request.TransactionId, request).ConfigureAwait(false);
             var (response, errorRepresentation) = result.Map(r =>
             {
