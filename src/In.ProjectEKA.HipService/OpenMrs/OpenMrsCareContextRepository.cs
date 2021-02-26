@@ -41,7 +41,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 var careContextName = root[i].GetProperty("careContextName").GetString();
                 var careContextReferenceNumber = root[i].GetProperty("careContextReference").ToString();
                 var careContextType = root[i].GetProperty("careContextType").ToString();
-                careContexts.Add(new CareContextRepresentation(careContextReferenceNumber, careContextName,
+                careContexts.Add(new CareContextRepresentation(careContextName, careContextReferenceNumber,
                     careContextType));
             }
 

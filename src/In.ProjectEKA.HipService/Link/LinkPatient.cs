@@ -148,9 +148,9 @@ namespace In.ProjectEKA.HipService.Link
 
                     var representations = linkEnquires.CareContexts
                         .Where(careContext =>
-                            patient.CareContexts.Any(info => info.ReferenceNumber == careContext.CareContextNumber))
-                        .Select(context => new CareContextRepresentation(context.CareContextNumber,
-                            patient.CareContexts.First(info => info.ReferenceNumber == context.CareContextNumber)
+                            patient.CareContexts.Any(info => info.ReferenceNumber == careContext.CareContextName))
+                        .Select(context => new CareContextRepresentation(context.CareContextName,
+                            patient.CareContexts.First(info => info.ReferenceNumber == context.CareContextName)
                                 .Display));
                     var patientLinkResponse = new PatientLinkConfirmationRepresentation(
                         new LinkConfirmationRepresentation(
@@ -174,7 +174,7 @@ namespace In.ProjectEKA.HipService.Link
                 linkEnquires.ConsentManagerUserId,
                 linkEnquires.PatientReferenceNumber,
                 linkEnquires.LinkReferenceNumber,
-                linkEnquires.CareContexts.Select(context => context.CareContextNumber).ToList(),
+                linkEnquires.CareContexts.Select(context => context.CareContextName).ToList(),
                 (patientUuid!=null?Guid.Parse(patientUuid): Guid.Empty)
                 )
                 .ConfigureAwait(false);

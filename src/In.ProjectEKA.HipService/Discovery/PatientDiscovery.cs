@@ -69,8 +69,7 @@ namespace In.ProjectEKA.HipService.Discovery
             {
                 logger.Log(LogLevel.Information,
                     LogEvents.Discovery,
-                    "User has already linked care contexts: {TransactionID}",
-                    request.TransactionId);
+                    $"User has already linked care contexts: {request.TransactionId}");
                 var patient =
                     await patientRepository.PatientWithAsync(linkedCareContexts.First().PatientReferenceNumber);
                 return await patient

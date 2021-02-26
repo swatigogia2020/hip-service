@@ -8,12 +8,12 @@ namespace In.ProjectEKA.HipService.Link.Model
         {
         }
 
-        public CareContext(string careContextNumber)
+        public CareContext(string careContextName)
         {
-            CareContextNumber = careContextNumber;
+            CareContextName = careContextName;
         }
 
-        public string CareContextNumber { get; set; }
+        public string CareContextName { get; set; }
 
         [ForeignKey("LinkReferenceNumber")]
         public string LinkReferenceNumber { get; set; }

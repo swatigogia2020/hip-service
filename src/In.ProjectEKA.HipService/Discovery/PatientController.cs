@@ -44,8 +44,7 @@
             [FromHeader(Name = CORRELATION_ID)] string correlationId,
             [FromBody] DiscoveryRequest request)
         {
-            logger.LogInformation(LogEvents.Discovery, "discovery request received for {Id} with {RequestId}",
-                request.Patient.Id, request.RequestId);
+            Log.Information($"discovery request received for {request.Patient.Id} with {request.RequestId}.");
             backgroundJob.Enqueue(() => GetPatientCareContext(request, correlationId));
             return Accepted();
         }
@@ -67,10 +66,7 @@
                     new DiscoveryResponse(request.RequestId,
                         error == null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
                         error == null ? SuccessMessage : ErrorMessage));
-                logger.LogInformation(LogEvents.Discovery,
-                    "Response about to be send for {RequestId} with {@Patient}",
-                    request.RequestId,
-                    response?.Patient);
+                Log.Information($"Response about to be send for {request.RequestId} with {@response?.Patient}");
                 await gatewayClient.SendDataToGateway(PATH_ON_DISCOVER, gatewayDiscoveryRepresentation, cmSuffix,
                     correlationId);
             }
@@ -86,7 +82,7 @@
                         "Unreachable external service"));
                 await gatewayClient.SendDataToGateway(PATH_ON_DISCOVER, gatewayDiscoveryRepresentation, cmSuffix,
                     correlationId);
-                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", request.RequestId);
+                logger.LogError(LogEvents.Discovery, exception, $"Error happened for {request.RequestId}");
             }
         }
     }
