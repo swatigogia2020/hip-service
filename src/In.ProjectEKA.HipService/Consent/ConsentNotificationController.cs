@@ -1,7 +1,3 @@
-using System.Linq;
-using Optional.Collections;
-using Serilog;
-
 namespace In.ProjectEKA.HipService.Consent
 {
     using System;

@@ -65,7 +65,7 @@ namespace In.ProjectEKA.HipService.DataFlow
                 query["patientId"] = consentId;
                 query["visitType"] = grantedContext;
                 query["fromDate"] = fromDate;
-                query["toDate"] = toDate;
+                query["toDate"] = DateTime.Parse(toDate).AddDays(1).ToString("yyyy-MM-dd");
             }
 
             if (query.ToString() != "")
@@ -73,8 +73,9 @@ namespace In.ProjectEKA.HipService.DataFlow
                 pathForVisit = $"{pathForVisit}?{query}";
             }
 
-            Log.Information("OMOD endpoint being called: " + pathForVisit);
+            Log.Information("VISIT endpoint being called: " + pathForVisit);
             var response = await openMrsClient.GetAsync(pathForVisit);
+            if (response == null) return "";
             var content = await response.Content.ReadAsStringAsync();
             var jsonDoc = JsonDocument.Parse(content);
             var root = jsonDoc.RootElement;
@@ -111,7 +112,7 @@ namespace In.ProjectEKA.HipService.DataFlow
                 pathForProgram = $"{pathForProgram}?{query}";
             }
 
-            Log.Information("OMOD endpoint being called: " + pathForProgram);
+            Log.Information("PROGRAM endpoint being called: " + pathForProgram);
             var response = await openMrsClient.GetAsync(pathForProgram);
             var content = await response.Content.ReadAsStringAsync();
             var jsonDoc = JsonDocument.Parse(content);
