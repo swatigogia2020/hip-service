@@ -24,7 +24,7 @@
         private const string ErrorMessage = "No Matching Record Found or More than one Record Found";
 
         private readonly IPatientDiscovery patientDiscovery;
-        private readonly IGatewayClient gatewayClient;
+        private readonly IGatewayClient gatewayClient; 
         private readonly IBackgroundJobClient backgroundJob;
         private readonly ILogger<CareContextDiscoveryController> logger;
 
