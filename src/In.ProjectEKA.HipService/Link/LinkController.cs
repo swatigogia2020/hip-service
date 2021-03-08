@@ -173,7 +173,7 @@ namespace In.ProjectEKA.HipService.Link
             return Accepted();
         }
         
-        [HttpPost(PATH_ON_FETCH_AUTH_MODES)]
+        /*[HttpPost(PATH_ON_FETCH_AUTH_MODES)]
         public AcceptedResult OnFetchAuthMode(OnFetchAuthModeRequest request)
         {
             Log.Information("Auth on init request received." +
@@ -199,7 +199,7 @@ namespace In.ProjectEKA.HipService.Link
 
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");
             return Accepted();
-        }
+        }*/
 
         [HttpPost(PATH_ON_ADD_CONTEXTS)]
         public AcceptedResult HipLinkOnAddContexts(HipLinkContextConfirmation confirmation)

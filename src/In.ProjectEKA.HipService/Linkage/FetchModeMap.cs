@@ -1,11 +1,9 @@
+using System;
+using System.Collections.Generic;
+
 namespace In.ProjectEKA.HipService.Linkage
 {
-    using System;
-    using System.Net;
-    using System.Collections.Generic;
-
-    public static FetchModeMap{
-        public static Dictionary<string, string> requestIdToFetchMode = new Dictionary<string, string>(); 
-
+    public class FetchModeMap{
+        public static Dictionary<Guid, string> requestIdToFetchMode = new Dictionary<Guid, string>();
     }
 }
