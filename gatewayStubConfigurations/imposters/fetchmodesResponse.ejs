@@ -1,0 +1,22 @@
+function (config) {
+    config.logger.info(config.request.path + " is called");
+    config.logger.info(config.request.body);
+    config.logger.info("method is about called");
+    config.logger.info(JSON.stringify(config.request.headers));
+var http = require('http'),
+options = {
+method: "GET",
+hostname: 'localhost',
+port: 9052,
+path: "/v0.5/heartbeat",
+headers: {}
+},
+httpRequest = http.request(options, response => {
+var body = 'abcd';
+response.setEncoding('utf8');
+response.on('data', chunk => {
+body += chunk;
+});
+});
+httpRequest.end();
+}
