@@ -21,19 +21,15 @@
         }],
         "responses": [{ "inject": "<%- stringify('sessionsResponse.ejs') %>" }]
       },
-<<<<<<< HEAD
-{
-"predicates": [{
-"equals": {
-"method": "POST",
-"path": "/v0.5/users/auth/init"
-}
-}],
-"responses": [{ "inject": "<%- stringify('authinitResponse.ejs') %>" }]
-},
-=======
->>>>>>> b0e6063... 122|Swati|Nazeer|Praveena|Meghna gateway stubs
-
+        {
+        "predicates": [{
+        "equals": {
+        "method": "POST",
+        "path": "/v0.5/users/auth/init"
+        }
+        }],
+        "responses": [{ "inject": "<%- stringify('authinitResponse.ejs') %>" }]
+        },
       {
        "predicates": [{
           "equals": {
@@ -41,12 +37,8 @@
             "path": "/v0.5/users/auth/fetch-modes"
           }
         }],
-<<<<<<< HEAD
-        "responses": [{ "inject": "<%- stringify('fetchmodesResponse.ejs') %>" }]
-=======
         "responses": [{ "inject": "<%-stringify('fetchmodesResponse.ejs')%>"}]
 
->>>>>>> b0e6063... 122|Swati|Nazeer|Praveena|Meghna gateway stubs
       },
       {
         "predicates": [{
