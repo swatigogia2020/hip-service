@@ -1,22 +1,45 @@
-function (config) {
-    config.logger.info(config.request.path + " is called");
-    config.logger.info(config.request.body);
-    config.logger.info("method is about called");
-    config.logger.info(JSON.stringify(config.request.headers));
-var http = require('http'),
-options = {
-method: "GET",
-hostname: 'localhost',
-port: 9052,
-path: "/v0.5/heartbeat",
+function(config) {
+
+logger.info(config.request.path + " is called");
+
+var http = require('http');
+var options = {
+method: 'GET',
+port: '9052',
+hostname: 'host.docker.internal',
+path: '/auth/test',
 headers: {}
-},
-httpRequest = http.request(options, response => {
-var body = 'abcd';
+};
+var httpRequest = http.request(options, response => {
+config.logger.info("http request");
+var body = '';
 response.setEncoding('utf8');
 response.on('data', chunk => {
 body += chunk;
 });
+response.on('end', () => {
+config.logger.info("stubResponse end");
+var stubResponse = {
+statusCode: response.statusCode,
+headers: response.headers,
+body
+};
+config.logger.info('Successfully proxied: ' + JSON.stringify(stubResponse));
 });
+});
+
 httpRequest.end();
+
+return {
+headers: {
+'Content-Type': 'application/json'
+},
+// this is the redacted response that would come from the openid connect mock server, but we need to replace the host in the url,
+// so the response is copied here with the updated host and the only entry that is required
+body: JSON.stringify(
+{
+"jwks_uri": "http://localhost:8080/.well-known/openid-configuration/jwks"
+}
+)
+};
 }

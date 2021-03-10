@@ -29,8 +29,7 @@
             "path": "/v0.5/users/auth/fetch-modes"
           }
         }],
-        "responses": [{ "inject": "<%-stringify('fetchmodesResponse.ejs')%>"}]
-
+        "responses": [{ "inject": "<%- stringify('fetchmodesResponse.ejs') %>" }]
       },
       {
         "predicates": [{
