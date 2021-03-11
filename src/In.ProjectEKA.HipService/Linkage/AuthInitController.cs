@@ -33,7 +33,7 @@ namespace In.ProjectEKA.HipService.Linkage
             this.gatewayConfiguration = gatewayConfiguration;
         }
 
-        [Route(AUTH_INIT)]
+        [Route(PATH_HIP_AUTH_INIT)]
         public async Task<string> AuthInit(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
