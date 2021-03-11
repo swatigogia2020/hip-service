@@ -32,8 +32,7 @@ namespace In.ProjectEKA.HipService.Linkage
             this.logger = logger;
             this.gatewayConfiguration = gatewayConfiguration;
         }
-
-        [Authorize]
+        
         [Route(FETCH_MODES)]
         public async Task<string> FetchPatientsAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
@@ -79,6 +78,7 @@ namespace In.ProjectEKA.HipService.Linkage
 
             return "";
         }
+        [Authorize]
         [HttpPost(PATH_ON_FETCH_AUTH_MODES)]
         public AcceptedResult OnFetchAuthMode(OnFetchAuthModeRequest request)
         {
@@ -105,12 +105,6 @@ namespace In.ProjectEKA.HipService.Linkage
             }
 
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");
-            return Accepted();
-        }
-        [HttpPost("/auth/test")]
-        public AcceptedResult Test()
-        {
-            Log.Information("test called");
             return Accepted();
         }
     }
