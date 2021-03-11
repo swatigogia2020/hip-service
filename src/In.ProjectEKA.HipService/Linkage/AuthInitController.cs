@@ -8,6 +8,7 @@ using In.ProjectEKA.HipService.Discovery;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.Logger;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -32,7 +33,7 @@ namespace In.ProjectEKA.HipService.Linkage
             this.logger = logger;
             this.gatewayConfiguration = gatewayConfiguration;
         }
-
+        [Authorize]
         [Route(PATH_HIP_AUTH_INIT)]
         public async Task<string> AuthInit(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
@@ -79,8 +80,8 @@ namespace In.ProjectEKA.HipService.Linkage
 
             return "";
         }
-
-        [HttpPost(PATH_ON_AUTH_INIT)]
+        
+        [HttpPost(PATH_ON_AUTH_INIT )]
         public AcceptedResult OnAuthInit(AuthOnInitRequest request)
         {
             Log.Information("Auth on init request received." +

@@ -46,7 +46,6 @@ namespace In.ProjectEKA.HipService.Common
         public const string FETCH_MODE_REQUEST_TYPE = "HIP";
         
         public const string PATH_AUTH_INIT = "/" + CURRENT_VERSION + "/users/auth/init";
-        public const string PATH_AUTH_ON_INIT = "/" + CURRENT_VERSION + "/users/auth/on-init";
         public const string PATH_HIP_AUTH_INIT = "/" + CURRENT_VERSION + "/hip/auth/init";
     }
 }

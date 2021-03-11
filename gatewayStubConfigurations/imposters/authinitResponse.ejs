@@ -1,0 +1,68 @@
+function(config) {
+config.logger.info(config.request.body);
+config.logger.info(config.request.path + " is called");
+var reqBody = JSON.parse(config.request.body);
+var reqHealthId = reqBody.id;
+var reqAuthMode = reqBody.authMode;
+var token = 'Bearer ' + config.request.headers.access_token;
+var body1 ={
+    "requestId":"c41cd0f4-1a9a-4f6f-b71d-1516c5c43b73",
+    "timestamp":"2021-03-11T12:33:21.7269Z",
+    "query":{
+        "id":reqHealthId,
+        "purpose":"KYC_AND_LINK",
+        "authMode":reqAuthMode,
+        "requester":{
+            "id":"10000005",
+            "type":"HIP"
+        }
+    }
+};
+var reqBodyOnFetchModes = JSON.stringify(body1);
+var http = require('http');
+var options = {
+    method: 'POST',
+    port: '9052',
+    hostname: 'host.docker.internal',
+    path: '/v0.5/users/auth/on-init',
+    json: body1,
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token,
+        'content-length': reqBodyOnFetchModes.length,
+        'X-HIP-ID': '10000005'
+}
+},
+httpRequest = http.request(options, response => {
+var body = JSON.parse(body1);
+response.setEncoding('utf8');
+response.on('data', chunk => {
+body += chunk;
+});
+response.on('end', () => {
+var stubResponse = {
+statusCode: response.statusCode,
+headers: response.headers,
+body
+};
+config.logger.info('Successfully proxied: ' + JSON.stringify(stubResponse));
+});
+});
+httpRequest.write(reqBodyOnFetchModes);
+httpRequest.end();
+
+return {
+statusCode: '202',
+headers: {
+'Content-Type': 'application/json'
+},
+// this is the redacted response that would come from the openid connect mock server, but we need to replace the host in the url,
+// so the response is copied here with the updated host and the only entry that is required
+body: JSON.stringify(
+{
+"Request":'Accepted',
+'code':'202'
+}
+)
+};
+}
