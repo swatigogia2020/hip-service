@@ -44,5 +44,6 @@ namespace In.ProjectEKA.HipService.Common
         public const string FETCH_MODES = "/" + CURRENT_VERSION + "/hip/fetch-modes";
         public const string FETCH_MODE_PURPOSE = "KYC_AND_LINK";
         public const string FETCH_MODE_REQUEST_TYPE = "HIP";
+        public const string HIP_AUTH_CONFIRM = "/" + CURRENT_VERSION + "/hip/auth/confirm";
     }
 }
