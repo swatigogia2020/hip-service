@@ -2,20 +2,23 @@ function(config) {
 config.logger.info(config.request.body);
 config.logger.info(config.request.path + " is called");
 var reqBody = JSON.parse(config.request.body);
+var reqId = reqBody.requestId;
 var reqHealthId = reqBody.id;
 var reqAuthMode = reqBody.authMode;
 var token = 'Bearer ' + config.request.headers.access_token;
 var body1 ={
-    "requestId":"c41cd0f4-1a9a-4f6f-b71d-1516c5c43b73",
+    "requestId":reqId,
     "timestamp":"2021-03-11T12:33:21.7269Z",
-    "query":{
-        "id":reqHealthId,
-        "purpose":"KYC_AND_LINK",
-        "authMode":reqAuthMode,
-        "requester":{
-            "id":"10000005",
-            "type":"HIP"
-        }
+    "auth": {
+        "transactionId": "string",
+        "mode": "MOBILE_OTP",
+        "meta": {
+          "hint": "string",
+          "expiry": "2019-12-30T12:01:55Z"
+            }
+        },
+    "resp": {
+         "requestId": reqId
     }
 };
 var reqBodyOnFetchModes = JSON.stringify(body1);

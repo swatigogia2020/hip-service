@@ -16,9 +16,11 @@ namespace In.ProjectEKA.HipService.Linkage
 {
     using static Constants;
     
+
+    [ApiController]
     public class AuthInitController : Controller
     {
-        private readonly Dictionary<string, string> requestIdToTransactionIdMap = new Dictionary<string, string>();
+        
         
         private readonly IGatewayClient gatewayClient;
         private readonly IBackgroundJobClient backgroundJob;
@@ -53,7 +55,7 @@ namespace In.ProjectEKA.HipService.Linkage
                 logger.LogInformation("{gr}",gatewayAuthInitRequestRepresentation.dump(gatewayAuthInitRequestRepresentation));
                 
                 logger.LogInformation("Calling auth-init of gate way for {requestId} with auth-mode {authMode}",
-                    authInitRequest.requestId, authInitRequest.authMode);
+                    requestId, authInitRequest.authMode);
                 
                 await gatewayClient.SendDataToGateway(PATH_AUTH_INIT, gatewayAuthInitRequestRepresentation, cmSuffix, correlationId);
                 var i = 0;
@@ -61,13 +63,13 @@ namespace In.ProjectEKA.HipService.Linkage
                 {
                     Thread.Sleep(2000);
                     logger.LogInformation("sleeping");
-                    if (requestIdToTransactionIdMap.ContainsKey(requestId.ToString()))
+                    if (FetchModeMap.requestIdToTransactionIdMap.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {RequestId} with {TransactionId}",
-                            requestId, requestIdToTransactionIdMap[requestId.ToString()]
+                            requestId, FetchModeMap.requestIdToTransactionIdMap[requestId]
                         );
-                        return requestIdToTransactionIdMap[requestId.ToString()];
+                        return FetchModeMap.requestIdToTransactionIdMap[requestId];
                     }
                     
                     i++;
@@ -95,7 +97,7 @@ namespace In.ProjectEKA.HipService.Linkage
             else if (request.Auth != null)
             {
                 string transactionId = request.Auth.TransactionId;
-                requestIdToTransactionIdMap.Add(request.RequestId, transactionId);
+                FetchModeMap.requestIdToTransactionIdMap.Add(request.RequestId, transactionId);
                 Log.Information($" For RequestId:{request.RequestId},");
                 Log.Information($" TransactionId:{request.Auth.TransactionId}.");
             }

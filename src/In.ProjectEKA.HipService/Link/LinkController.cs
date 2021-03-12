@@ -150,7 +150,7 @@ namespace In.ProjectEKA.HipService.Link
                 Log.Error(exception, exception.StackTrace);
             }
         }
-        [HttpPost(PATH_ON_AUTH_INIT)]
+        /*[HttpPost(PATH_ON_AUTH_INIT)]
         public ActionResult OnAuthInit(AuthOnInitRequest request)
         {
             Log.Information("Auth on init request received." +
@@ -171,7 +171,7 @@ namespace In.ProjectEKA.HipService.Link
 
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");
             return Accepted();
-        }
+        }*/
         
         /*[HttpPost(PATH_ON_FETCH_AUTH_MODES)]
         public AcceptedResult OnFetchAuthMode(OnFetchAuthModeRequest request)
