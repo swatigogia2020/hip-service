@@ -22,7 +22,52 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
         {
             dataFlowController = new DataFlowController(dataFlow.Object);
         }
-        
+
+        [Fact]
+        private async void ReturnTransactionId()
+        {
+            var consentMangerId = TestBuilder.Faker().Random.String();
+            var transactionId = TestBuilder.Faker().Random.Hash();
+            var request = TestBuilder.HealthInformationRequest(transactionId);
+            var expectedResponse = new HealthInformationTransactionResponse(transactionId);
+            var correlationId = Uuid.Generate().ToString();
+            dataFlow.Setup(d => d.HealthInformationRequestFor(request, consentMangerId, correlationId))
+                .ReturnsAsync(
+                    new Tuple<HealthInformationTransactionResponse, ErrorRepresentation>(expectedResponse, null));
+
+            var response = await dataFlowController.HealthInformationRequestFor(request, correlationId,  consentMangerId);
+
+            dataFlow.Verify();
+            response.Should()
+                .NotBeNull()
+                .And
+                .Subject.As<OkObjectResult>()
+                .Value
+                .Should()
+                .BeEquivalentTo(expectedResponse);
+        }
+
+        [Fact]
+        private async void CheckInternalServerErrorOnSaveDataFailure()
+        {
+            var consentMangerId = TestBuilder.Faker().Random.String();
+            var request = TestBuilder.HealthInformationRequest(TestBuilder.Faker().Random.Hash());
+            var expectedError = new ErrorRepresentation(new Error(ErrorCode.ServerInternalError,
+                ErrorMessage.InternalServerError));
+            var correlationId = Uuid.Generate().ToString();
+            dataFlow.Setup(d => d.HealthInformationRequestFor(request, consentMangerId, correlationId))
+                .ReturnsAsync(
+                    new Tuple<HealthInformationTransactionResponse, ErrorRepresentation>(null, expectedError));
+
+            var response =
+                await dataFlowController.HealthInformationRequestFor(request, correlationId,  consentMangerId) as ObjectResult;
+
+            dataFlow.Verify();
+            response.StatusCode
+                .Should()
+                .Be(StatusCodes.Status500InternalServerError);
+        }
+
         [Fact]
         private async void ShouldGetHealthInformation()
         {

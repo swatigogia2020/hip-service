@@ -1,0 +1,487 @@
+{
+	"resourceType": "Bundle",
+	"id": "OPConsultNote-example-05",
+	"meta": {
+	  "versionId": "1",
+	  "lastUpdated": "2021-01-01T15:32:26.605+05:30",
+	  "profile": [
+		"https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentBundle"
+	  ],
+	  "security": [
+		{
+		  "system": "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
+		  "code": "V",
+		  "display": "veryrestricted"
+		}
+	  ]
+	},
+	"identifier": {
+	  "system": "http://hip.in",
+	  "value": "305fecc2-4ba2-46cc-9ccd-efa755aff51d"
+	},
+	"type": "document",
+	"timestamp": "2021-01-01T15:32:26.605+05:30",
+	"entry": [
+	  {
+		"fullUrl": "Composition/1",
+		"resource": {
+		  "resourceType": "Composition",
+		  "id": "1",
+		  "meta": {
+			"versionId": "1",
+			"lastUpdated": "2021-01-01T15:32:26.605+05:30",
+			"profile": [
+			  "https://nrces.in/ndhm/fhir/r4/StructureDefinition/OPConsultRecord"
+			]
+		  },
+		  "language": "en-IN",
+		  "text": {
+			"status": "generated",
+			"div": "<divxmlns=\"http://www.w3.org/1999/xhtml\">NarrativewithDetailsThisisaOPConsultNoteforPatientABC.GeneratedSummary:id:1;MedicalRecordNumber=1234(System:{https://healthid.ndhm.gov.in});active;ABC;ph:+919818512600(HOME);gender:male;birthDate:1981-01-12"
+		  },
+		  "identifier": {
+			"system": "https://ndhm.in/phr",
+			"value": "645bb0c3-ff7e-4123-bef5-3852a4784813"
+		  },
+		  "status": "final",
+		  "type": {
+			"coding": [
+			  {
+				"system": "http://snomed.info/sct",
+				"code": "371530004",
+				"display": "Clinicalconsultationreport"
+			  }
+			],
+			"text": "ClinicalConsultationreport"
+		  },
+		  "subject": {
+			"reference": "Patient/1",
+			"display": "ABC"
+		  },
+		  "encounter": {
+			"reference": "Encounter/1"
+		  },
+		  "date": "2021-01-01T15:32:26.605+05:30",
+		  "author": [
+			{
+			  "reference": "Practitioner/1",
+			  "display": "Dr.DEF"
+			}
+		  ],
+		  "title": "ConsultationReport",
+		  "custodian": {
+			"reference": "Organization/1",
+			"display": "UVWHospital"
+		  },
+		  "section": [
+			{
+			  "title": "Chiefcomplaints",
+			  "code": {
+				"coding": [
+				  {
+					"system": "http://snomed.info/sct",
+					"code": "422843007",
+					"display": "Chiefcomplaintsection"
+				  }
+				]
+			  },
+			  "entry": [
+				{
+				  "reference": "Condition/1"
+				}
+			  ]
+			},
+			{
+			  "title": "MedicalHistory",
+			  "code": {
+				"coding": [
+				  {
+					"system": "http://snomed.info/sct",
+					"code": "371529009",
+					"display": "Historyandphysicalreport"
+				  }
+				]
+			  },
+			  "entry": [
+				{
+				  "reference": "Condition/2"
+				}
+			  ]
+			},
+			{
+			  "title": "Medications",
+			  "code": {
+				"coding": [
+				  {
+					"system": "http://snomed.info/sct",
+					"code": "721912009",
+					"display": "Medicationsummarydocument"
+				  }
+				]
+			  },
+			  "entry": [
+				{
+				  "reference": "MedicationStatement/1"
+				}
+			  ]
+			},
+			{
+			  "title": "Procedure",
+			  "code": {
+				"coding": [
+				  {
+					"system": "http://snomed.info/sct",
+					"code": "371525003",
+					"display": "Clinicalprocedurereport"
+				  }
+				]
+			  },
+			  "entry": [
+				{
+				  "reference": "Procedure/1"
+				}
+			  ]
+			}
+		  ]
+		}
+	  },
+	  {
+		"fullUrl": "Practitioner/1",
+		"resource": {
+		  "resourceType": "Practitioner",
+		  "id": "1",
+		  "meta": {
+			"versionId": "1",
+			"lastUpdated": "2021-01-01T15:32:26.605+05:30",
+			"profile": [
+			  "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner"
+			]
+		  },
+		  "text": {
+			"status": "generated",
+			"div": "<divxmlns=\"http://www.w3.org/1999/xhtml\">Dr.DEF,MD(Medicine)"
+		  },
+		  "identifier": [
+			{
+			  "type": {
+				"coding": [
+				  {
+					"system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+					"code": "MD",
+					"display": "MedicalLicensenumber"
+				  }
+				]
+			  },
+			  "system": "https://doctor.ndhm.gov.in",
+			  "value": "21-1521-3828-3227"
+			}
+		  ],
+		  "name": [
+			{
+			  "text": "Dr.DEF"
+			}
+		  ]
+		}
+	  },
+	  {
+		"fullUrl": "Organization/1",
+		"resource": {
+		  "resourceType": "Organization",
+		  "id": "1",
+		  "meta": {
+			"profile": [
+			  "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Organization"
+			]
+		  },
+		  "text": {
+			"status": "generated",
+			"div": "<divxmlns=\"http://www.w3.org/1999/xhtml\">UVWHospital.ph:+9127321393632,email:<ahref=\"mailto:contact@facility.uvw.org\">contact@facility.uvw.org"
+		  },
+		  "identifier": [
+			{
+			  "type": {
+				"coding": [
+				  {
+					"system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+					"code": "PRN",
+					"display": "Providernumber"
+				  }
+				]
+			  },
+			  "system": "https://facility.ndhm.gov.in",
+			  "value": "4567823"
+			}
+		  ],
+		  "name": "UVWHospital",
+		  "telecom": [
+			{
+			  "system": "phone",
+			  "value": "+9127321393632",
+			  "use": "work"
+			},
+			{
+			  "system": "email",
+			  "value": "contact@facility.uvw.org",
+			  "use": "work"
+			}
+		  ]
+		}
+	  },
+	  {
+		"fullUrl": "Patient/1",
+		"resource": {
+		  "resourceType": "Patient",
+		  "id": "1",
+		  "meta": {
+			"versionId": "1",
+			"lastUpdated": "2021-01-01T14:58:58.181+05:30",
+			"profile": [
+			  "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Patient"
+			]
+		  },
+		  "text": {
+			"status": "generated",
+			"div": "<divxmlns=\"http://www.w3.org/1999/xhtml\">ABC,41year,Male"
+		  },
+		  "identifier": [
+			{
+			  "type": {
+				"coding": [
+				  {
+					"system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+					"code": "MR",
+					"display": "Medicalrecordnumber"
+				  }
+				]
+			  },
+			  "system": "https://healthid.ndhm.gov.in",
+			  "value": "22-7225-4829-5255"
+			}
+		  ],
+		  "name": [
+			{
+			  "text": "ABC"
+			}
+		  ],
+		  "telecom": [
+			{
+			  "system": "phone",
+			  "value": "+919818512600",
+			  "use": "home"
+			}
+		  ],
+		  "gender": "male",
+		  "birthDate": "1981-01-12"
+		}
+	  },
+	  {
+		"fullUrl": "Encounter/1",
+		"resource": {
+		  "resourceType": "Encounter",
+		  "id": "1",
+		  "meta": {
+			"lastUpdated": "2021-01-01T14:58:58.181+05:30",
+			"profile": [
+			  "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Encounter"
+			]
+		  },
+		  "text": {
+			"status": "generated",
+			"div": "<divxmlns=\"http://www.w3.org/1999/xhtml\">OutPatientConsultationEncounter"
+		  },
+		  "identifier": [
+			{
+			  "system": "https://ndhm.in",
+			  "value": "S100"
+			}
+		  ],
+		  "status": "finished",
+		  "class": {
+			"system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+			"code": "AMB",
+			"display": "ambulatory"
+		  },
+		  "subject": {
+			"reference": "Patient/1"
+		  },
+		  "period": {
+			"start": "2021-01-01T14:58:58.181+05:30"
+		  },
+		  "diagnosis": [
+			{
+			  "condition": {
+				"reference": "Condition/1"
+			  },
+			  "use": {
+				"coding": [
+				  {
+					"system": "http://snomed.info/sct",
+					"code": "33962009",
+					"display": "Chiefcomplaint"
+				  }
+				]
+			  }
+			},
+			{
+			  "condition": {
+				"reference": "Condition/3"
+			  },
+			  "use": {
+				"coding": [
+				  {
+					"system": "http://snomed.info/sct",
+					"code": "148006",
+					"display": "Preliminarydiagnosis"
+				  }
+				]
+			  }
+			}
+		  ]
+		}
+	  },
+	  {
+		"fullUrl": "Condition/1",
+		"resource": {
+		  "resourceType": "Condition",
+		  "id": "1",
+		  "meta": {
+			"profile": [
+			  "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"
+			]
+		  },
+		  "text": {
+			"status": "generated",
+			"div": "<divxmlns=\"http://www.w3.org/1999/xhtml\">Foothasswollen"
+		  },
+		  "clinicalStatus": {
+			"coding": [
+			  {
+				"system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+				"code": "active",
+				"display": "Active"
+			  }
+			]
+		  },
+		  "code": {
+			"coding": [
+			  {
+				"system": "http://snomed.info/sct",
+				"code": "297142003",
+				"display": "Footswelling"
+			  }
+			],
+			"text": "Footswelling"
+		  },
+		  "subject": {
+			"reference": "Patient/1"
+		  }
+		}
+	  },
+	  {
+		"fullUrl": "Condition/2",
+		"resource": {
+		  "resourceType": "Condition",
+		  "id": "2",
+		  "meta": {
+			"profile": [
+			  "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"
+			]
+		  },
+		  "text": {
+			"status": "generated",
+			"div": "<divxmlns=\"http://www.w3.org/1999/xhtml\">PastMedicalProblemofDiabetesmellitustype1"
+		  },
+		  "clinicalStatus": {
+			"coding": [
+			  {
+				"system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+				"code": "recurrence",
+				"display": "Recurrence"
+			  }
+			]
+		  },
+		  "code": {
+			"coding": [
+			  {
+				"system": "http://snomed.info/sct",
+				"code": "46635009",
+				"display": "Diabetesmellitustype1"
+			  }
+			],
+			"text": "Diabetesmellitustype1"
+		  },
+		  "subject": {
+			"reference": "Patient/1"
+		  }
+		}
+	  },
+	  {
+		"fullUrl": "Condition/3",
+		"resource": {
+		  "resourceType": "Condition",
+		  "id": "3",
+		  "meta": {
+			"profile": [
+			  "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"
+			]
+		  },
+		  "text": {
+			"status": "generated",
+			"div": "<divxmlns=\"http://www.w3.org/1999/xhtml\">PastMedicalProblemofDiabetesmellitustype2"
+		  },
+		  "clinicalStatus": {
+			"coding": [
+			  {
+				"system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+				"code": "recurrence",
+				"display": "Recurrence"
+			  }
+			]
+		  },
+		  "code": {
+			"coding": [
+			  {
+				"system": "http://snomed.info/sct",
+				"code": "44054006",
+				"display": "Diabetesmellitustype2"
+			  }
+			],
+			"text": "Diabetesmellitustype2"
+		  },
+		  "subject": {
+			"reference": "Patient/1"
+		  }
+		}
+	  },
+	  {
+		"fullUrl": "MedicationStatement/1",
+		"resource": {
+		  "resourceType": "MedicationStatement",
+		  "id": "1",
+		  "meta": {
+			"profile": [
+			  "https://nrces.in/ndhm/fhir/r4/StructureDefinition/MedicationStatement"
+			]
+		  },
+		  "text": {
+			"status": "generated",
+			"div": "<divxmlns=\"http://www.w3.org/1999/xhtml\">Atenolol500microgram/mLsolutionforinjection"
+		  },
+		  "status": "completed",
+		  "medicationCodeableConcept": {
+			"coding": [
+			  {
+				"system": "http://snomed.info/sct",
+				"code": "134463001",
+				"display": "Telmisartan20mgoraltablet"
+			  }
+			]
+		  },
+		  "subject": {
+			"reference": "Patient/1"
+		  },
+		  "dateAsserted": "2020-02-02T14:58:58.181+05:30"
+		}
+	  }
+	]
+  }

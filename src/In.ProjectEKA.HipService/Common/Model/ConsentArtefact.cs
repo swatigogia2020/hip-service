@@ -5,8 +5,7 @@ namespace In.ProjectEKA.HipService.Common.Model
 
     public class ConsentArtefact
     {
-        public ConsentArtefact(
-            string schemaVersion,
+        public ConsentArtefact(string schemaVersion,
             string consentId,
             DateTime createdAt,
             ConsentPurpose purpose,

@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-
 namespace In.ProjectEKA.HipService.Link
 {
     using System;
@@ -11,10 +9,10 @@ namespace In.ProjectEKA.HipService.Link
     using HipLibrary.Patient.Model;
     using Logger;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.ModelBinding;
     using static Common.Constants;
-    using In.ProjectEKA.HipService.Link.Model;
+    using Model;
 
     [Authorize]
     [ApiController]
