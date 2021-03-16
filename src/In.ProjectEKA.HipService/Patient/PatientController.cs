@@ -39,6 +39,7 @@ namespace In.ProjectEKA.HipService.Patient
         public async Task ShareResponseFor(JObject request, String correlationId)
         {
             var patientProfileRequest = request.ToObject<PatientProfile>();
+            logger.LogInformation("Patient Details: {@PatientProfile}", patientProfileRequest);
             logger.LogInformation($"Patient Details: {patientProfileRequest.PatientDetails.UserDemographics.HealthId}");
             var cmSuffix = patientProfileRequest.PatientDetails.UserDemographics.HealthId.Substring(
                 patientProfileRequest.PatientDetails.UserDemographics.HealthId.LastIndexOf("@", StringComparison.Ordinal) + 1);

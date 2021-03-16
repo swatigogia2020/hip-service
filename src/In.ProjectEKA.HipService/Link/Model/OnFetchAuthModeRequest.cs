@@ -5,7 +5,7 @@ namespace In.ProjectEKA.HipService.Link.Model
 {
     public class OnFetchAuthModeRequest
     {
-        public OnFetchAuthModeRequest(string requestId, DateTime timestamp, AuthModeFetch auth, Error error, Resp resp)
+        public OnFetchAuthModeRequest(Guid requestId, DateTime timestamp, AuthModeFetch auth, Error error, Resp resp)
         {
             RequestId = requestId;
             Timestamp = timestamp;
@@ -14,7 +14,7 @@ namespace In.ProjectEKA.HipService.Link.Model
             Resp = resp;
         }
 
-        public string RequestId { get; }
+        public Guid RequestId { get; }
         public DateTime Timestamp { get; }
         public AuthModeFetch Auth { get; }
         public Error Error { get; }

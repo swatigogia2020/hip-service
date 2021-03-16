@@ -6,8 +6,7 @@ namespace In.ProjectEKA.HipService.Consent.Model
 
     public class Consent
     {
-        public Consent(
-            string consentArtefactId,
+        public Consent(string consentArtefactId,
             ConsentArtefact consentArtefact,
             string signature,
             ConsentStatus status,
