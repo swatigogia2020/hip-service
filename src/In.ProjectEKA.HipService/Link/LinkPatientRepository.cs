@@ -140,7 +140,6 @@ namespace In.ProjectEKA.HipService.Link
         {
             try
             {
-<<<<<<< HEAD
                 var careContextMap = await linkPatientContext.CareContextMap
                     .FirstOrDefaultAsync(c =>
                         c.CareContextName == careContextRepresentation.ReferenceNumber);
@@ -152,14 +151,6 @@ namespace In.ProjectEKA.HipService.Link
                     await linkPatientContext.CareContextMap.AddAsync(careContextMapNew)
                         .ConfigureAwait(false);
                 }
-
-=======
-                var careContextMap =
-                    new CareContextMap(careContextRepresentation.Display, careContextRepresentation.Type);
-                if (linkPatientContext.CareContextMap.Count(a =>
-                    a.CareContextName == careContextRepresentation.Display) != 0) return Option.Some(careContextMap);
-                await linkPatientContext.AddAsync(careContextMap).ConfigureAwait(false);
->>>>>>> 38aad28... removed merge heads
                 await linkPatientContext.SaveChangesAsync();
                 return Option.Some(careContextMap);
             }

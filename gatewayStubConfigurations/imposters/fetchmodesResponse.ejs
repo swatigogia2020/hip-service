@@ -4,25 +4,17 @@ config.logger.info(config.request.body);
 config.logger.info(config.request.path + " is called");
 var reqBody = JSON.parse(config.request.body);
 var reqId = reqBody.requestId;
-<<<<<<< HEAD
 var token =  config.request.headers.Authorization;
 config.logger.info("Token: "+token);
 config.logger.info("Header: "+JSON.stringify(config.request.headers));
-=======
-var token = 'Bearer ' + config.request.headers.access_token;
->>>>>>> 663f632... 122|Swati|Nazeer Adds mocked gateway response for fetch modes
 var body1 ={
     "requestId": reqId,
     "timestamp": "2021-03-10T11:04:25.454Z",
     "auth": {
         "purpose": "KYC_AND_LINK",
         "modes": [
-<<<<<<< HEAD
             "MOBILE_OTP",
             "AADHAAR_OTP"
-=======
-            "MOBILE_OTP"
->>>>>>> 663f632... 122|Swati|Nazeer Adds mocked gateway response for fetch modes
         ]
     },
     "resp": {
