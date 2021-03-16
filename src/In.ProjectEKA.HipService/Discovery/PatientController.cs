@@ -26,7 +26,7 @@
         private const string ErrorMessage = "No Matching Record Found or More than one Record Found";
 
         private readonly IPatientDiscovery patientDiscovery;
-        private readonly IGatewayClient gatewayClient; 
+        private readonly IGatewayClient gatewayClient;
         private readonly IBackgroundJobClient backgroundJob;
         private readonly ILogger<CareContextDiscoveryController> logger;
 
@@ -44,8 +44,8 @@
             [FromHeader(Name = CORRELATION_ID)] string correlationId,
             [FromBody] DiscoveryRequest request)
         {
-            logger.LogInformation(LogEvents.Discovery, "discovery request received for {Id} with {RequestId} with {correlationId}",
-                request.Patient.Id, request.RequestId,correlationId);
+            logger.LogInformation(LogEvents.Discovery, "discovery request received for {Id} with {RequestId}",
+                request.Patient.Id);
             backgroundJob.Enqueue(() => GetPatientCareContext(request, correlationId));
             return Accepted();
         }
