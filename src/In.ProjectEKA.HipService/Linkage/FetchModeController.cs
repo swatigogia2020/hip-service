@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Hangfire;
 using In.ProjectEKA.HipService.Common;
 using In.ProjectEKA.HipService.Discovery;
 using In.ProjectEKA.HipService.Gateway;
@@ -18,27 +17,24 @@ namespace In.ProjectEKA.HipService.Linkage
     [ApiController]
     public class FetchModeController : Controller
     {
-        private readonly IGatewayClient gatewayClient;
+        private readonly IGatewayClient _gatewayClient;
+        private readonly ILogger<CareContextDiscoveryController> _logger;
+        private readonly GatewayConfiguration _gatewayConfiguration;
 
-        private readonly IBackgroundJobClient backgroundJob;
-        private readonly ILogger<CareContextDiscoveryController> logger;
-        private readonly GatewayConfiguration gatewayConfiguration;
-
-        public FetchModeController(IGatewayClient gatewayClient, IBackgroundJobClient backgroundJob,
+        public FetchModeController(IGatewayClient gatewayClient,
             ILogger<CareContextDiscoveryController> logger, GatewayConfiguration gatewayConfiguration)
         {
-            this.gatewayClient = gatewayClient;
-            this.backgroundJob = backgroundJob;
-            this.logger = logger;
-            this.gatewayConfiguration = gatewayConfiguration;
+            _gatewayClient = gatewayClient;
+            _logger = logger;
+            _gatewayConfiguration = gatewayConfiguration;
         }
         
         [Route(FETCH_MODES)]
         public async Task<string> FetchPatientsAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
-            string cmSuffix = gatewayConfiguration.CmSuffix;
-            Requester requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
+            string cmSuffix = _gatewayConfiguration.CmSuffix;
+            Requester requester = new Requester(_gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             FetchQuery query = new FetchQuery(fetchRequest.healthId, FETCH_MODE_PURPOSE, requester);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             Guid requestId = Guid.NewGuid();
@@ -47,10 +43,10 @@ namespace In.ProjectEKA.HipService.Linkage
             
             try
             {
-                logger.LogInformation("{cmSuffix} {correlationId}{healthid}", cmSuffix, correlationId,
+                _logger.LogInformation("{cmSuffix} {correlationId}{healthid}", cmSuffix, correlationId,
                     fetchRequest.healthId);
                 
-                await gatewayClient.SendDataToGateway(PATH_FETCH_AUTH_MODES, gr, cmSuffix, correlationId);
+                await _gatewayClient.SendDataToGateway(PATH_FETCH_AUTH_MODES, gr, cmSuffix, correlationId);
                 
                 var i = 0;
                 do
@@ -58,7 +54,7 @@ namespace In.ProjectEKA.HipService.Linkage
                     Thread.Sleep(2000);
                     if (FetchModeMap.requestIdToFetchMode.ContainsKey(requestId))
                     {
-                        logger.LogInformation(LogEvents.Discovery,
+                        _logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {RequestId} with {@AuthModes}",
                             requestId, FetchModeMap.requestIdToFetchMode[requestId]
                         );
@@ -72,7 +68,7 @@ namespace In.ProjectEKA.HipService.Linkage
             }
             catch (Exception exception)
             {
-                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
+                _logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
             throw new TimeoutException("Timeout for request_id: " + requestId);

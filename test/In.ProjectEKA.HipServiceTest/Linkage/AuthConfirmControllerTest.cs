@@ -17,26 +17,25 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
 
     public class AuthConfirmControllerTest
     {
-        private readonly Mock<IBackgroundJobClient> backgroundJobClient = new Mock<IBackgroundJobClient>();
-        private readonly AuthConfirmController authConfirmController;
+        private readonly Mock<IBackgroundJobClient> _backgroundJobClient = new Mock<IBackgroundJobClient>();
+        private readonly AuthConfirmController _authConfirmController;
 
-        private readonly Mock<ILogger<AuthConfirmController>> logger =
+        private readonly Mock<ILogger<AuthConfirmController>> _logger =
             new Mock<ILogger<AuthConfirmController>>();
 
-        private readonly Mock<GatewayClient> gatewayClient = new Mock<GatewayClient>(MockBehavior.Strict, null, null);
-        private readonly Mock<AuthConfirmService> authConfirmService = new Mock<AuthConfirmService>();
+        private readonly Mock<GatewayClient> _gatewayClient = new Mock<GatewayClient>(MockBehavior.Strict, null, null);
+        private readonly Mock<AuthConfirmService> _authConfirmService = new Mock<AuthConfirmService>();
 
-        private readonly GatewayConfiguration gatewayConfiguration = new GatewayConfiguration
+        private readonly GatewayConfiguration _gatewayConfiguration = new GatewayConfiguration
         {
             CmSuffix = "ncg"
         };
 
         public AuthConfirmControllerTest()
         {
-            authConfirmController = new AuthConfirmController(gatewayClient.Object,
-                backgroundJobClient.Object,
-                logger.Object,
-                gatewayConfiguration, authConfirmService.Object);
+            _authConfirmController = new AuthConfirmController(_gatewayClient.Object,
+                _logger.Object,
+                _gatewayConfiguration, _authConfirmService.Object);
         }
 
         [Fact]
@@ -51,19 +50,22 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
                 new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
             var correlationId = Uuid.Generate().ToString();
-            
-            authConfirmService.Setup(a => a.authConfirmResponse(request))
+
+            _authConfirmService.Setup(a => a.authConfirmResponse(request))
                 .Returns(gatewayAuthConfirmRequestRepresentation);
-            gatewayClient.Setup(
-                client =>
-                    client.SendDataToGateway(Constants.PATH_AUTH_CONFIRM,
-                        gatewayAuthConfirmRequestRepresentation, "ncg", correlationId))
+            _gatewayClient.Setup(
+                    client =>
+                        client.SendDataToGateway(Constants.PATH_AUTH_CONFIRM,
+                            gatewayAuthConfirmRequestRepresentation, "ncg", correlationId))
                 .Returns(Task.FromResult(""));
             var accessToken =
-                authConfirmController.FetchPatientsAuthModes(correlationId, request).Result as OkObjectResult;
-            
-            accessToken.StatusCode.Should().Be(StatusCodes.Status200OK);
-            accessToken.Value.Should().BeEquivalentTo("12");
+                _authConfirmController.FetchPatientsAuthModes(correlationId, request).Result as OkObjectResult;
+
+            if (accessToken != null)
+            {
+                accessToken.StatusCode.Should().Be(StatusCodes.Status200OK);
+                accessToken.Value.Should().BeEquivalentTo("12");
+            }
         }
     }
 }

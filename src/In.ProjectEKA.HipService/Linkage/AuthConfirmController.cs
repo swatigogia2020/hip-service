@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Hangfire;
 using In.ProjectEKA.HipService.Common;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Logger;
@@ -16,45 +15,45 @@ namespace In.ProjectEKA.HipService.Linkage
     [ApiController]
     public class AuthConfirmController : Controller
     {
-        private readonly GatewayClient gatewayClient;
-        private readonly ILogger<AuthConfirmController> logger;
-        private readonly GatewayConfiguration gatewayConfiguration;
-        private readonly AuthConfirmService authConfirmService;
+        private readonly GatewayClient _gatewayClient;
+        private readonly ILogger<AuthConfirmController> _logger;
+        private readonly GatewayConfiguration _gatewayConfiguration;
+        private readonly AuthConfirmService _authConfirmService;
 
-        public AuthConfirmController(GatewayClient gatewayClient, IBackgroundJobClient backgroundJob,
+        public AuthConfirmController(GatewayClient gatewayClient,
             ILogger<AuthConfirmController> logger, GatewayConfiguration gatewayConfiguration,
             AuthConfirmService authConfirmService)
         {
-            this.gatewayClient = gatewayClient;
-            this.logger = logger;
-            this.gatewayConfiguration = gatewayConfiguration;
-            this.authConfirmService = authConfirmService;
+            _gatewayClient = gatewayClient;
+            _logger = logger;
+            _gatewayConfiguration = gatewayConfiguration;
+            _authConfirmService = authConfirmService;
         }
 
         [Route(HIP_AUTH_CONFIRM)]
         public async Task<ActionResult> FetchPatientsAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
-            string cmSuffix = gatewayConfiguration.CmSuffix;
+            string cmSuffix = _gatewayConfiguration.CmSuffix;
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
-                authConfirmService.authConfirmResponse(authConfirmRequest);
+                _authConfirmService.authConfirmResponse(authConfirmRequest);
             var requestId = gatewayAuthConfirmRequestRepresentation.requestId;
             try
             {
-                logger.Log(LogLevel.Error,
+                _logger.Log(LogLevel.Error,
                     LogEvents.AuthConfirm,
                     "Request for auth-confirm to gateway: {@GatewayResponse}",
                     gatewayAuthConfirmRequestRepresentation);
-                await gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gatewayAuthConfirmRequestRepresentation,
+                await _gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gatewayAuthConfirmRequestRepresentation,
                     cmSuffix, correlationId);
                 var i = 0;
                 do
                 {
                     Thread.Sleep(2000);
-                    logger.LogInformation("sleeping");
+                    _logger.LogInformation("sleeping");
                     if (FetchModeMap.RequestIdToAccessToken.ContainsKey(requestId))
                     {
-                        logger.LogInformation(LogEvents.Discovery,
+                        _logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {@RequestId} with {@AccessToken}",
                             requestId, FetchModeMap.RequestIdToAccessToken[requestId]
                         );
@@ -66,7 +65,7 @@ namespace In.ProjectEKA.HipService.Linkage
             }
             catch (Exception exception)
             {
-                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
+                _logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
             return Ok("");
