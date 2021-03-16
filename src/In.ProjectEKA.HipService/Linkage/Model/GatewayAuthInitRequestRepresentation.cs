@@ -3,20 +3,19 @@ using Newtonsoft.Json;
 
 namespace In.ProjectEKA.HipService.Linkage
 {
-    public class GatewayFetchModesRequestRepresentation
+    public class GatewayAuthInitRequestRepresentation
     {
         public Guid requestId { get; }
 
         public DateTime timestamp { get; }
 
-        public FetchQuery query { get; }
+        public AuthInitQuery query { get; }
 
-        public GatewayFetchModesRequestRepresentation(Guid requestId, DateTime timestamp, FetchQuery query)
+        public GatewayAuthInitRequestRepresentation(Guid requestId, DateTime timestamp, AuthInitQuery query)
         {
             this.requestId = requestId;
             this.timestamp = timestamp;
             this.query = query;
         }
-        
     }
 }

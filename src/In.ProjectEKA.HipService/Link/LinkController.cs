@@ -11,6 +11,7 @@ namespace In.ProjectEKA.HipService.Link
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.ModelBinding;
     using static Common.Constants;
     using Model;
 
@@ -147,28 +148,6 @@ namespace In.ProjectEKA.HipService.Link
             {
                 Log.Error(exception, exception.StackTrace);
             }
-        }
-        [HttpPost(PATH_ON_AUTH_INIT)]
-        public ActionResult OnAuthInit(AuthOnInitRequest request)
-        {
-            Log.Information("Auth on init request received." +
-                            $" RequestId:{request.RequestId}, " +
-                            $" Timestamp:{request.Timestamp},");
-            if (request.Error != null)
-            {
-                Log.Information($" Error Code:{request.Error.Code}," +
-                                $" Error Message:{request.Error.Message},");
-            }
-            else
-            {
-                Log.Information($" Transaction Id:{request.Auth.TransactionId},");
-                Log.Information($" Auth Meta Mode:{request.Auth.Mode},");
-                Log.Information($" Auth Meta Hint:{request.Auth.Meta.Hint},");
-                Log.Information($" Auth Meta Expiry:{request.Auth.Meta.Expiry},");
-            }
-
-            Log.Information($" Resp RequestId:{request.Resp.RequestId}");
-            return Accepted();
         }
 
         [HttpPost(PATH_ON_ADD_CONTEXTS)]
