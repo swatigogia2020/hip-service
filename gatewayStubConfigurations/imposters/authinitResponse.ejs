@@ -5,7 +5,7 @@ var reqBody = JSON.parse(config.request.body);
 var reqId = reqBody.requestId;
 var reqHealthId = reqBody.id;
 var reqAuthMode = reqBody.authMode;
-var token = 'Bearer ' + config.request.headers.access_token;
+var token =  config.request.headers.Authorization;
 var body1 ={
     "requestId":reqId,
     "timestamp":"2021-03-11T12:33:21.7269Z",

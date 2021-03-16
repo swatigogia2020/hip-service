@@ -17,10 +17,5 @@ namespace In.ProjectEKA.HipService.Linkage
             this.timestamp = timestamp;
             this.query = query;
         }
-
-        public string dump(Object o)
-        {
-            return JsonConvert.SerializeObject(o);
-        }
     }
 }

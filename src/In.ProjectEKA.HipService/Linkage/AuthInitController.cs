@@ -35,7 +35,7 @@ namespace In.ProjectEKA.HipService.Linkage
             this.logger = logger;
             this.gatewayConfiguration = gatewayConfiguration;
         }
-        [Authorize]
+        
         [Route(PATH_HIP_AUTH_INIT)]
         public async Task<string> AuthInit(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
@@ -50,19 +50,12 @@ namespace In.ProjectEKA.HipService.Linkage
                 new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
 
             try {
-                logger.LogInformation("{cmSuffix} {correlationId}{healthid}", cmSuffix, correlationId,
-                    authInitRequest.healthId);
-                logger.LogInformation("{gr}",gatewayAuthInitRequestRepresentation.dump(gatewayAuthInitRequestRepresentation));
-                
-                logger.LogInformation("Calling auth-init of gate way for {requestId} with auth-mode {authMode}",
-                    requestId, authInitRequest.authMode);
-                
+
                 await gatewayClient.SendDataToGateway(PATH_AUTH_INIT, gatewayAuthInitRequestRepresentation, cmSuffix, correlationId);
                 var i = 0;
                 do
                 {
                     Thread.Sleep(2000);
-                    logger.LogInformation("sleeping");
                     if (FetchModeMap.requestIdToTransactionIdMap.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.Discovery,
@@ -80,9 +73,10 @@ namespace In.ProjectEKA.HipService.Linkage
                 logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
-            return "";
+            throw new TimeoutException("Timeout for request_id: " + requestId);
         }
         
+        [Authorize]
         [HttpPost(PATH_ON_AUTH_INIT )]
         public AcceptedResult OnAuthInit(AuthOnInitRequest request)
         {
@@ -98,11 +92,8 @@ namespace In.ProjectEKA.HipService.Linkage
             {
                 string transactionId = request.Auth.TransactionId;
                 FetchModeMap.requestIdToTransactionIdMap.Add(request.RequestId, transactionId);
-                Log.Information($" For RequestId:{request.RequestId},");
-                Log.Information($" TransactionId:{request.Auth.TransactionId}.");
             }
             
-            Log.Information($" Resp RequestId:{request.Resp.RequestId}");
             return Accepted();
         }
         
