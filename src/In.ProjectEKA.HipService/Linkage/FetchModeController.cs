@@ -100,5 +100,11 @@ namespace In.ProjectEKA.HipService.Linkage
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");
             return Accepted();
         }
+        [HttpPost("/auth/test")]
+        public AcceptedResult Test()
+        {
+            Log.Information("test called");
+            return Accepted();
+        }
     }
 }
