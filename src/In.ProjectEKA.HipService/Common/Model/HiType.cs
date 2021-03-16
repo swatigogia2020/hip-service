@@ -10,7 +10,6 @@ namespace In.ProjectEKA.HipService.Common.Model
         Prescription,
         ImmunizationRecord,
         DischargeSummary,
-        OPConsultation,
-        ImmunizationRecord
+        OPConsultation
     }
 }
