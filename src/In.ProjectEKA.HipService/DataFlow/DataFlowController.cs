@@ -1,21 +1,18 @@
-using Serilog;
-
 namespace In.ProjectEKA.HipService.DataFlow
 {
     using System;
     using System.Threading.Tasks;
+    using Common;
+    using Gateway;
+    using Gateway.Model;
     using Hangfire;
     using HipLibrary.Patient.Model;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using HipService.Gateway.Model;
     using Microsoft.Extensions.Logging;
-    using Common;
     using Model;
-    using Gateway;
     using static Common.Constants;
-
 
     [ApiController]
     public class DataFlowController : ControllerBase
@@ -60,7 +57,7 @@ namespace In.ProjectEKA.HipService.DataFlow
                 ErrorCode.LinkExpired => StatusCode(StatusCodes.Status403Forbidden, errorResponse),
                 ErrorCode.ExpiredKeyPair => StatusCode(StatusCodes.Status400BadRequest, errorResponse),
                 _ => Problem(errorResponse.Error.Message)
-            };
+                };
         }
     }
 

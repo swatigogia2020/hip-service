@@ -54,15 +54,19 @@ namespace In.ProjectEKA.HipService
                     cert,
                     chain,
                     sslPolicyErrors) => true
-            };
+            };            
             HttpClient = new HttpClient(clientHandler)
             {
                 Timeout = TimeSpan.FromSeconds(Configuration.GetSection("Gateway:timeout").Get<int>())
             };
+            // Create new connection everytime
+            HttpClient.DefaultRequestHeaders.Add("Connection", "close");
             IdentityModelEventSource.ShowPII = true;
         }
 
         private IConfiguration Configuration { get; }
+
+        private HttpClient HttpClient { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -190,8 +194,6 @@ namespace In.ProjectEKA.HipService
                 })
                 .Services.AddHealthChecks();
         }
-
-        private HttpClient HttpClient { get; }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

@@ -32,8 +32,7 @@ namespace In.ProjectEKA.HipService.Linkage
             this.logger = logger;
             this.gatewayConfiguration = gatewayConfiguration;
         }
-
-        [Authorize]
+        
         [Route(FETCH_MODES)]
         public async Task<string> FetchPatientsAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
@@ -50,14 +49,13 @@ namespace In.ProjectEKA.HipService.Linkage
             {
                 logger.LogInformation("{cmSuffix} {correlationId}{healthid}", cmSuffix, correlationId,
                     fetchRequest.healthId);
-                logger.LogInformation("{gr}",gr.dump(gr));
+                
                 await gatewayClient.SendDataToGateway(PATH_FETCH_AUTH_MODES, gr, cmSuffix, correlationId);
-                //requestmap.add(reqId, [""]); return if the reqid ia lready in the map
+                
                 var i = 0;
                 do
                 {
                     Thread.Sleep(2000);
-                    logger.LogInformation("sleeping");
                     if (FetchModeMap.requestIdToFetchMode.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.Discovery,
@@ -70,15 +68,16 @@ namespace In.ProjectEKA.HipService.Linkage
                     i++;
                 } while (i < 5);
 
-                //throw new TimeoutException("Timeout for request_id: " + requestId);
+                
             }
             catch (Exception exception)
             {
                 logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
-            return "";
+            throw new TimeoutException("Timeout for request_id: " + requestId);
         }
+        [Authorize]
         [HttpPost(PATH_ON_FETCH_AUTH_MODES)]
         public AcceptedResult OnFetchAuthMode(OnFetchAuthModeRequest request)
         {
@@ -92,16 +91,10 @@ namespace In.ProjectEKA.HipService.Linkage
             }
             else if (request.Auth != null)
             {
-                string authModes = "";
-                foreach (Mode mode in request.Auth.Modes)
-                {
-                    authModes += mode + ",";
-                }
 
-                authModes = authModes.Remove(authModes.Length - 1, 1);
+                string authModes =string.Join(',', request.Auth.Modes);
+                
                 FetchModeMap.requestIdToFetchMode.Add(request.RequestId, authModes);
-                Log.Information($" Auth Purpose:{request.Auth.Purpose},");
-                Log.Information($" Auth Modes:{authModes}.");
             }
 
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");

@@ -18,7 +18,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         public async Task<IEnumerable<CareContextRepresentation>> GetCareContexts(string patientUuid)
         {
-            var path = DiscoveryPathConstants.OnCareContextPath;
+            var path = DiscoveryPathConstants.CareContextPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (!string.IsNullOrEmpty(patientUuid))
             {
