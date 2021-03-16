@@ -4,14 +4,17 @@ config.logger.info(config.request.body);
 config.logger.info(config.request.path + " is called");
 var reqBody = JSON.parse(config.request.body);
 var reqId = reqBody.requestId;
-var token = 'Bearer ' + config.request.headers.access_token;
+var token =  config.request.headers.Authorization;
+config.logger.info("Token: "+token);
+config.logger.info("Header: "+JSON.stringify(config.request.headers));
 var body1 ={
     "requestId": reqId,
     "timestamp": "2021-03-10T11:04:25.454Z",
     "auth": {
         "purpose": "KYC_AND_LINK",
         "modes": [
-            "MOBILE_OTP"
+            "MOBILE_OTP",
+            "AADHAAR_OTP"
         ]
     },
     "resp": {
