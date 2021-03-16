@@ -45,7 +45,7 @@
             [FromBody] DiscoveryRequest request)
         {
             logger.LogInformation(LogEvents.Discovery, "discovery request received for {Id} with {RequestId}",
-                request.Patient.Id);
+                request.Patient.Id, request.RequestId);
             backgroundJob.Enqueue(() => GetPatientCareContext(request, correlationId));
             return Accepted();
         }
