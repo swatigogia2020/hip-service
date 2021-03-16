@@ -22,7 +22,7 @@ namespace In.ProjectEKA.HipService.Link.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CareContext>()
-                .HasKey("CareContextNumber", "LinkReferenceNumber")
+                .HasKey("CareContextName", "LinkReferenceNumber")
                 .HasName("Id");
 
             modelBuilder.Entity<LinkEnquires>()

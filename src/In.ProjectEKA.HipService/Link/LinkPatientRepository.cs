@@ -140,10 +140,18 @@ namespace In.ProjectEKA.HipService.Link
         {
             try
             {
-                var careContextMap =
-                    new CareContextMap(careContextRepresentation.Display, careContextRepresentation.Type);
+                var careContextMap = await linkPatientContext.CareContextMap
+                    .FirstOrDefaultAsync(c =>
+                        c.CareContextName == careContextRepresentation.ReferenceNumber);
+                if (careContextMap == null)
+                {
+                    var careContextMapNew =
+                        new CareContextMap(careContextRepresentation.ReferenceNumber,
+                            careContextRepresentation.Type);
+                    await linkPatientContext.CareContextMap.AddAsync(careContextMapNew)
+                        .ConfigureAwait(false);
+                }
 
-                await linkPatientContext.CareContextMap.AddAsync(careContextMap).ConfigureAwait(false);
                 await linkPatientContext.SaveChangesAsync();
                 return Option.Some(careContextMap);
             }
