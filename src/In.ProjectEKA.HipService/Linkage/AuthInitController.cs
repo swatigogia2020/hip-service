@@ -38,7 +38,7 @@ namespace In.ProjectEKA.HipService.Linkage
         {
             string cmSuffix = _gatewayConfiguration.CmSuffix;
             GatewayAuthInitRequestRepresentation gatewayAuthInitRequestRepresentation =
-                _authInitService.AuthInitResponse(authInitRequest);
+                _authInitService.AuthInitResponse(authInitRequest, _gatewayConfiguration);
             var requestId = gatewayAuthInitRequestRepresentation.requestId;
 
             try

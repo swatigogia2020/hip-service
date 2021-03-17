@@ -9,19 +9,12 @@ namespace In.ProjectEKA.HipService.Linkage
 
     public abstract class AuthInitService
     {
-        private readonly GatewayConfiguration _gatewayConfiguration;
-
-        protected AuthInitService(GatewayConfiguration gatewayConfiguration)
-        {
-            _gatewayConfiguration = gatewayConfiguration;
-        }
-
         public virtual GatewayAuthInitRequestRepresentation AuthInitResponse(
-            AuthInitRequest authInitRequest)
+            AuthInitRequest authInitRequest, GatewayConfiguration gatewayConfiguration)
         {
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             Guid requestId = Guid.NewGuid();
-            Requester requester = new Requester(_gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
+            Requester requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             AuthInitQuery query = new AuthInitQuery(authInitRequest.healthId, FETCH_MODE_PURPOSE,
                 authInitRequest.authMode, requester);
             return new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);

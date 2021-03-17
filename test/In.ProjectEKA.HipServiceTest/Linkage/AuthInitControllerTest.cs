@@ -12,14 +12,12 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
 {
     using System;
     using System.Threading.Tasks;
-    using Hangfire;
     using Moq;
     using Xunit;
     using static Constants;
 
     public class AuthInitControllerTest
     {
-        private readonly Mock<IBackgroundJobClient> _backgroundJobClient = new Mock<IBackgroundJobClient>();
         private readonly AuthInitController _authInitController;
 
         private readonly Mock<ILogger<AuthInitController>> _logger =
@@ -36,7 +34,8 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
 
         public AuthInitControllerTest()
         {
-            _authInitController = new AuthInitController(_gatewayClient.Object,
+            _authInitController = new AuthInitController(
+                _gatewayClient.Object,
                 _logger.Object,
                 _gatewayConfiguration, 
                 _authInitService.Object);
@@ -56,11 +55,11 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
                 new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
             var correlationId = Uuid.Generate().ToString();
             
-            _authInitService.Setup(a => a.AuthInitResponse(request))
+            _authInitService.Setup(a => a.AuthInitResponse(request, _gatewayConfiguration))
                 .Returns(gatewayAuthInitRequestRepresentation);
             _gatewayClient.Setup(
                 client =>
-                    client.SendDataToGateway(Constants.PATH_AUTH_INIT,
+                    client.SendDataToGateway(PATH_AUTH_INIT,
                         gatewayAuthInitRequestRepresentation, "ncg", correlationId))
                 .Returns(Task.FromResult(""));
             var transactionId =

@@ -11,13 +11,11 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
 {
     using System;
     using System.Threading.Tasks;
-    using Hangfire;
     using Moq;
     using Xunit;
 
     public class AuthConfirmControllerTest
     {
-        private readonly Mock<IBackgroundJobClient> _backgroundJobClient = new Mock<IBackgroundJobClient>();
         private readonly AuthConfirmController _authConfirmController;
 
         private readonly Mock<ILogger<AuthConfirmController>> _logger =
