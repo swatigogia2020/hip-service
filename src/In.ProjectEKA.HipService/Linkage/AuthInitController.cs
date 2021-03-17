@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Hangfire;
@@ -41,7 +42,7 @@ namespace In.ProjectEKA.HipService.Linkage
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
             string cmSuffix = gatewayConfiguration.CmSuffix;
-            Requester requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
+            Requester requester = new Requester("Bahmni", FETCH_MODE_REQUEST_TYPE);
             AuthInitQuery query = new AuthInitQuery(authInitRequest.healthId, FETCH_MODE_PURPOSE, authInitRequest.authMode, requester);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             Guid requestId = Guid.NewGuid();
@@ -73,7 +74,7 @@ namespace In.ProjectEKA.HipService.Linkage
                 logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
-            throw new TimeoutException("Timeout for request_id: " + requestId);
+            return HttpStatusCode.GatewayTimeout.ToString();
         }
         
         [Authorize]
@@ -91,7 +92,7 @@ namespace In.ProjectEKA.HipService.Linkage
             else if (request.Auth != null)
             {
                 string transactionId = request.Auth.TransactionId;
-                FetchModeMap.requestIdToTransactionIdMap.Add(request.RequestId, transactionId);
+                FetchModeMap.requestIdToTransactionIdMap.Add(Guid.Parse(request.Resp.RequestId), transactionId);
             }
             
             return Accepted();

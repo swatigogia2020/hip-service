@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Hangfire;
@@ -47,22 +48,15 @@ namespace In.ProjectEKA.HipService.Linkage
             
             try
             {
-                logger.LogInformation("{cmSuffix} {correlationId} {authCode} {transactionId}", cmSuffix, correlationId,
-                    authConfirmRequest.authCode, authConfirmRequest.transactionId);
-                logger.LogInformation("{gr}",gr.dump(gr));
+                logger.LogInformation($"{{cmSuffix}} {{correlationId}} {{authCode}} {{transactionId}} {{requestId}}", cmSuffix, correlationId,
+                    authConfirmRequest.authCode, authConfirmRequest.transactionId, requestId);
                 await gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gr, cmSuffix, correlationId);
-                //requestmap.add(reqId, [""]); return if the reqid ia lready in the map
                 var i = 0;
                 do
                 {
                     Thread.Sleep(2000);
-                    logger.LogInformation("sleeping");
                     if (FetchModeMap.requestIdToAccessToken.ContainsKey(requestId))
                     {
-                        logger.LogInformation(LogEvents.Discovery,
-                            "Response about to be send for {RequestId} with {@AuthModes}",
-                            requestId, FetchModeMap.requestIdToAccessToken[requestId]
-                        );
                         return FetchModeMap.requestIdToAccessToken[requestId];
                     }
                     
@@ -74,16 +68,17 @@ namespace In.ProjectEKA.HipService.Linkage
                 logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
-            return "";
+            return HttpStatusCode.GatewayTimeout.ToString();
         }
         
         [Authorize]
         [HttpPost(ON_AUTH_CONFIRM)]
         public AcceptedResult OnFetchAuthMode(OnAuthConfirmRequest request)
         {
-            Log.Information("Auth on init request received." +
+            Log.Information("Auth on confirm request received." +
                             $" RequestId:{request.requestID}, " +
-                            $" Timestamp:{request.timestamp},");
+                            $" Timestamp:{request.timestamp}," +
+                            $" ResponseRequestId:{request.resp.RequestId}, ");
             if (request.error != null)
             {
                 Log.Information($" Error Code:{request.error.Code}," +
@@ -94,13 +89,11 @@ namespace In.ProjectEKA.HipService.Linkage
                 string accessToken = request.auth.accessToken;
                
                 
-                FetchModeMap.requestIdToAccessToken.Add(request.requestID, accessToken);
+                FetchModeMap.requestIdToAccessToken.Add(Guid.Parse(request.resp.RequestId), accessToken);
                 
-                Log.Information($" requestID:{request.requestID},");
-                Log.Information($" accessToken:{accessToken}.");
             }
 
-            Log.Information($" Resp RequestId:{request.resp.RequestId}");
+           
             return Accepted();
         }
 

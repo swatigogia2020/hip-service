@@ -4,7 +4,7 @@ config.logger.info(config.request.body);
 config.logger.info(config.request.path + " is called");
 var reqBody = JSON.parse(config.request.body);
 var reqId = reqBody.requestId;
-var token = 'Bearer ' + config.request.headers.access_token;
+var token = config.request.headers.Authorization;
 var body1 ={
     "requestId": reqId,
     "timestamp": "2021-03-10T11:04:25.454Z",
@@ -39,7 +39,7 @@ var body1 ={
         }
       },
     "resp": {
-        "requestId": reqId
+        "requestId": "2343214213"
     }
 };
 var reqBodyOnFetchModes = JSON.stringify(body1);

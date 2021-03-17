@@ -19,9 +19,5 @@ namespace In.ProjectEKA.HipService.Linkage
             this.credential = credential;
         }
         
-        public string dump(Object o)
-        {
-            return JsonConvert.SerializeObject(o);
-        }
     }
 }

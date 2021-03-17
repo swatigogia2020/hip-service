@@ -1,15 +1,17 @@
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Elastic.CommonSchema;
 using Hangfire;
 using In.ProjectEKA.HipService.Common;
 using In.ProjectEKA.HipService.Discovery;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
-using In.ProjectEKA.HipService.Logger;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Log = In.ProjectEKA.HipService.Logger.Log;
 
 namespace In.ProjectEKA.HipService.Linkage
 {
@@ -38,7 +40,7 @@ namespace In.ProjectEKA.HipService.Linkage
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
             string cmSuffix = gatewayConfiguration.CmSuffix;
-            Requester requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
+            Requester requester = new Requester("Bahmni", FETCH_MODE_REQUEST_TYPE);
             FetchQuery query = new FetchQuery(fetchRequest.healthId, FETCH_MODE_PURPOSE, requester);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             Guid requestId = Guid.NewGuid();
@@ -47,8 +49,9 @@ namespace In.ProjectEKA.HipService.Linkage
             
             try
             {
-                logger.LogInformation("{cmSuffix} {correlationId}{healthid}", cmSuffix, correlationId,
-                    fetchRequest.healthId);
+                logger.LogInformation($"{{cmSuffix}} {{correlationId}}{{healthid}} {{requestId}}", cmSuffix, correlationId,
+                    fetchRequest.healthId,requestId);
+                logger.LogInformation("Request Object: "+gr.dump(gr));
                 
                 await gatewayClient.SendDataToGateway(PATH_FETCH_AUTH_MODES, gr, cmSuffix, correlationId);
                 
@@ -75,15 +78,16 @@ namespace In.ProjectEKA.HipService.Linkage
                 logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
-            throw new TimeoutException("Timeout for request_id: " + requestId);
+            return HttpStatusCode.GatewayTimeout.ToString();
         }
         [Authorize]
         [HttpPost(PATH_ON_FETCH_AUTH_MODES)]
         public AcceptedResult OnFetchAuthMode(OnFetchAuthModeRequest request)
         {
-            Log.Information("Auth on init request received." +
+            Log.Information("On fetch mode request received." +
                             $" RequestId:{request.RequestId}, " +
-                            $" Timestamp:{request.Timestamp},");
+                            $" Timestamp:{request.Timestamp}," +
+                            $" ResponseRequestId:{request.Resp.RequestId}, ");
             if (request.Error != null)
             {
                 Log.Information($" Error Code:{request.Error.Code}," +
@@ -94,7 +98,7 @@ namespace In.ProjectEKA.HipService.Linkage
 
                 string authModes =string.Join(',', request.Auth.Modes);
                 
-                FetchModeMap.requestIdToFetchMode.Add(request.RequestId, authModes);
+                FetchModeMap.requestIdToFetchMode.Add(Guid.Parse(request.Resp.RequestId), authModes);
             }
 
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");

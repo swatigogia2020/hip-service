@@ -30,13 +30,6 @@ namespace In.ProjectEKA.HipService.User
             return Accepted();
         }
 
-       /* [HttpPost(Constants.ON_AUTH_CONFIRM)]
-        public AcceptedResult OnAuthConfirm(JObject response)
-        {
-            backgroundJob.Enqueue(() => OnAuthConfirmFor(response));
-            return Accepted();
-        }*/
-
         [NonAction]
         public async Task AuthFor(JObject request, string correlationId)
         {
