@@ -18,11 +18,11 @@ namespace In.ProjectEKA.HipService.Linkage
         private readonly GatewayClient _gatewayClient;
         private readonly ILogger<AuthConfirmController> _logger;
         private readonly GatewayConfiguration _gatewayConfiguration;
-        private readonly AuthConfirmService _authConfirmService;
+        private readonly IAuthConfirmService _authConfirmService;
 
         public AuthConfirmController(GatewayClient gatewayClient,
             ILogger<AuthConfirmController> logger, GatewayConfiguration gatewayConfiguration,
-            AuthConfirmService authConfirmService)
+            IAuthConfirmService authConfirmService)
         {
             _gatewayClient = gatewayClient;
             _logger = logger;
@@ -36,7 +36,7 @@ namespace In.ProjectEKA.HipService.Linkage
         {
             string cmSuffix = _gatewayConfiguration.CmSuffix;
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
-                _authConfirmService.authConfirmResponse(authConfirmRequest);
+                _authConfirmService.AuthConfirmResponse(authConfirmRequest);
             var requestId = gatewayAuthConfirmRequestRepresentation.requestId;
             try
             {

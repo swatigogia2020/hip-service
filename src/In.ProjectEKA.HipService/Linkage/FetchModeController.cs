@@ -19,11 +19,11 @@ namespace In.ProjectEKA.HipService.Linkage
         private readonly IGatewayClient _gatewayClient;
         private readonly ILogger<FetchModeController> _logger;
         private readonly GatewayConfiguration _gatewayConfiguration;
-        private readonly FetchModeService _fetchModeService;
+        private readonly IFetchModeService _fetchModeService;
 
         public FetchModeController(IGatewayClient gatewayClient,
             ILogger<FetchModeController> logger, GatewayConfiguration gatewayConfiguration,
-            FetchModeService fetchModeService)
+            IFetchModeService fetchModeService)
         {
             _gatewayClient = gatewayClient;
             _logger = logger;

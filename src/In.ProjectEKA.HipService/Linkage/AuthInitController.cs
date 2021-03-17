@@ -20,11 +20,11 @@ namespace In.ProjectEKA.HipService.Linkage
         private readonly IGatewayClient _gatewayClient;
         private readonly ILogger<AuthInitController> _logger;
         private readonly GatewayConfiguration _gatewayConfiguration;
-        private readonly AuthInitService _authInitService;
+        private readonly IAuthInitService _authInitService;
 
         public AuthInitController(IGatewayClient gatewayClient,
             ILogger<AuthInitController> logger, GatewayConfiguration gatewayConfiguration,
-            AuthInitService authInitService)
+            IAuthInitService authInitService)
         {
             _gatewayClient = gatewayClient;
             _logger = logger;

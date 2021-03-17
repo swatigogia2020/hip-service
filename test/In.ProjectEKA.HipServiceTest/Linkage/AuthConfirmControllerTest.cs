@@ -49,7 +49,7 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
                 new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
             var correlationId = Uuid.Generate().ToString();
 
-            _authConfirmService.Setup(a => a.authConfirmResponse(request))
+            _authConfirmService.Setup(a => a.AuthConfirmResponse(request))
                 .Returns(gatewayAuthConfirmRequestRepresentation);
             _gatewayClient.Setup(
                     client =>

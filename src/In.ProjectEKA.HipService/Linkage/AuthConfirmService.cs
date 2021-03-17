@@ -1,12 +1,10 @@
 using System;
-using System.Threading.Tasks;
-using Hl7.Fhir.Model;
 
 namespace In.ProjectEKA.HipService.Linkage
 {
-    public abstract class AuthConfirmService
+    public class AuthConfirmService : IAuthConfirmService
     {
-        public virtual GatewayAuthConfirmRequestRepresentation authConfirmResponse(
+        public virtual GatewayAuthConfirmRequestRepresentation AuthConfirmResponse(
             AuthConfirmRequest authConfirmRequest)
         {
             AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);

@@ -7,7 +7,7 @@ namespace In.ProjectEKA.HipService.Linkage
 {
     using static Constants;
 
-    public abstract class FetchModeService
+    public class FetchModeService : IFetchModeService
     {
         public virtual GatewayFetchModesRequestRepresentation FetchModeResponse(
             FetchRequest fetchRequest, GatewayConfiguration gatewayConfiguration)

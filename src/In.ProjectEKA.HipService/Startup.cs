@@ -1,3 +1,5 @@
+using In.ProjectEKA.HipService.Linkage;
+
 namespace In.ProjectEKA.HipService
 {
     using System;
@@ -93,6 +95,9 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<IPatientRepository, OpenMrsPatientRepository>()
                 .AddSingleton<IMatchingRepository, OpenMrsPatientMatchingRepository>()
                 .AddScoped<ICareContextRepository, OpenMrsCareContextRepository>()
+                .AddSingleton<IAuthInitService, AuthInitService>()
+                .AddSingleton<IAuthConfirmService, AuthConfirmService>()
+                .AddSingleton<IFetchModeService, FetchModeService>()
                 .AddScoped<IDiscoveryRequestRepository, DiscoveryRequestRepository>()
                 .AddScoped<IPatientDiscovery, PatientDiscovery>()
                 .AddScoped<LinkPatient>()
