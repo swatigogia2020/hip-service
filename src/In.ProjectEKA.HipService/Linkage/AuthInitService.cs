@@ -9,7 +9,7 @@ namespace In.ProjectEKA.HipService.Linkage
 
     public class AuthInitService : IAuthInitService
     {
-        public GatewayAuthInitRequestRepresentation AuthInitResponse(
+        public virtual GatewayAuthInitRequestRepresentation AuthInitResponse(
             AuthInitRequest authInitRequest, GatewayConfiguration gatewayConfiguration)
         {
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
