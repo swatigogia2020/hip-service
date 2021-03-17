@@ -21,6 +21,15 @@
         }],
         "responses": [{ "inject": "<%- stringify('sessionsResponse.ejs') %>" }]
       },
+{
+"predicates": [{
+"equals": {
+"method": "POST",
+"path": "/v0.5/users/auth/init"
+}
+}],
+"responses": [{ "inject": "<%- stringify('authinitResponse.ejs') %>" }]
+},
 
       {
        "predicates": [{
@@ -31,15 +40,15 @@
         }],
         "responses": [{ "inject": "<%- stringify('fetchmodesResponse.ejs') %>" }]
       },
-       {
-             "predicates": [{
-                "equals": {
-                  "method": "POST",
-                  "path": "/v0.5/users/auth/confirm"
-                }
-              }],
-              "responses": [{ "inject": "<%- stringify('authConfirmResponse.ejs') %>" }]
-            },
+      {
+                   "predicates": [{
+                      "equals": {
+                        "method": "POST",
+                        "path": "/v0.5/users/auth/confirm"
+                      }
+                    }],
+                    "responses": [{ "inject": "<%- stringify('authConfirmResponse.ejs') %>" }]
+                  },
       {
         "predicates": [{
           "equals": {

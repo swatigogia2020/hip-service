@@ -7,7 +7,7 @@ namespace In.ProjectEKA.HipService.DataFlow
 {
     public interface IOpenMrsPatientData
     {
-        public Task<string> GetPatientData(string patientUuid, string grantedContext, string toDate, string fromDate,
+        public Task<string> GetPatientData(string patientUuid, string careContextReference, string toDate, string fromDate,
             string hiType);
     }
 }

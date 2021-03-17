@@ -173,22 +173,22 @@
             {
                 "capturedOn": "2019-08-01T12:04:50.818234",
                 "data":  {
-                    "prescription" : ["NCP1008PrescriptionDoc20190801.json"]
-
+                    "prescription" : ["NCP1008PrescriptionDoc20190801.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190801.json"]
                 }
             },
             {
                 "capturedOn": "2019-08-03T12:04:50.818234",
                 "data":  {
-                    "prescription" : ["NCP1008PrescriptionDoc20190803.json"]
-
+                    "prescription" : ["NCP1008PrescriptionDoc20190803.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190803.json"]
                 }
             },
             {
                 "capturedOn": "2019-08-05T12:04:50.818234",
                 "data":  {
-                    "prescription" : ["NCP1008PrescriptionDoc20190805.json"]
-
+                    "prescription" : ["NCP1008PrescriptionDoc20190805.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190805.json"]
                 }
             },
             {
@@ -246,47 +246,51 @@
     "RVH1004" : {
         "NCP10091" : [
             {
-                "capturedOn": "2018-02-02T12:04:50.818234",
+                "capturedOn": "2019-01-01T15:32:26.605+05:30",
                 "data":  {
-                    "observation" : [],
-                    "condition" : [],
-                    "diagnosticreport" : [],
-                    "medicationrequest" : [],
-                    "dischargesummary" : []
+                    "prescription" : ["RVMHD01PrescriptionDocument4.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-01T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190801.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190801.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-03T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190803.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190803.json"]                    
                 }
             }
         ],
         "NCP10092" : [
             {
-                "capturedOn": "2019-06-01T12:04:50.818234",
+                "capturedOn": "2019-01-02T15:32:26.605+05:30",
                 "data":  {
-                    "observation" : [],
-                    "condition" : [],
-                    "diagnosticreport" : [],
+                    "prescription" : ["NCP1007PrescriptionDocument2.json"],
+                    "diagnosticreport" : ["NCP1007DiagnosticReportDocument.json"],
                     "medicationrequest" : [],
                     "dischargesummary" : []
                 }
             },
             {
-                "capturedOn": "2019-06-02T12:04:50.818234",
+                "capturedOn": "2019-01-03T15:32:26.605+05:30",
                 "data":  {
-                    "observation" : [],
-                    "condition" : [],
-                    "diagnosticreport" : [],
-                    "medicationrequest" : [],
-                    "dischargesummary" : []
+                    "prescription" : ["NCP1007PrescriptionDocument3.json"],
+                    "diagnosticreport" : ["NCP1007DiagnosticReportDocument1.json"]
                 }
-            }
-        ],
-        "NCP10093" : [
+            },
             {
-                "capturedOn": "2018-02-02T12:04:50.818234",
+                "capturedOn": "2019-02-03T15:32:26.605+05:30",
                 "data":  {
                     "observation" : [],
                     "condition" : [],
                     "diagnosticreport" : [],
                     "medicationrequest" : [],
-                    "dischargesummary" : []
+                    "dischargesummary" : ["NCP1007DischargeSummary1.json"]
                 }
             }
         ]
@@ -339,6 +343,142 @@
                 "capturedOn": "2019-01-01T15:32:26.605+05:30",
                 "data":  {
                     "prescription" : ["RVMHD01PrescriptionDocument4.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-01T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190801.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190801.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-03T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190803.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190803.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-05T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190805.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190805.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-06T12:04:50.818234",
+                "data":  {
+                    "immunizationrecord": ["MAXRVH1012ImmunizationDoc20190806.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-07T12:04:50.818234",
+                "data":  {
+                    "immunizationrecord": ["MAXRVH1012ImmunizationDoc20190807.json"],
+                    "opconsultation" : ["MAXRVH1012OPConsultationDoc20190807.json"]
+                }
+            }
+        ],
+        "NCP9999" : [
+            {
+                "capturedOn": "2019-01-01T15:32:26.605+05:30",
+                "data":  {
+                    "prescription" : ["NCP1007PrescriptionDocument1.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-01-02T15:32:26.605+05:30",
+                "data":  {
+                    "prescription" : ["NCP1007PrescriptionDocument2.json"],
+                    "diagnosticreport" : ["NCP1007DiagnosticReportDocument.json"],
+                    "medicationrequest" : [],
+                    "dischargesummary" : []
+                }
+            },
+            {
+                "capturedOn": "2019-01-03T15:32:26.605+05:30",
+                "data":  {
+                    "prescription" : ["NCP1007PrescriptionDocument3.json"],
+                    "diagnosticreport" : ["NCP1007DiagnosticReportDocument1.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-02-03T15:32:26.605+05:30",
+                "data":  {
+                    "observation" : [],
+                    "condition" : [],
+                    "diagnosticreport" : [],
+                    "medicationrequest" : [],
+                    "dischargesummary" : ["NCP1007DischargeSummary1.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-10-03T15:32:26.605+05:30",
+                "data":  {
+                    "observation" : [],
+                    "condition" : [],
+                    "diagnosticreport" : [],
+                    "medicationrequest" : [],
+                    "dischargesummary" : ["NCP1007DischargeSummary2.json"]
+                }
+            }
+        ]
+    },
+    "LIVNO99" : {
+        "RV-MHD-01.17.3112" : [
+            {
+                "capturedOn": "2019-04-02T15:32:26.605+05:30",
+                "data":  {
+                    "prescription" : ["RVMHD01PrescriptionDocument1.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-04-15T15:32:26.605+05:30",
+                "data":  {
+                    "prescription" : ["RVMHD01PrescriptionDocument2.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-04-27T15:32:26.605+05:30",
+                "data":  {
+                    "prescription" : ["RVMHD01PrescriptionDocument3.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-01-01T15:32:26.605+05:30",
+                "data":  {
+                    "prescription" : ["RVMHD01PrescriptionDocument4.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-01T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190801.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190801.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-03T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190803.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190803.json"]                    
+                }
+            },
+            {
+                "capturedOn": "2019-08-05T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190805.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190805.json"]
+                }
+            }
+        ],
+        "DEBUG_CC":[
+            {
+                "capturedOn": "2021-01-01T15:32:26.605+05:30",
+                "data":{
+                    "opconsultation": ["MAXRVH1003OPConsultationDoc20190101.json"],
+                    "diagnosticreport": ["debug_data.json"]
                 }
             }
         ],
@@ -457,6 +597,27 @@
                 "data":  {
                     "prescription" : ["MAXLIVNO10PrescriptionDoc20180801.json"]
                 }
+            },
+            {
+                "capturedOn": "2019-08-01T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190801.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190801.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-03T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190803.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190803.json"]
+                }
+            },
+            {
+                "capturedOn": "2019-08-05T12:04:50.818234",
+                "data":  {
+                    "prescription" : ["NCP1008PrescriptionDoc20190805.json"],
+                    "immunizationrecord": ["MAXRVH1003ImmunizationDoc20190805.json"]
+                }
             }
         ],
         "NCP0010" : [
@@ -464,6 +625,15 @@
                 "capturedOn": "2019-08-01T00:00:00.605+05:30",
                 "data":  {
                     "diagnosticreport" : ["MAXLIVNO10DiagnosticReportDoc20190801.json"]
+                }
+            }
+        ],
+        "DEBUG_CC":[
+            {
+                "capturedOn": "2021-01-01T15:32:26.605+05:30",
+                "data":{
+                    "opconsultation": ["MAXRVH1003OPConsultationDoc20190101.json"],
+                    "diagnosticreport": ["debug_data.json"]
                 }
             }
         ]

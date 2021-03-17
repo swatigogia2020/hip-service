@@ -10,9 +10,7 @@
     using HipLibrary.Patient.Model;
     using Logger;
     using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.ModelBinding;
     using Microsoft.Extensions.Logging;
     using Common;
 
@@ -26,7 +24,7 @@
         private const string ErrorMessage = "No Matching Record Found or More than one Record Found";
 
         private readonly IPatientDiscovery patientDiscovery;
-        private readonly IGatewayClient gatewayClient; 
+        private readonly IGatewayClient gatewayClient;
         private readonly IBackgroundJobClient backgroundJob;
         private readonly ILogger<CareContextDiscoveryController> logger;
 
@@ -44,8 +42,7 @@
             [FromHeader(Name = CORRELATION_ID)] string correlationId,
             [FromBody] DiscoveryRequest request)
         {
-            logger.LogInformation(LogEvents.Discovery, "discovery request received for {Id} with {RequestId} with {correlationId}",
-                request.Patient.Id, request.RequestId,correlationId);
+            Log.Information($"discovery request received for {request.Patient.Id} with {request.RequestId}.");
             backgroundJob.Enqueue(() => GetPatientCareContext(request, correlationId));
             return Accepted();
         }
@@ -67,10 +64,7 @@
                     new DiscoveryResponse(request.RequestId,
                         error == null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
                         error == null ? SuccessMessage : ErrorMessage));
-                logger.LogInformation(LogEvents.Discovery,
-                    "Response about to be send for {RequestId} with {@Patient}",
-                    request.RequestId,
-                    response?.Patient);
+                Log.Information($"Response about to be send for {request.RequestId} with {@response?.Patient}");
                 await gatewayClient.SendDataToGateway(PATH_ON_DISCOVER, gatewayDiscoveryRepresentation, cmSuffix,
                     correlationId);
             }
@@ -86,7 +80,7 @@
                         "Unreachable external service"));
                 await gatewayClient.SendDataToGateway(PATH_ON_DISCOVER, gatewayDiscoveryRepresentation, cmSuffix,
                     correlationId);
-                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", request.RequestId);
+                logger.LogError(LogEvents.Discovery, exception, $"Error happened for {request.RequestId}");
             }
         }
     }

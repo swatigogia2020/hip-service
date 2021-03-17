@@ -18,7 +18,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         public async Task<IEnumerable<CareContextRepresentation>> GetCareContexts(string patientUuid)
         {
-            var path = DiscoveryPathConstants.OnCareContextPath;
+            var path = DiscoveryPathConstants.CareContextPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (!string.IsNullOrEmpty(patientUuid))
             {
@@ -41,7 +41,9 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 var careContextName = root[i].GetProperty("careContextName").GetString();
                 var careContextReferenceNumber = root[i].GetProperty("careContextReference").ToString();
                 var careContextType = root[i].GetProperty("careContextType").ToString();
-                careContexts.Add(new CareContextRepresentation(careContextReferenceNumber, careContextName,
+                if (careContextType.Equals("PROGRAM"))
+                    careContextName = careContextName + "(ID Number:" + careContextReferenceNumber + ")";
+                careContexts.Add(new CareContextRepresentation(careContextName, careContextReferenceNumber,
                     careContextType));
             }
 

@@ -69,17 +69,17 @@ namespace In.ProjectEKA.HipService.Discovery
             {
                 logger.Log(LogLevel.Information,
                     LogEvents.Discovery,
-                    "User has already linked care contexts: {TransactionID}",
-                    request.TransactionId);
+                    $"User has already linked care contexts: {request.TransactionId}");
                 var patient =
                     await patientRepository.PatientWithAsync(linkedCareContexts.First().PatientReferenceNumber);
                 return await patient
                     .Map(async patient =>
                     {
                         await discoveryRequestRepository.Add(new Model.DiscoveryRequest(request.TransactionId,
-                            request.Patient.Id, patient.Identifier));
+                            request.Patient.Id,
+                            patient.Identifier));
                         return (new DiscoveryRepresentation(patient.ToPatientEnquiryRepresentation(
-                                GetUnlinkedCareContexts(linkedCareContexts, patient))),
+                            GetUnlinkedCareContexts(linkedCareContexts, patient))),
                             (ErrorRepresentation) null);
                     })
                     .ValueOr(Task.FromResult(GetError(ErrorCode.NoPatientFound, ErrorMessage.NoPatientFound)));

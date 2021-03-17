@@ -33,8 +33,7 @@ namespace In.ProjectEKA.HipService.Common
 
         public static readonly string OPENMRS_FHIR = "ws/fhir2/R4/Patient";
         public static readonly string OPENMRS_REST = "ws/rest/v1/visit";
-        public static readonly string OPENMRS_PRESCRIPTION = "ws/rest/v1/hip/prescriptions";
-        public static readonly string OPENMRS_MEDICATION = "ws/rest/v1/hip/medication";
+        public static readonly string OPENMRS_HITYPE = "ws/rest/v1/hip/";
         public static readonly string CONFIG_KEY = "OpenMrs";
 
         public const string CORRELATION_ID = "CORRELATION-ID";
@@ -44,6 +43,9 @@ namespace In.ProjectEKA.HipService.Common
         public const string FETCH_MODES = "/" + CURRENT_VERSION + "/hip/fetch-modes";
         public const string FETCH_MODE_PURPOSE = "KYC_AND_LINK";
         public const string FETCH_MODE_REQUEST_TYPE = "HIP";
+        
+        public const string PATH_AUTH_INIT = "/" + CURRENT_VERSION + "/users/auth/init";
+        public const string PATH_HIP_AUTH_INIT = "/" + CURRENT_VERSION + "/hip/auth/init";
         public const string HIP_AUTH_CONFIRM = "/" + CURRENT_VERSION + "/hip/auth/confirm";
     }
 }

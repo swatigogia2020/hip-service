@@ -5,7 +5,7 @@ namespace In.ProjectEKA.HipService.Link.Model
 
     public class AuthOnInitRequest
     {
-        public AuthOnInitRequest(string requestId, DateTime timestamp, Auth auth, Error error, Resp resp)
+        public AuthOnInitRequest(Guid requestId, DateTime timestamp, Auth auth, Error error, Resp resp)
         {
             RequestId = requestId;
             Timestamp = timestamp;
@@ -14,7 +14,7 @@ namespace In.ProjectEKA.HipService.Link.Model
             Resp = resp;
         }
 
-        public string RequestId { get; }
+        public Guid RequestId { get; }
         public DateTime Timestamp { get; }
         public Auth Auth { get; }
         public Error Error { get; }
