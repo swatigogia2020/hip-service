@@ -53,7 +53,7 @@ namespace In.ProjectEKA.HipService.Linkage
                     logger.LogInformation("sleeping");
                     if (LinkageMap.RequestIdToAccessToken.ContainsKey(requestId))
                     {
-                        logger.LogInformation(LogEvents.Discovery,
+                        logger.LogInformation(LogEvents.AuthConfirm,
                             "Response about to be send for {@RequestId} with {@AccessToken}",
                             requestId, LinkageMap.RequestIdToAccessToken[requestId]
                         );
@@ -65,10 +65,10 @@ namespace In.ProjectEKA.HipService.Linkage
             }
             catch (Exception exception)
             {
-                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
+                logger.LogError(LogEvents.AuthConfirm, exception, "Error happened for {RequestId}", requestId);
             }
 
-            return Ok("");
+            throw new TimeoutException("Timeout for request_id: " + requestId);
         }
 
         [Authorize]

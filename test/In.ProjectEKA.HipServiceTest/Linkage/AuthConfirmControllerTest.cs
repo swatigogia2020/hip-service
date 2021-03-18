@@ -77,5 +77,41 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
                 accessToken.Value.Should().BeEquivalentTo("12");
             }
         }
+
+        [Fact]
+        private void ShouldNotSendAuthConfirmAndOnAuthConfirm()
+        {
+            var authConfirmRequest = new AuthConfirmRequest(new Guid().ToString(), "123444");
+            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
+            DateTime timeStamp = DateTime.Now.ToUniversalTime();
+            var transactionId = TestBuilder.Faker().Random.Hash();
+            Guid requestId = Guid.NewGuid();
+            GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
+                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
+            var correlationId = Uuid.Generate().ToString();
+
+            authConfirmService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))
+                .Returns(gatewayAuthConfirmRequestRepresentation);
+            gatewayClient.Setup(
+                    client =>
+                        client.SendDataToGateway(Constants.PATH_AUTH_CONFIRM,
+                            gatewayAuthConfirmRequestRepresentation, "ncg", correlationId))
+                .Returns(Task.FromResult(""));
+
+            try
+            {
+                authConfirmController.AuthConfirmRequest(correlationId, authConfirmRequest);
+            }
+            catch (AggregateException ae)
+            {
+                if (ae.InnerException != null && ae.InnerException.GetType() == typeof(TimeoutException))
+                {
+                    Assert.True(true);
+                    Assert.Contains("Timeout for request_id: " + requestId, ae.Message);
+                }
+                else
+                    Assert.False(false);
+            }
+        }
     }
 }
