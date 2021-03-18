@@ -31,7 +31,7 @@ namespace In.ProjectEKA.HipService.Linkage
         }
 
         [Route(HIP_AUTH_CONFIRM)]
-        public async Task<ActionResult> FetchPatientsAuthModes(
+        public async Task<ActionResult> AuthConfirmRequest(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
             string cmSuffix = _gatewayConfiguration.CmSuffix;
@@ -51,13 +51,13 @@ namespace In.ProjectEKA.HipService.Linkage
                 {
                     Thread.Sleep(2000);
                     _logger.LogInformation("sleeping");
-                    if (FetchModeMap.RequestIdToAccessToken.ContainsKey(requestId))
+                    if (LinkageMap.RequestIdToAccessToken.ContainsKey(requestId))
                     {
                         _logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {@RequestId} with {@AccessToken}",
-                            requestId, FetchModeMap.RequestIdToAccessToken[requestId]
+                            requestId, LinkageMap.RequestIdToAccessToken[requestId]
                         );
-                        return Ok(FetchModeMap.RequestIdToAccessToken[requestId]);
+                        return Ok(LinkageMap.RequestIdToAccessToken[requestId]);
                     }
 
                     i++;
@@ -73,7 +73,7 @@ namespace In.ProjectEKA.HipService.Linkage
 
         [Authorize]
         [HttpPost(ON_AUTH_CONFIRM)]
-        public AcceptedResult OnFetchAuthMode(OnAuthConfirmRequest request)
+        public AcceptedResult OnAuthConfirmRequest(OnAuthConfirmRequest request)
         {
             Log.Information("Auth on init request received." +
                             $" RequestId:{request.requestID}, " +
@@ -86,7 +86,7 @@ namespace In.ProjectEKA.HipService.Linkage
             else if (request.auth != null)
             {
                 string accessToken = request.auth.accessToken;
-                FetchModeMap.RequestIdToAccessToken.Add(request.requestID, accessToken);
+                LinkageMap.RequestIdToAccessToken.Add(request.requestID, accessToken);
                 Log.Information($" requestID:{request.requestID},");
                 Log.Information($" accessToken:{accessToken}.");
             }

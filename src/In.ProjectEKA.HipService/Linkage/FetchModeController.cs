@@ -50,13 +50,13 @@ namespace In.ProjectEKA.HipService.Linkage
                 do
                 {
                     Thread.Sleep(2000);
-                    if (FetchModeMap.requestIdToFetchMode.ContainsKey(gr.requestId))
+                    if (LinkageMap.RequestIdToFetchMode.ContainsKey(gr.requestId))
                     {
                         _logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {RequestId} with {@AuthModes}",
-                            gr.requestId, FetchModeMap.requestIdToFetchMode[gr.requestId]
+                            gr.requestId, LinkageMap.RequestIdToFetchMode[gr.requestId]
                         );
-                        return Ok(FetchModeMap.requestIdToFetchMode[gr.requestId]);
+                        return Ok(LinkageMap.RequestIdToFetchMode[gr.requestId]);
                     }
 
                     i++;
@@ -86,7 +86,7 @@ namespace In.ProjectEKA.HipService.Linkage
             {
                 string authModes = string.Join(',', request.Auth.Modes);
 
-                FetchModeMap.requestIdToFetchMode.Add(request.RequestId, authModes);
+                LinkageMap.RequestIdToFetchMode.Add(request.RequestId, authModes);
             }
 
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");

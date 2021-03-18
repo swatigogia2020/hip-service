@@ -46,7 +46,7 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
             FetchQuery query = new FetchQuery(request.healthId, FETCH_MODE_PURPOSE, requester);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             Guid requestId = Guid.NewGuid();
-            FetchModeMap.requestIdToFetchMode.Add(requestId, "12");
+            LinkageMap.RequestIdToFetchMode.Add(requestId, "12");
             GatewayFetchModesRequestRepresentation gatewayFetchModesRequestRepresentation =
                 new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query);
             var correlationId = Uuid.Generate().ToString();

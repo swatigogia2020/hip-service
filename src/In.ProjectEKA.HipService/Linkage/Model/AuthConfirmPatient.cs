@@ -10,7 +10,8 @@ namespace In.ProjectEKA.HipService.Linkage
         
         public Identifiers identifiers { get; }
 
-        public AuthConfirmPatient(string id, string name, string gender, string yearOfBirth, AuthConfirmAddress address,  Identifiers identifiers )
+        public AuthConfirmPatient(string id, string name, string gender, string yearOfBirth, 
+            AuthConfirmAddress address,  Identifiers identifiers )
         {
             this.id = id;
             this.name = name;

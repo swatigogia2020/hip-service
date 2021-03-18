@@ -49,13 +49,13 @@ namespace In.ProjectEKA.HipService.Linkage
                 do
                 {
                     Thread.Sleep(2000);
-                    if (FetchModeMap.requestIdToTransactionIdMap.ContainsKey(requestId))
+                    if (LinkageMap.RequestIdToTransactionIdMap.ContainsKey(requestId))
                     {
                         _logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {RequestId} with {TransactionId}",
-                            requestId, FetchModeMap.requestIdToTransactionIdMap[requestId]
+                            requestId, LinkageMap.RequestIdToTransactionIdMap[requestId]
                         );
-                        return Ok(FetchModeMap.requestIdToTransactionIdMap[requestId]);
+                        return Ok(LinkageMap.RequestIdToTransactionIdMap[requestId]);
                     }
 
                     i++;
@@ -84,7 +84,7 @@ namespace In.ProjectEKA.HipService.Linkage
             else if (request.Auth != null)
             {
                 string transactionId = request.Auth.TransactionId;
-                FetchModeMap.requestIdToTransactionIdMap.Add(request.RequestId, transactionId);
+                LinkageMap.RequestIdToTransactionIdMap.Add(request.RequestId, transactionId);
             }
 
             return Accepted();

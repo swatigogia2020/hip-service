@@ -50,7 +50,7 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
             Requester requester = new Requester(_gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             AuthInitQuery query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);
             Guid requestId = Guid.NewGuid();
-            FetchModeMap.requestIdToTransactionIdMap.Add(requestId, "12");
+            LinkageMap.RequestIdToTransactionIdMap.Add(requestId, "12");
             GatewayAuthInitRequestRepresentation gatewayAuthInitRequestRepresentation =
                 new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
             var correlationId = Uuid.Generate().ToString();
