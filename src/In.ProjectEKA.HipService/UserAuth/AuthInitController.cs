@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,11 +8,12 @@ using In.ProjectEKA.HipService.Discovery;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.Logger;
+using In.ProjectEKA.HipService.UserAuth.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace In.ProjectEKA.HipService.Linkage
+namespace In.ProjectEKA.HipService.UserAuth
 {
     using static Constants;
     

@@ -1,7 +1,7 @@
 using System;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 
-namespace In.ProjectEKA.HipService.Linkage
+namespace In.ProjectEKA.HipService.UserAuth.Model
 {
     public class OnAuthConfirmRequest
     {

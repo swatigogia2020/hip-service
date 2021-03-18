@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace In.ProjectEKA.HipService.Linkage
+namespace In.ProjectEKA.HipService.UserAuth.Model
 {
     public class GatewayFetchModesRequestRepresentation
     {

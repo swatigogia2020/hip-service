@@ -1,6 +1,4 @@
-using Hl7.Fhir.Model;
-
-namespace In.ProjectEKA.HipService.Linkage
+namespace In.ProjectEKA.HipService.UserAuth.Model
 {
     public class Identifiers
     {

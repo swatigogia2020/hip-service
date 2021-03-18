@@ -1,4 +1,4 @@
-namespace In.ProjectEKA.HipService.Linkage
+namespace In.ProjectEKA.HipService.UserAuth.Model
 {
     public class FetchQuery{
     public string id { get; }

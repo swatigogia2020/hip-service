@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace In.ProjectEKA.HipService.Linkage
+namespace In.ProjectEKA.HipService.UserAuth
 {
     public class FetchModeMap{
         public static Dictionary<Guid, string> requestIdToFetchMode = new Dictionary<Guid, string>();
