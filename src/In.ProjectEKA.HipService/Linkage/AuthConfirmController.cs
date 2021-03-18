@@ -37,7 +37,7 @@ namespace In.ProjectEKA.HipService.Linkage
             string cmSuffix = gatewayConfiguration.CmSuffix;
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
                 authConfirmService.AuthConfirmResponse(authConfirmRequest);
-            var requestId = gatewayAuthConfirmRequestRepresentation.requestId;
+            var requestId = gatewayAuthConfirmRequestRepresentation.requestId.ToString();
             try
             {
                 logger.Log(LogLevel.Error,
@@ -86,7 +86,7 @@ namespace In.ProjectEKA.HipService.Linkage
             else if (request.auth != null)
             {
                 string accessToken = request.auth.accessToken;
-                LinkageMap.RequestIdToAccessToken.Add(request.requestID, accessToken);
+                LinkageMap.RequestIdToAccessToken.Add(request.resp.RequestId, accessToken);
                 Log.Information($" requestID:{request.requestID},");
                 Log.Information($" accessToken:{accessToken}.");
             }

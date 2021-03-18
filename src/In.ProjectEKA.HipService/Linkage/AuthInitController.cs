@@ -39,10 +39,14 @@ namespace In.ProjectEKA.HipService.Linkage
             string cmSuffix = gatewayConfiguration.CmSuffix;
             GatewayAuthInitRequestRepresentation gatewayAuthInitRequestRepresentation =
                 authInitService.AuthInitResponse(authInitRequest, gatewayConfiguration);
-            var requestId = gatewayAuthInitRequestRepresentation.requestId;
+            var requestId = gatewayAuthInitRequestRepresentation.requestId.ToString();
 
             try
             {
+                logger.Log(LogLevel.Error,
+                    LogEvents.AuthInit,
+                    "Request for auth-init to gateway: {@GatewayResponse}",
+                    gatewayAuthInitRequestRepresentation);
                 await gatewayClient.SendDataToGateway(PATH_AUTH_INIT, gatewayAuthInitRequestRepresentation, cmSuffix,
                     correlationId);
                 var i = 0;
@@ -84,7 +88,7 @@ namespace In.ProjectEKA.HipService.Linkage
             else if (request.Auth != null)
             {
                 string transactionId = request.Auth.TransactionId;
-                LinkageMap.RequestIdToTransactionIdMap.Add(request.RequestId, transactionId);
+                LinkageMap.RequestIdToTransactionIdMap.Add(request.Resp.RequestId, transactionId);
             }
 
             return Accepted();

@@ -38,25 +38,25 @@ namespace In.ProjectEKA.HipService.Linkage
             string cmSuffix = gatewayConfiguration.CmSuffix;
             GatewayFetchModesRequestRepresentation gr =
                 fetchModeService.FetchModeResponse(fetchRequest, gatewayConfiguration);
-
+            var requestId = gr.requestId.ToString();
             try
             {
-                logger.LogInformation("{cmSuffix} {correlationId}{healthid}", cmSuffix, correlationId,
-                    fetchRequest.healthId);
-
+                logger.Log(LogLevel.Error,
+                    LogEvents.FetchMode,
+                    "Request for fetch-modee to gateway: {@GatewayResponse}",
+                    gr);
                 await gatewayClient.SendDataToGateway(PATH_FETCH_AUTH_MODES, gr, cmSuffix, correlationId);
-
                 var i = 0;
                 do
                 {
                     Thread.Sleep(2000);
-                    if (LinkageMap.RequestIdToFetchMode.ContainsKey(gr.requestId))
+                    if (LinkageMap.RequestIdToFetchMode.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {RequestId} with {@AuthModes}",
-                            gr.requestId, LinkageMap.RequestIdToFetchMode[gr.requestId]
+                            requestId, LinkageMap.RequestIdToFetchMode[requestId]
                         );
-                        return Ok(LinkageMap.RequestIdToFetchMode[gr.requestId]);
+                        return Ok(LinkageMap.RequestIdToFetchMode[requestId]);
                     }
 
                     i++;
@@ -64,10 +64,10 @@ namespace In.ProjectEKA.HipService.Linkage
             }
             catch (Exception exception)
             {
-                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", gr.requestId);
+                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
-            throw new TimeoutException("Timeout for request_id: " + gr.requestId);
+            throw new TimeoutException("Timeout for request_id: " + requestId);
         }
 
         [Authorize]
@@ -86,7 +86,7 @@ namespace In.ProjectEKA.HipService.Linkage
             {
                 string authModes = string.Join(',', request.Auth.Modes);
 
-                LinkageMap.RequestIdToFetchMode.Add(request.RequestId, authModes);
+                LinkageMap.RequestIdToFetchMode.Add(request.Resp.RequestId, authModes);
             }
 
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");
