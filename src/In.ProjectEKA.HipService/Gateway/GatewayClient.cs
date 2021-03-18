@@ -90,7 +90,8 @@ namespace In.ProjectEKA.HipService.Gateway
                     try
                     {
                         await httpClient
-                            .SendAsync(CreateHttpRequest(gatewayUrl, representation, accessToken, cmSuffix, correlationId))
+                            .SendAsync(CreateHttpRequest(gatewayUrl, representation, accessToken,
+                                cmSuffix, correlationId))
                             .ConfigureAwait(false);
                     }
                     catch (Exception exception)

@@ -41,6 +41,15 @@
         "responses": [{ "inject": "<%- stringify('fetchmodesResponse.ejs') %>" }]
       },
       {
+                   "predicates": [{
+                      "equals": {
+                        "method": "POST",
+                        "path": "/v0.5/users/auth/confirm"
+                      }
+                    }],
+                    "responses": [{ "inject": "<%- stringify('authConfirmResponse.ejs') %>" }]
+                  },
+      {
         "predicates": [{
           "equals": {
             "method": "GET",

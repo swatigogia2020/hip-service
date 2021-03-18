@@ -46,5 +46,6 @@ namespace In.ProjectEKA.HipService.Common
         
         public const string PATH_AUTH_INIT = "/" + CURRENT_VERSION + "/users/auth/init";
         public const string PATH_HIP_AUTH_INIT = "/" + CURRENT_VERSION + "/hip/auth/init";
+        public const string HIP_AUTH_CONFIRM = "/" + CURRENT_VERSION + "/hip/auth/confirm";
     }
 }
