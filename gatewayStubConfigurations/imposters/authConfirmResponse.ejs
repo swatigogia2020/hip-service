@@ -4,7 +4,7 @@ config.logger.info(config.request.body);
 config.logger.info(config.request.path + " is called");
 var reqBody = JSON.parse(config.request.body);
 var reqId = reqBody.requestId;
-var token = 'Bearer ' + config.request.headers.access_token;
+var token = 'Bearer ' + config.request.headers.Authorization;
 var body1 ={
     "requestId": reqId,
     "timestamp": "2021-03-10T11:04:25.454Z",
@@ -42,7 +42,7 @@ var body1 ={
         "requestId": reqId
     }
 };
-var reqBodyOnFetchModes = JSON.stringify(body1);
+var reqBodyOnAuthConfirm = JSON.stringify(body1);
 var http = require('http');
 var options = {
     method: 'POST',
@@ -53,7 +53,7 @@ var options = {
     headers: {
         'Content-Type': 'application/json',
         'Authorization': token,
-        'content-length': reqBodyOnFetchModes.length,
+        'content-length': reqBodyOnAuthConfirm.length,
         'X-HIP-ID': '10000005'
     }
 },
