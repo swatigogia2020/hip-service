@@ -17,33 +17,33 @@ namespace In.ProjectEKA.HipService.Linkage
     [ApiController]
     public class AuthInitController : Controller
     {
-        private readonly IGatewayClient _gatewayClient;
-        private readonly ILogger<AuthInitController> _logger;
-        private readonly GatewayConfiguration _gatewayConfiguration;
-        private readonly IAuthInitService _authInitService;
+        private readonly IGatewayClient gatewayClient;
+        private readonly ILogger<AuthInitController> logger;
+        private readonly GatewayConfiguration gatewayConfiguration;
+        private readonly IAuthInitService authInitService;
 
         public AuthInitController(IGatewayClient gatewayClient,
             ILogger<AuthInitController> logger, GatewayConfiguration gatewayConfiguration,
             IAuthInitService authInitService)
         {
-            _gatewayClient = gatewayClient;
-            _logger = logger;
-            _gatewayConfiguration = gatewayConfiguration;
-            _authInitService = authInitService;
+            this.gatewayClient = gatewayClient;
+            this.logger = logger;
+            this.gatewayConfiguration = gatewayConfiguration;
+            this.authInitService = authInitService;
         }
 
         [Route(PATH_HIP_AUTH_INIT)]
         public async Task<ActionResult> AuthInit(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
-            string cmSuffix = _gatewayConfiguration.CmSuffix;
+            string cmSuffix = gatewayConfiguration.CmSuffix;
             GatewayAuthInitRequestRepresentation gatewayAuthInitRequestRepresentation =
-                _authInitService.AuthInitResponse(authInitRequest, _gatewayConfiguration);
+                authInitService.AuthInitResponse(authInitRequest, gatewayConfiguration);
             var requestId = gatewayAuthInitRequestRepresentation.requestId;
 
             try
             {
-                await _gatewayClient.SendDataToGateway(PATH_AUTH_INIT, gatewayAuthInitRequestRepresentation, cmSuffix,
+                await gatewayClient.SendDataToGateway(PATH_AUTH_INIT, gatewayAuthInitRequestRepresentation, cmSuffix,
                     correlationId);
                 var i = 0;
                 do
@@ -51,7 +51,7 @@ namespace In.ProjectEKA.HipService.Linkage
                     Thread.Sleep(2000);
                     if (LinkageMap.RequestIdToTransactionIdMap.ContainsKey(requestId))
                     {
-                        _logger.LogInformation(LogEvents.Discovery,
+                        logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {RequestId} with {TransactionId}",
                             requestId, LinkageMap.RequestIdToTransactionIdMap[requestId]
                         );
@@ -63,7 +63,7 @@ namespace In.ProjectEKA.HipService.Linkage
             }
             catch (Exception exception)
             {
-                _logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
+                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
             throw new TimeoutException("Timeout for request_id: " + requestId);

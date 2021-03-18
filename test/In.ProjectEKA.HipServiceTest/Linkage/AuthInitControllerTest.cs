@@ -18,27 +18,27 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
 
     public class AuthInitControllerTest
     {
-        private readonly AuthInitController _authInitController;
+        private readonly AuthInitController authInitController;
 
-        private readonly Mock<ILogger<AuthInitController>> _logger =
+        private readonly Mock<ILogger<AuthInitController>> logger =
             new Mock<ILogger<AuthInitController>>();
 
 
-        private readonly Mock<GatewayClient> _gatewayClient = new Mock<GatewayClient>(MockBehavior.Strict, null, null);
-        private readonly Mock<AuthInitService> _authInitService = new Mock<AuthInitService>();
+        private readonly Mock<GatewayClient> gatewayClient = new Mock<GatewayClient>(MockBehavior.Strict, null, null);
+        private readonly Mock<AuthInitService> authInitService = new Mock<AuthInitService>();
 
-        private readonly GatewayConfiguration _gatewayConfiguration = new GatewayConfiguration
+        private readonly GatewayConfiguration gatewayConfiguration = new GatewayConfiguration
         {
             CmSuffix = "ncg"
         };
 
         public AuthInitControllerTest()
         {
-            _authInitController = new AuthInitController(
-                _gatewayClient.Object,
-                _logger.Object,
-                _gatewayConfiguration, 
-                _authInitService.Object);
+            authInitController = new AuthInitController(
+                gatewayClient.Object,
+                logger.Object,
+                gatewayConfiguration, 
+                authInitService.Object);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
             var request = new AuthInitRequest("123", "12344");
             
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
-            Requester requester = new Requester(_gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
+            Requester requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             AuthInitQuery query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);
             Guid requestId = Guid.NewGuid();
             LinkageMap.RequestIdToTransactionIdMap.Add(requestId, "12");
@@ -55,17 +55,15 @@ namespace In.ProjectEKA.HipServiceTest.Linkage
                 new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
             var correlationId = Uuid.Generate().ToString();
             
-            _authInitService.Setup(a => a.AuthInitResponse(request, _gatewayConfiguration))
+            authInitService.Setup(a => a.AuthInitResponse(request, gatewayConfiguration))
                 .Returns(gatewayAuthInitRequestRepresentation);
-            _gatewayClient.Setup(
+            gatewayClient.Setup(
                 client =>
                     client.SendDataToGateway(PATH_AUTH_INIT,
                         gatewayAuthInitRequestRepresentation, "ncg", correlationId))
                 .Returns(Task.FromResult(""));
-            var transactionId =
-                _authInitController.AuthInit(correlationId, request).Result as OkObjectResult;
 
-            if (transactionId != null)
+            if (authInitController.AuthInit(correlationId, request).Result is OkObjectResult transactionId)
             {
                 transactionId.StatusCode.Should().Be(StatusCodes.Status200OK);
                 transactionId.Value.Should().BeEquivalentTo("12");

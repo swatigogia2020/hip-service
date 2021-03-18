@@ -15,45 +15,45 @@ namespace In.ProjectEKA.HipService.Linkage
     [ApiController]
     public class AuthConfirmController : Controller
     {
-        private readonly GatewayClient _gatewayClient;
-        private readonly ILogger<AuthConfirmController> _logger;
-        private readonly GatewayConfiguration _gatewayConfiguration;
-        private readonly IAuthConfirmService _authConfirmService;
+        private readonly GatewayClient gatewayClient;
+        private readonly ILogger<AuthConfirmController> logger;
+        private readonly GatewayConfiguration gatewayConfiguration;
+        private readonly IAuthConfirmService authConfirmService;
 
         public AuthConfirmController(GatewayClient gatewayClient,
             ILogger<AuthConfirmController> logger, GatewayConfiguration gatewayConfiguration,
             IAuthConfirmService authConfirmService)
         {
-            _gatewayClient = gatewayClient;
-            _logger = logger;
-            _gatewayConfiguration = gatewayConfiguration;
-            _authConfirmService = authConfirmService;
+            this.gatewayClient = gatewayClient;
+            this.logger = logger;
+            this.gatewayConfiguration = gatewayConfiguration;
+            this.authConfirmService = authConfirmService;
         }
 
         [Route(HIP_AUTH_CONFIRM)]
         public async Task<ActionResult> AuthConfirmRequest(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
-            string cmSuffix = _gatewayConfiguration.CmSuffix;
+            string cmSuffix = gatewayConfiguration.CmSuffix;
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
-                _authConfirmService.AuthConfirmResponse(authConfirmRequest);
+                authConfirmService.AuthConfirmResponse(authConfirmRequest);
             var requestId = gatewayAuthConfirmRequestRepresentation.requestId;
             try
             {
-                _logger.Log(LogLevel.Error,
+                logger.Log(LogLevel.Error,
                     LogEvents.AuthConfirm,
                     "Request for auth-confirm to gateway: {@GatewayResponse}",
                     gatewayAuthConfirmRequestRepresentation);
-                await _gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gatewayAuthConfirmRequestRepresentation,
+                await gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gatewayAuthConfirmRequestRepresentation,
                     cmSuffix, correlationId);
                 var i = 0;
                 do
                 {
                     Thread.Sleep(2000);
-                    _logger.LogInformation("sleeping");
+                    logger.LogInformation("sleeping");
                     if (LinkageMap.RequestIdToAccessToken.ContainsKey(requestId))
                     {
-                        _logger.LogInformation(LogEvents.Discovery,
+                        logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {@RequestId} with {@AccessToken}",
                             requestId, LinkageMap.RequestIdToAccessToken[requestId]
                         );
@@ -65,7 +65,7 @@ namespace In.ProjectEKA.HipService.Linkage
             }
             catch (Exception exception)
             {
-                _logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
+                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
             }
 
             return Ok("");
