@@ -28,7 +28,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         private readonly Mock<ILogger<UserAuthController>> logger =
             new Mock<ILogger<UserAuthController>>();
 
-        private readonly Mock<IGatewayClient> gatewayClient = new Mock<IGatewayClient>(MockBehavior.Strict, null, null);
+        private readonly Mock<GatewayClient> gatewayClient = new Mock<GatewayClient>(MockBehavior.Strict, null, null);
         private readonly Mock<IUserAuthService> userAuthService = new Mock<IUserAuthService>();
 
         private readonly GatewayConfiguration gatewayConfiguration = new GatewayConfiguration
