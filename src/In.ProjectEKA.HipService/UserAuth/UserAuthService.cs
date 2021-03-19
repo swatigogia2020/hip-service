@@ -12,34 +12,39 @@ namespace In.ProjectEKA.HipService.UserAuth
         public virtual GatewayFetchModesRequestRepresentation FetchModeResponse(
             FetchRequest fetchRequest, GatewayConfiguration gatewayConfiguration)
         {
-            var patientId = fetchRequest.healthId.Split("@");
-            if (patientId.Length == 2)
-                cmSuffix = patientId[1];
-            Requester requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
-            FetchQuery query = new FetchQuery(fetchRequest.healthId, FETCH_MODE_PURPOSE, requester);
-            DateTime timeStamp = DateTime.Now.ToUniversalTime();
-            Guid requestId = Guid.NewGuid();
+            var patientIdSplit = fetchRequest.healthId.Split("@");
+            if (patientIdSplit.Length == 2)
+                cmSuffix = patientIdSplit[1];
+            var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
+            var purpose = fetchRequest.purpose;
+            var query = purpose != null
+                ? new FetchQuery(fetchRequest.healthId, purpose, requester)
+                : new FetchQuery(fetchRequest.healthId, requester);
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requestId = Guid.NewGuid();
             return new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query, cmSuffix);
         }
 
         public virtual GatewayAuthInitRequestRepresentation AuthInitResponse(
             AuthInitRequest authInitRequest, GatewayConfiguration gatewayConfiguration)
         {
-            DateTime timeStamp = DateTime.Now.ToUniversalTime();
-            Guid requestId = Guid.NewGuid();
-            Requester requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
-            AuthInitQuery query = new AuthInitQuery(authInitRequest.healthId, FETCH_MODE_PURPOSE,
-                authInitRequest.authMode, requester);
-            return new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query, cmSuffix);
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requestId = Guid.NewGuid();
+            var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
+            var purpose = authInitRequest.purpose;
+            var authInitQuery = purpose != null
+                ? new AuthInitQuery(authInitRequest.healthId, purpose, authInitRequest.authMode, requester)
+                : new AuthInitQuery(authInitRequest.healthId, authInitRequest.authMode, requester);
+            return new GatewayAuthInitRequestRepresentation(requestId, timeStamp, authInitQuery, cmSuffix);
         }
 
         public virtual GatewayAuthConfirmRequestRepresentation AuthConfirmResponse(
             AuthConfirmRequest authConfirmRequest)
         {
-            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
-            string transactionId = authConfirmRequest.transactionId;
-            DateTime timeStamp = DateTime.Now.ToUniversalTime();
-            Guid requestId = Guid.NewGuid();
+            var credential = new AuthConfirmCredential(authConfirmRequest.authCode);
+            var transactionId = authConfirmRequest.transactionId;
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requestId = Guid.NewGuid();
             return new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential,
                 cmSuffix);
         }

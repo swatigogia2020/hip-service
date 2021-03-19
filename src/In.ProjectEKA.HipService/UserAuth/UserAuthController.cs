@@ -173,9 +173,9 @@ namespace In.ProjectEKA.HipService.UserAuth
         public async Task<ActionResult> GetAccessToken(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
-            GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
+            var gatewayAuthConfirmRequestRepresentation =
                 userAuthService.AuthConfirmResponse(authConfirmRequest);
-            Guid requestId = gatewayAuthConfirmRequestRepresentation.requestId;
+            var requestId = gatewayAuthConfirmRequestRepresentation.requestId;
             var cmSuffix = gatewayAuthConfirmRequestRepresentation.cmSuffix;
 
             try
@@ -228,9 +228,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             else if (request.auth != null)
             {
-                string accessToken = request.auth.accessToken;
-
-
+                var accessToken = request.auth.accessToken;
                 UserAuthMap.RequestIdToAccessToken.Add(Guid.Parse(request.resp.RequestId), accessToken);
             }
 
