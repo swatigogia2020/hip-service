@@ -38,10 +38,10 @@ namespace In.ProjectEKA.HipService.UserAuth
         public async Task<ActionResult> GetAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
-            string cmSuffix = gatewayConfiguration.CmSuffix;
             GatewayFetchModesRequestRepresentation gr =
                 userAuthService.FetchModeResponse(fetchRequest, gatewayConfiguration);
             Guid requestId = gr.requestId;
+            var cmSuffix = gr.cmSuffix;
 
             try
             {
@@ -106,10 +106,10 @@ namespace In.ProjectEKA.HipService.UserAuth
         public async Task<ActionResult> GetTransactionId(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
-            string cmSuffix = gatewayConfiguration.CmSuffix;
             GatewayAuthInitRequestRepresentation gatewayAuthInitRequestRepresentation =
                 userAuthService.AuthInitResponse(authInitRequest, gatewayConfiguration);
             Guid requestId = gatewayAuthInitRequestRepresentation.requestId;
+            var cmSuffix = gatewayAuthInitRequestRepresentation.cmSuffix;
 
             try
             {
@@ -173,10 +173,10 @@ namespace In.ProjectEKA.HipService.UserAuth
         public async Task<ActionResult> GetAccessToken(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
-            string cmSuffix = gatewayConfiguration.CmSuffix;
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
                 userAuthService.AuthConfirmResponse(authConfirmRequest);
             Guid requestId = gatewayAuthConfirmRequestRepresentation.requestId;
+            var cmSuffix = gatewayAuthConfirmRequestRepresentation.cmSuffix;
 
             try
             {

@@ -52,8 +52,9 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var query = new FetchQuery(request.healthId, FETCH_MODE_PURPOSE, requester);
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
+            var cmSuffix = "ncg";
             var gatewayFetchModesRequestRepresentation =
-                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query);
+                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query, cmSuffix);
             var correlationId = Uuid.Generate().ToString();
             var modes = new List<Mode>
             {
@@ -68,10 +69,10 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_FETCH_AUTH_MODES,
-                            gatewayFetchModesRequestRepresentation, "ncg", correlationId))
+                            gatewayFetchModesRequestRepresentation, cmSuffix, correlationId))
                 .Returns(Task.CompletedTask)
                 .Callback<string, GatewayFetchModesRequestRepresentation, string, string>
-                ((path, gr, cmSuffix, corId)
+                ((path, gr, suffix, corId)
                     => userAuthController.SetAuthModes(onFetchAuthModeRequest));
 
             if (userAuthController.GetAuthModes(correlationId, request).Result is OkObjectResult authMode)
@@ -89,8 +90,9 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var query = new FetchQuery(request.healthId, FETCH_MODE_PURPOSE, requester);
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
+            var cmSuffix = "ncg";
             var gatewayFetchModesRequestRepresentation =
-                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query);
+                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query, cmSuffix);
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.FetchModeResponse(request, gatewayConfiguration))
@@ -98,16 +100,16 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_FETCH_AUTH_MODES,
-                            gatewayFetchModesRequestRepresentation, "ncg", correlationId))
+                            gatewayFetchModesRequestRepresentation, cmSuffix, correlationId))
                 .Returns(Task.FromResult(""));
-            
+
             if (userAuthController.GetAuthModes(correlationId, request).Result is ObjectResult authMode)
             {
                 Log.Information(authMode.ToString());
                 authMode.StatusCode.Should().Be((int) HttpStatusCode.GatewayTimeout);
             }
         }
-        
+
         [Fact]
         private void ShouldSendAuthInitAndOnAuthInit()
         {
@@ -117,8 +119,9 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);
             var requestId = Guid.NewGuid();
+            var cmSuffix = "ncg";
             var gatewayAuthInitRequestRepresentation =
-                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
+                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query, cmSuffix);
             var correlationId = Uuid.Generate().ToString();
             var transactionId = new Guid().ToString();
             var auth = new Auth(transactionId, new Meta("string", new DateTime()), Mode.MOBILE_OTP);
@@ -129,9 +132,9 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_AUTH_INIT,
-                            gatewayAuthInitRequestRepresentation, "ncg", correlationId))
+                            gatewayAuthInitRequestRepresentation, cmSuffix, correlationId))
                 .Callback<string, GatewayAuthInitRequestRepresentation, string, string>
-                ((path, gr, cmSuffix, corId)
+                ((path, gr, suffix, corId)
                     => userAuthController.SetTransactionId(authOnInitRequest))
                 .Returns(Task.FromResult(""));
 
@@ -151,8 +154,9 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);
             var requestId = Guid.NewGuid();
+            var cmSuffix = "ncg";
             var gatewayAuthInitRequestRepresentation =
-                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
+                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query, cmSuffix);
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.AuthInitResponse(request, gatewayConfiguration))
@@ -160,17 +164,16 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_AUTH_INIT,
-                            gatewayAuthInitRequestRepresentation, "ncg", correlationId))
+                            gatewayAuthInitRequestRepresentation, cmSuffix, correlationId))
                 .Returns(Task.FromResult(""));
-            
+
             if (userAuthController.GetTransactionId(correlationId, request).Result is ObjectResult authMode)
             {
                 Log.Information(authMode.ToString());
                 authMode.StatusCode.Should().Be((int) HttpStatusCode.GatewayTimeout);
             }
-            
         }
-        
+
         [Fact]
         private void ShouldSendAuthConfirmAndOnAuthConfirm()
         {
@@ -189,8 +192,9 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                 address, identifiers);
             var onAuthConfirmRequest = new OnAuthConfirmRequest(requestId, timeStamp, onAuthConfirm, patient,
                 null, new Resp(requestId.ToString()));
+            var cmSuffix = "ncg";
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
-                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
+                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential, cmSuffix);
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))
@@ -198,10 +202,10 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_AUTH_CONFIRM,
-                            gatewayAuthConfirmRequestRepresentation, "ncg", correlationId))
+                            gatewayAuthConfirmRequestRepresentation, cmSuffix, correlationId))
                 .Returns(Task.FromResult(""))
                 .Callback<string, GatewayAuthConfirmRequestRepresentation, string, string>
-                ((path, gr, cmSuffix, corId)
+                ((path, gr, suffix, corId)
                     => userAuthController.SetAccessToken(onAuthConfirmRequest));
 
             if (userAuthController.GetAccessToken(correlationId, authConfirmRequest).Result is OkObjectResult
@@ -220,8 +224,9 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             var transactionId = TestBuilder.Faker().Random.Hash();
             Guid requestId = Guid.NewGuid();
+            var cmSuffix = "ncg";
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
-                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
+                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential, cmSuffix);
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))
@@ -229,7 +234,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_AUTH_CONFIRM,
-                            gatewayAuthConfirmRequestRepresentation, "ncg", correlationId))
+                            gatewayAuthConfirmRequestRepresentation, cmSuffix, correlationId))
                 .Returns(Task.FromResult(""));
 
             if (userAuthController.GetAccessToken(correlationId, authConfirmRequest).Result is ObjectResult authMode)
@@ -238,6 +243,5 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                 authMode.StatusCode.Should().Be((int) HttpStatusCode.GatewayTimeout);
             }
         }
-
     }
 }

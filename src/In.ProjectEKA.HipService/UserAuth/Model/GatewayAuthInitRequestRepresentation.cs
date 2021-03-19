@@ -11,11 +11,14 @@ namespace In.ProjectEKA.HipService.UserAuth.Model
 
         public AuthInitQuery query { get; }
 
-        public GatewayAuthInitRequestRepresentation(Guid requestId, DateTime timestamp, AuthInitQuery query)
+        public string cmSuffix { get; }
+
+        public GatewayAuthInitRequestRepresentation(Guid requestId, DateTime timestamp, AuthInitQuery query, string cmSuffix)
         {
             this.requestId = requestId;
             this.timestamp = timestamp;
             this.query = query;
+            this.cmSuffix = cmSuffix;
         }
 
         public string dump(Object o)

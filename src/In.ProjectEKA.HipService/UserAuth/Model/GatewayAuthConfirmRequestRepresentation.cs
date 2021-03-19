@@ -10,13 +10,16 @@ namespace In.ProjectEKA.HipService.UserAuth.Model
         public string transactionId { get; }
         public AuthConfirmCredential credential { get; }
 
+        public string cmSuffix { get; }
+
         public GatewayAuthConfirmRequestRepresentation(Guid requestId, DateTime timestamp, string transactionId,
-            AuthConfirmCredential credential)
+            AuthConfirmCredential credential, string cmSuffix)
         {
             this.requestId = requestId;
             this.transactionId = transactionId;
             this.timestamp = timestamp;
             this.credential = credential;
+            this.cmSuffix = cmSuffix;
         }
 
         public string dump(Object o)
