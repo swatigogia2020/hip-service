@@ -1,3 +1,5 @@
+using In.ProjectEKA.HipService.UserAuth;
+
 namespace In.ProjectEKA.HipService
 {
     using System;
@@ -95,6 +97,7 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<ICareContextRepository, OpenMrsCareContextRepository>()
                 .AddScoped<IDiscoveryRequestRepository, DiscoveryRequestRepository>()
                 .AddScoped<IPatientDiscovery, PatientDiscovery>()
+                .AddScoped<IUserAuthService,UserAuthService>()
                 .AddScoped<LinkPatient>()
                 .AddScoped<ReferenceNumberGenerator>()
                 .AddSingleton(Configuration)

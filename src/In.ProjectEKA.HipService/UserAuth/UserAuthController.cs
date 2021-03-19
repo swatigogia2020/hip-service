@@ -22,14 +22,17 @@ namespace In.ProjectEKA.HipService.UserAuth
         private readonly IGatewayClient gatewayClient;
         private readonly ILogger<CareContextDiscoveryController> logger;
         private readonly GatewayConfiguration gatewayConfiguration;
+        private readonly IUserAuthService userAuthService;
 
         public AuthConfirmController(IGatewayClient gatewayClient,
             ILogger<CareContextDiscoveryController> logger,
-            GatewayConfiguration gatewayConfiguration)
+            GatewayConfiguration gatewayConfiguration,
+            IUserAuthService userAuthService)
         {
             this.gatewayClient = gatewayClient;
             this.logger = logger;
             this.gatewayConfiguration = gatewayConfiguration;
+            this.userAuthService = userAuthService;
         }
 
         [Route(FETCH_MODES)]
@@ -37,16 +40,13 @@ namespace In.ProjectEKA.HipService.UserAuth
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
             string cmSuffix = gatewayConfiguration.CmSuffix;
-            Requester requester = new Requester("Bahmni", FETCH_MODE_REQUEST_TYPE);
-            FetchQuery query = new FetchQuery(fetchRequest.healthId, FETCH_MODE_PURPOSE, requester);
-            DateTime timeStamp = DateTime.Now.ToUniversalTime();
-            Guid requestId = Guid.NewGuid();
             GatewayFetchModesRequestRepresentation gr =
-                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query);
+                userAuthService.FetchModeResponse(fetchRequest, gatewayConfiguration);
+            Guid requestId = gr.requestId;
 
             try
             {
-                logger.LogInformation($"{{cmSuffix}} {{correlationId}}{{healthid}} {{requestId}}", cmSuffix,
+                logger.LogInformation($"{{cmSuffix}} {{correlationId}}{{healthId}} {{requestId}}", cmSuffix,
                     correlationId,
                     fetchRequest.healthId, requestId);
                 logger.LogInformation("Request Object: " + gr.dump(gr));
@@ -106,14 +106,9 @@ namespace In.ProjectEKA.HipService.UserAuth
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
             string cmSuffix = gatewayConfiguration.CmSuffix;
-            Requester requester = new Requester("Bahmni", FETCH_MODE_REQUEST_TYPE);
-            AuthInitQuery query = new AuthInitQuery(authInitRequest.healthId, FETCH_MODE_PURPOSE,
-                authInitRequest.authMode, requester);
-            DateTime timeStamp = DateTime.Now.ToUniversalTime();
-            Guid requestId = Guid.NewGuid();
-
             GatewayAuthInitRequestRepresentation gatewayAuthInitRequestRepresentation =
-                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
+                userAuthService.AuthInitResponse(authInitRequest,gatewayConfiguration);
+            Guid requestId = gatewayAuthInitRequestRepresentation.requestId;
 
             try
             {
@@ -169,19 +164,17 @@ namespace In.ProjectEKA.HipService.UserAuth
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
             string cmSuffix = gatewayConfiguration.CmSuffix;
-            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
-            string transactionId = authConfirmRequest.transactionId;
-            DateTime timeStamp = DateTime.Now.ToUniversalTime();
-            Guid requestId = Guid.NewGuid();
-            GatewayAuthConfirmRequestRepresentation gr =
-                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
+            GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
+                userAuthService.AuthConfirmResponse(authConfirmRequest);
+            Guid requestId = gatewayAuthConfirmRequestRepresentation.requestId;
 
             try
             {
                 logger.LogInformation($"{{cmSuffix}} {{correlationId}} {{authCode}} {{transactionId}} {{requestId}}",
                     cmSuffix, correlationId,
                     authConfirmRequest.authCode, authConfirmRequest.transactionId, requestId);
-                await gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gr, cmSuffix, correlationId);
+                await gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gatewayAuthConfirmRequestRepresentation
+                    , cmSuffix, correlationId);
                 var i = 0;
                 do
                 {
