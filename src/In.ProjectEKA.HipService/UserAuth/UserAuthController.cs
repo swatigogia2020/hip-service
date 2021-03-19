@@ -35,7 +35,7 @@ namespace In.ProjectEKA.HipService.UserAuth
         }
 
         [Route(FETCH_MODES)]
-        public async Task<string> FetchPatientsAuthModes(
+        public async Task<ActionResult> GetAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
             string cmSuffix = gatewayConfiguration.CmSuffix;
@@ -57,13 +57,13 @@ namespace In.ProjectEKA.HipService.UserAuth
                 do
                 {
                     Thread.Sleep(2000);
-                    if (UserAuthMap.RequestIdToFetchMode.ContainsKey(requestId))
+                    if (UserAuthMap.RequestIdToAuthModes.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.UserAuth,
                             "Response about to be send for requestId: {RequestId} with authModes: {AuthModes}",
-                            requestId, UserAuthMap.RequestIdToFetchMode[requestId]
+                            requestId, UserAuthMap.RequestIdToAuthModes[requestId]
                         );
-                        return UserAuthMap.RequestIdToFetchMode[requestId];
+                        return Ok(UserAuthMap.RequestIdToAuthModes[requestId]);
                     }
 
                     i++;
@@ -75,12 +75,12 @@ namespace In.ProjectEKA.HipService.UserAuth
                                                                " fetch-mode request", requestId);
             }
 
-            return HttpStatusCode.GatewayTimeout.ToString();
+            return new StatusCodeResult((int) HttpStatusCode.GatewayTimeout);
         }
 
         [Authorize]
         [HttpPost(PATH_ON_FETCH_AUTH_MODES)]
-        public AcceptedResult OnFetchAuthMode(OnFetchAuthModeRequest request)
+        public AcceptedResult SetAuthModes(OnFetchAuthModeRequest request)
         {
             Log.Information("On fetch mode request received." +
                             $" RequestId:{request.RequestId}, " +
@@ -95,7 +95,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             {
                 string authModes = string.Join(',', request.Auth.Modes);
 
-                UserAuthMap.RequestIdToFetchMode.Add(Guid.Parse(request.Resp.RequestId), authModes);
+                UserAuthMap.RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), authModes);
             }
 
             Log.Information($"Response RequestId:{request.Resp.RequestId}");
@@ -103,7 +103,7 @@ namespace In.ProjectEKA.HipService.UserAuth
         }
 
         [Route(PATH_HIP_AUTH_INIT)]
-        public async Task<string> AuthInit(
+        public async Task<ActionResult> GetTransactionId(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
             string cmSuffix = gatewayConfiguration.CmSuffix;
@@ -132,7 +132,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with transactionId: {TransactionId}",
                             requestId, UserAuthMap.RequestIdToTransactionIdMap[requestId]
                         );
-                        return UserAuthMap.RequestIdToTransactionIdMap[requestId];
+                        return Ok(UserAuthMap.RequestIdToTransactionIdMap[requestId]);
                     }
 
                     i++;
@@ -144,12 +144,12 @@ namespace In.ProjectEKA.HipService.UserAuth
                                                                " auth-init request", requestId);
             }
 
-            return HttpStatusCode.GatewayTimeout.ToString();
+            return new StatusCodeResult((int) HttpStatusCode.GatewayTimeout);
         }
 
         [Authorize]
         [HttpPost(PATH_ON_AUTH_INIT)]
-        public AcceptedResult OnAuthInit(AuthOnInitRequest request)
+        public AcceptedResult SetTransactionId(AuthOnInitRequest request)
         {
             Log.Information("Auth on init request received." +
                             $" RequestId:{request.RequestId}, " +
@@ -170,7 +170,7 @@ namespace In.ProjectEKA.HipService.UserAuth
         }
 
         [Route(HIP_AUTH_CONFIRM)]
-        public async Task<string> FetchPatientsAuthModes(
+        public async Task<ActionResult> GetAccessToken(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
             string cmSuffix = gatewayConfiguration.CmSuffix;
@@ -199,7 +199,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with accessToken: {AccessToken}",
                             requestId, UserAuthMap.RequestIdToAccessToken[requestId]
                         );
-                        return UserAuthMap.RequestIdToAccessToken[requestId];
+                        return Ok(UserAuthMap.RequestIdToAccessToken[requestId]);
                     }
 
                     i++;
@@ -210,12 +210,12 @@ namespace In.ProjectEKA.HipService.UserAuth
                 logger.LogError(LogEvents.UserAuth, exception, "Error happened for requestId: {RequestId}", requestId);
             }
 
-            return HttpStatusCode.GatewayTimeout.ToString();
+            return new StatusCodeResult((int) HttpStatusCode.GatewayTimeout);
         }
 
         [Authorize]
         [HttpPost(ON_AUTH_CONFIRM)]
-        public AcceptedResult OnFetchAuthMode(OnAuthConfirmRequest request)
+        public AcceptedResult SetAccessToken(OnAuthConfirmRequest request)
         {
             Log.Information("Auth on confirm request received." +
                             $" RequestId:{request.requestID}, " +
