@@ -57,13 +57,13 @@ namespace In.ProjectEKA.HipService.UserAuth
                 do
                 {
                     Thread.Sleep(2000);
-                    if (FetchModeMap.requestIdToFetchMode.ContainsKey(requestId))
+                    if (UserAuthMap.RequestIdToFetchMode.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {RequestId} with {@AuthModes}",
-                            requestId, FetchModeMap.requestIdToFetchMode[requestId]
+                            requestId, UserAuthMap.RequestIdToFetchMode[requestId]
                         );
-                        return FetchModeMap.requestIdToFetchMode[requestId];
+                        return UserAuthMap.RequestIdToFetchMode[requestId];
                     }
 
                     i++;
@@ -94,7 +94,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             {
                 string authModes = string.Join(',', request.Auth.Modes);
 
-                FetchModeMap.requestIdToFetchMode.Add(Guid.Parse(request.Resp.RequestId), authModes);
+                UserAuthMap.RequestIdToFetchMode.Add(Guid.Parse(request.Resp.RequestId), authModes);
             }
 
             Log.Information($" Resp RequestId:{request.Resp.RequestId}");
@@ -123,13 +123,13 @@ namespace In.ProjectEKA.HipService.UserAuth
                 do
                 {
                     Thread.Sleep(2000);
-                    if (FetchModeMap.requestIdToTransactionIdMap.ContainsKey(requestId))
+                    if (UserAuthMap.RequestIdToTransactionIdMap.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.Discovery,
                             "Response about to be send for {RequestId} with {TransactionId}",
-                            requestId, FetchModeMap.requestIdToTransactionIdMap[requestId]
+                            requestId, UserAuthMap.RequestIdToTransactionIdMap[requestId]
                         );
-                        return FetchModeMap.requestIdToTransactionIdMap[requestId];
+                        return UserAuthMap.RequestIdToTransactionIdMap[requestId];
                     }
 
                     i++;
@@ -158,7 +158,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             else if (request.Auth != null)
             {
                 string transactionId = request.Auth.TransactionId;
-                FetchModeMap.requestIdToTransactionIdMap.Add(Guid.Parse(request.Resp.RequestId), transactionId);
+                UserAuthMap.RequestIdToTransactionIdMap.Add(Guid.Parse(request.Resp.RequestId), transactionId);
             }
 
             return Accepted();
@@ -186,9 +186,9 @@ namespace In.ProjectEKA.HipService.UserAuth
                 do
                 {
                     Thread.Sleep(2000);
-                    if (FetchModeMap.requestIdToAccessToken.ContainsKey(requestId))
+                    if (UserAuthMap.RequestIdToAccessToken.ContainsKey(requestId))
                     {
-                        return FetchModeMap.requestIdToAccessToken[requestId];
+                        return UserAuthMap.RequestIdToAccessToken[requestId];
                     }
 
                     i++;
@@ -220,7 +220,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                 string accessToken = request.auth.accessToken;
 
 
-                FetchModeMap.requestIdToAccessToken.Add(Guid.Parse(request.resp.RequestId), accessToken);
+                UserAuthMap.RequestIdToAccessToken.Add(Guid.Parse(request.resp.RequestId), accessToken);
             }
 
             return Accepted();
