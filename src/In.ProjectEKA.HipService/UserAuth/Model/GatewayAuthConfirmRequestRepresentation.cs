@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace In.ProjectEKA.HipService.UserAuth.Model
 {
@@ -17,6 +18,10 @@ namespace In.ProjectEKA.HipService.UserAuth.Model
             this.timestamp = timestamp;
             this.credential = credential;
         }
-        
+
+        public string dump(Object o)
+        {
+            return JsonConvert.SerializeObject(o);
+        }
     }
 }

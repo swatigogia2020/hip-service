@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace In.ProjectEKA.HipService.UserAuth.Model
 {
@@ -15,6 +16,11 @@ namespace In.ProjectEKA.HipService.UserAuth.Model
             this.requestId = requestId;
             this.timestamp = timestamp;
             this.query = query;
+        }
+
+        public string dump(Object o)
+        {
+            return JsonConvert.SerializeObject(o);
         }
     }
 }

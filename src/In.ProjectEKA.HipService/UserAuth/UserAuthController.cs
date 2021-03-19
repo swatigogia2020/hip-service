@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipService.Common;
-using In.ProjectEKA.HipService.Discovery;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.Logger;
@@ -17,15 +16,15 @@ namespace In.ProjectEKA.HipService.UserAuth
     using static Constants;
 
     [ApiController]
-    public class AuthConfirmController : Controller
+    public class UserAuthController : Controller
     {
         private readonly IGatewayClient gatewayClient;
-        private readonly ILogger<CareContextDiscoveryController> logger;
+        private readonly ILogger<UserAuthController> logger;
         private readonly GatewayConfiguration gatewayConfiguration;
         private readonly IUserAuthService userAuthService;
 
-        public AuthConfirmController(IGatewayClient gatewayClient,
-            ILogger<CareContextDiscoveryController> logger,
+        public UserAuthController(IGatewayClient gatewayClient,
+            ILogger<UserAuthController> logger,
             GatewayConfiguration gatewayConfiguration,
             IUserAuthService userAuthService)
         {
@@ -46,11 +45,12 @@ namespace In.ProjectEKA.HipService.UserAuth
 
             try
             {
-                logger.LogInformation($"{{cmSuffix}} {{correlationId}}{{healthId}} {{requestId}}", cmSuffix,
-                    correlationId,
-                    fetchRequest.healthId, requestId);
-                logger.LogInformation("Request Object: " + gr.dump(gr));
-
+                logger.Log(LogLevel.Information,
+                    LogEvents.UserAuth,
+                    "Request for fetch-modes to gateway: {@GatewayResponse}", gr.dump(gr));
+                logger.LogInformation($"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
+                                      $" healthId: {{healthId}}, requestId: {{requestId}}",
+                    cmSuffix, correlationId, fetchRequest.healthId, requestId);
                 await gatewayClient.SendDataToGateway(PATH_FETCH_AUTH_MODES, gr, cmSuffix, correlationId);
 
                 var i = 0;
@@ -59,8 +59,8 @@ namespace In.ProjectEKA.HipService.UserAuth
                     Thread.Sleep(2000);
                     if (UserAuthMap.RequestIdToFetchMode.ContainsKey(requestId))
                     {
-                        logger.LogInformation(LogEvents.Discovery,
-                            "Response about to be send for {RequestId} with {@AuthModes}",
+                        logger.LogInformation(LogEvents.UserAuth,
+                            "Response about to be send for requestId: {RequestId} with authModes: {AuthModes}",
                             requestId, UserAuthMap.RequestIdToFetchMode[requestId]
                         );
                         return UserAuthMap.RequestIdToFetchMode[requestId];
@@ -71,7 +71,8 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             catch (Exception exception)
             {
-                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
+                logger.LogError(LogEvents.UserAuth, exception, "Error happened for requestId: {RequestId} for" +
+                                                               " fetch-mode request", requestId);
             }
 
             return HttpStatusCode.GatewayTimeout.ToString();
@@ -97,7 +98,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                 UserAuthMap.RequestIdToFetchMode.Add(Guid.Parse(request.Resp.RequestId), authModes);
             }
 
-            Log.Information($" Resp RequestId:{request.Resp.RequestId}");
+            Log.Information($"Response RequestId:{request.Resp.RequestId}");
             return Accepted();
         }
 
@@ -107,11 +108,18 @@ namespace In.ProjectEKA.HipService.UserAuth
         {
             string cmSuffix = gatewayConfiguration.CmSuffix;
             GatewayAuthInitRequestRepresentation gatewayAuthInitRequestRepresentation =
-                userAuthService.AuthInitResponse(authInitRequest,gatewayConfiguration);
+                userAuthService.AuthInitResponse(authInitRequest, gatewayConfiguration);
             Guid requestId = gatewayAuthInitRequestRepresentation.requestId;
 
             try
             {
+                logger.Log(LogLevel.Information,
+                    LogEvents.UserAuth,
+                    "Request for auth-init to gateway: {@GatewayResponse}",
+                    gatewayAuthInitRequestRepresentation.dump(gatewayAuthInitRequestRepresentation));
+                logger.LogInformation($"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
+                                      $" healthId: {{healthId}}, requestId: {{requestId}}",
+                    cmSuffix, correlationId, authInitRequest.healthId, requestId);
                 await gatewayClient.SendDataToGateway(PATH_AUTH_INIT, gatewayAuthInitRequestRepresentation, cmSuffix,
                     correlationId);
                 var i = 0;
@@ -120,8 +128,8 @@ namespace In.ProjectEKA.HipService.UserAuth
                     Thread.Sleep(2000);
                     if (UserAuthMap.RequestIdToTransactionIdMap.ContainsKey(requestId))
                     {
-                        logger.LogInformation(LogEvents.Discovery,
-                            "Response about to be send for {RequestId} with {TransactionId}",
+                        logger.LogInformation(LogEvents.UserAuth,
+                            "Response about to be send for requestId: {RequestId} with transactionId: {TransactionId}",
                             requestId, UserAuthMap.RequestIdToTransactionIdMap[requestId]
                         );
                         return UserAuthMap.RequestIdToTransactionIdMap[requestId];
@@ -132,7 +140,8 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             catch (Exception exception)
             {
-                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
+                logger.LogError(LogEvents.UserAuth, exception, "Error happened for requestId: {RequestId} for" +
+                                                               " auth-init request", requestId);
             }
 
             return HttpStatusCode.GatewayTimeout.ToString();
@@ -156,6 +165,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                 UserAuthMap.RequestIdToTransactionIdMap.Add(Guid.Parse(request.Resp.RequestId), transactionId);
             }
 
+            Log.Information($"Response RequestId:{request.Resp.RequestId}");
             return Accepted();
         }
 
@@ -170,9 +180,13 @@ namespace In.ProjectEKA.HipService.UserAuth
 
             try
             {
-                logger.LogInformation($"{{cmSuffix}} {{correlationId}} {{authCode}} {{transactionId}} {{requestId}}",
-                    cmSuffix, correlationId,
-                    authConfirmRequest.authCode, authConfirmRequest.transactionId, requestId);
+                logger.Log(LogLevel.Information,
+                    LogEvents.UserAuth,
+                    "Request for auth-confirm to gateway: {@GatewayResponse}",
+                    gatewayAuthConfirmRequestRepresentation.dump(gatewayAuthConfirmRequestRepresentation));
+                logger.LogInformation($"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
+                                      $" authCode: {{authCode}}, transactionId: {{transactionId}} requestId: {{requestId}}",
+                    cmSuffix, correlationId, authConfirmRequest.authCode, authConfirmRequest.transactionId, requestId);
                 await gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gatewayAuthConfirmRequestRepresentation
                     , cmSuffix, correlationId);
                 var i = 0;
@@ -181,6 +195,10 @@ namespace In.ProjectEKA.HipService.UserAuth
                     Thread.Sleep(2000);
                     if (UserAuthMap.RequestIdToAccessToken.ContainsKey(requestId))
                     {
+                        logger.LogInformation(LogEvents.UserAuth,
+                            "Response about to be send for requestId: {RequestId} with accessToken: {AccessToken}",
+                            requestId, UserAuthMap.RequestIdToAccessToken[requestId]
+                        );
                         return UserAuthMap.RequestIdToAccessToken[requestId];
                     }
 
@@ -189,7 +207,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             catch (Exception exception)
             {
-                logger.LogError(LogEvents.Discovery, exception, "Error happened for {RequestId}", requestId);
+                logger.LogError(LogEvents.UserAuth, exception, "Error happened for requestId: {RequestId}", requestId);
             }
 
             return HttpStatusCode.GatewayTimeout.ToString();
@@ -216,6 +234,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                 UserAuthMap.RequestIdToAccessToken.Add(Guid.Parse(request.resp.RequestId), accessToken);
             }
 
+            Log.Information($"Response RequestId:{request.resp.RequestId}");
             return Accepted();
         }
     }
