@@ -1,6 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 using In.ProjectEKA.HipLibrary.Patient.Model;
+using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.UserAuth.Model;
 using static In.ProjectEKA.HipService.Common.Constants;
@@ -12,7 +13,7 @@ namespace In.ProjectEKA.HipService.UserAuth
         private static string cmSuffix;
 
         public virtual Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation> FetchModeResponse(
-            FetchRequest fetchRequest, GatewayConfiguration gatewayConfiguration)
+            FetchRequest fetchRequest, BahmniConfiguration bahmniConfiguration)
         {
             var healthId = fetchRequest.healthId;
             if (!IsValidHealthId(healthId))
@@ -20,7 +21,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
             var patientIdSplit = healthId.Split("@");
             cmSuffix = patientIdSplit[1];
-            var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
+            var requester = new Requester(bahmniConfiguration.Id, FETCH_MODE_REQUEST_TYPE);
             var purpose = fetchRequest.purpose;
             var query = purpose != null
                 ? new FetchQuery(healthId, purpose, requester)
@@ -32,7 +33,7 @@ namespace In.ProjectEKA.HipService.UserAuth
         }
 
         public virtual Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation> AuthInitResponse(
-            AuthInitRequest authInitRequest, GatewayConfiguration gatewayConfiguration)
+            AuthInitRequest authInitRequest, BahmniConfiguration bahmniConfiguration)
         {
             var healthId = authInitRequest.healthId;
             if (!IsValidHealthId(healthId))
@@ -40,7 +41,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
-            var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
+            var requester = new Requester(bahmniConfiguration.Id, FETCH_MODE_REQUEST_TYPE);
             var purpose = authInitRequest.purpose;
             var authInitQuery = purpose != null
                 ? new AuthInitQuery(healthId, purpose, authInitRequest.authMode, requester)

@@ -2,7 +2,7 @@ namespace In.ProjectEKA.HipService.Link.Model
 {
     public class Auth
     {
-        public Auth(string transactionId, Meta meta,Mode mode)
+        public Auth(string transactionId, Meta meta, Mode mode)
         {
             TransactionId = transactionId;
             Meta = meta;

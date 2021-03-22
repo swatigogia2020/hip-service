@@ -1,3 +1,4 @@
+using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.UserAuth;
 
 namespace In.ProjectEKA.HipService
@@ -121,6 +122,7 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<IDataFlowRepository, DataFlowRepository>()
                 .AddScoped<IHealthInformationRepository, HealthInformationRepository>()
                 .AddSingleton(Configuration.GetSection("Gateway").Get<GatewayConfiguration>())
+                .AddSingleton(Configuration.GetSection("Bahmni").Get<BahmniConfiguration>())
                 .AddSingleton(new GatewayClient(HttpClient,
                     Configuration.GetSection("Gateway").Get<GatewayConfiguration>()))
                 .AddScoped<IGatewayClient, GatewayClient>()

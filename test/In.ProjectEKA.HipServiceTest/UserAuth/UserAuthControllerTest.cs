@@ -40,7 +40,6 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         {
             userAuthController = new UserAuthController(gatewayClient.Object,
                 logger.Object,
-                gatewayConfiguration,
                 userAuthService.Object);
         }
 

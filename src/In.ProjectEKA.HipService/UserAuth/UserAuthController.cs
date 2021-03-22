@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipService.Common;
+using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.Logger;
@@ -21,18 +22,17 @@ namespace In.ProjectEKA.HipService.UserAuth
     {
         private readonly IGatewayClient gatewayClient;
         private readonly ILogger<UserAuthController> logger;
-        private readonly GatewayConfiguration gatewayConfiguration;
+        private readonly BahmniConfiguration bahmniConfiguration;
         private readonly IUserAuthService userAuthService;
 
         public UserAuthController(IGatewayClient gatewayClient,
             ILogger<UserAuthController> logger,
-            GatewayConfiguration gatewayConfiguration,
-            IUserAuthService userAuthService)
+            IUserAuthService userAuthService, BahmniConfiguration bahmniConfiguration)
         {
             this.gatewayClient = gatewayClient;
             this.logger = logger;
-            this.gatewayConfiguration = gatewayConfiguration;
             this.userAuthService = userAuthService;
+            this.bahmniConfiguration = bahmniConfiguration;
         }
 
         [Route(FETCH_MODES)]
@@ -40,7 +40,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
             var (gr, error) =
-                userAuthService.FetchModeResponse(fetchRequest, gatewayConfiguration);
+                userAuthService.FetchModeResponse(fetchRequest, bahmniConfiguration);
             if (error != null)
                 return StatusCode(StatusCodes.Status400BadRequest, error);
             Guid requestId = gr.requestId;
@@ -110,7 +110,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
             var (gatewayAuthInitRequestRepresentation, error) =
-                userAuthService.AuthInitResponse(authInitRequest, gatewayConfiguration);
+                userAuthService.AuthInitResponse(authInitRequest, bahmniConfiguration);
             if (error != null)
                 return StatusCode(StatusCodes.Status400BadRequest, error);
             Guid requestId = gatewayAuthInitRequestRepresentation.requestId;
