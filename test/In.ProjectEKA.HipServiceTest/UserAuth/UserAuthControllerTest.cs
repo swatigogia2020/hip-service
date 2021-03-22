@@ -47,7 +47,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldFetchPatientsAuthModes()
         {
-            var request = new FetchRequest("hina_patel@ncg");
+            var purpose = "KYC_AND_LINK";
+            var request = new FetchRequest("hina_patel@ncg",purpose);
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new FetchQuery(request.healthId, FETCH_MODE_PURPOSE, requester);
             var timeStamp = DateTime.Now.ToUniversalTime();
@@ -85,7 +86,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldNotFetchPatientsAuthModes()
         {
-            var request = new FetchRequest("hina_patel@ncg");
+            var purpose = "KYC_AND_LINK";
+            var request = new FetchRequest("hina_patel@ncg",purpose);
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new FetchQuery(request.healthId, FETCH_MODE_PURPOSE, requester);
             var timeStamp = DateTime.Now.ToUniversalTime();
@@ -113,8 +115,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldSendAuthInitAndOnAuthInit()
         {
-            var request = new AuthInitRequest("hina_patel@ncg", "MOBILE_OTP");
-
+            var purpose = "KYC_AND_LINK";
+            var request = new AuthInitRequest("hina_patel@ncg", "MOBILE_OTP",purpose);
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);
@@ -148,8 +150,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldSendAuthInitAndNotOnAuthInit()
         {
-            var request = new AuthInitRequest("123", "12344");
-
+            var request = new AuthInitRequest("123", "12344","KYC_AND_LINK");
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);

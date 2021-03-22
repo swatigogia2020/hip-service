@@ -9,7 +9,6 @@ namespace In.ProjectEKA.HipService.Patient
     using Microsoft.Extensions.Logging;
     using Model;
     using Newtonsoft.Json.Linq;
-    using User;
     using static Common.Constants;
 
     [ApiController]
@@ -17,9 +16,9 @@ namespace In.ProjectEKA.HipService.Patient
     {
         private readonly IBackgroundJobClient backgroundJob;
         private readonly GatewayClient gatewayClient;
-        private readonly ILogger<UserController> logger;
+        private readonly ILogger<PatientController> logger;
 
-        public PatientController(IBackgroundJobClient backgroundJob, GatewayClient gatewayClient, ILogger<UserController> logger)
+        public PatientController(IBackgroundJobClient backgroundJob, GatewayClient gatewayClient, ILogger<PatientController> logger)
         {
             this.backgroundJob = backgroundJob;
             this.gatewayClient = gatewayClient;
