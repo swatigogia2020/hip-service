@@ -8,6 +8,7 @@ using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.Logger;
 using In.ProjectEKA.HipService.UserAuth.Model;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -38,8 +39,10 @@ namespace In.ProjectEKA.HipService.UserAuth
         public async Task<ActionResult> GetAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
-            GatewayFetchModesRequestRepresentation gr =
+            var (gr, error) =
                 userAuthService.FetchModeResponse(fetchRequest, gatewayConfiguration);
+            if (error != null)
+                return StatusCode(StatusCodes.Status400BadRequest, error);
             Guid requestId = gr.requestId;
             var cmSuffix = gr.cmSuffix;
 
@@ -106,8 +109,10 @@ namespace In.ProjectEKA.HipService.UserAuth
         public async Task<ActionResult> GetTransactionId(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
-            GatewayAuthInitRequestRepresentation gatewayAuthInitRequestRepresentation =
+            var (gatewayAuthInitRequestRepresentation, error) =
                 userAuthService.AuthInitResponse(authInitRequest, gatewayConfiguration);
+            if (error != null)
+                return StatusCode(StatusCodes.Status400BadRequest, error);
             Guid requestId = gatewayAuthInitRequestRepresentation.requestId;
             var cmSuffix = gatewayAuthInitRequestRepresentation.cmSuffix;
 
@@ -173,8 +178,10 @@ namespace In.ProjectEKA.HipService.UserAuth
         public async Task<ActionResult> GetAccessToken(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
-            var gatewayAuthConfirmRequestRepresentation =
+            var (gatewayAuthConfirmRequestRepresentation, error) =
                 userAuthService.AuthConfirmResponse(authConfirmRequest);
+            if (error != null)
+                return StatusCode(StatusCodes.Status400BadRequest, error);
             var requestId = gatewayAuthConfirmRequestRepresentation.requestId;
             var cmSuffix = gatewayAuthConfirmRequestRepresentation.cmSuffix;
 

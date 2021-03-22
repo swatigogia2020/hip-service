@@ -48,7 +48,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         private void ShouldFetchPatientsAuthModes()
         {
             var purpose = "KYC_AND_LINK";
-            var request = new FetchRequest("hina_patel@ncg",purpose);
+            var request = new FetchRequest("hina_patel@ncg", purpose);
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new FetchQuery(request.healthId, FETCH_MODE_PURPOSE, requester);
             var timeStamp = DateTime.Now.ToUniversalTime();
@@ -66,7 +66,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                 new AuthModeFetch("KYC_AND_LINK", modes), null, new Resp(requestId.ToString()));
             var authModes = string.Join(',', onFetchAuthModeRequest.Auth.Modes);
             userAuthService.Setup(a => a.FetchModeResponse(request, gatewayConfiguration))
-                .Returns(gatewayFetchModesRequestRepresentation);
+                .Returns(new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
+                    (gatewayFetchModesRequestRepresentation, null));
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_FETCH_AUTH_MODES,
@@ -87,7 +88,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         private void ShouldNotFetchPatientsAuthModes()
         {
             var purpose = "KYC_AND_LINK";
-            var request = new FetchRequest("hina_patel@ncg",purpose);
+            var request = new FetchRequest("hina_patel@ncg", purpose);
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new FetchQuery(request.healthId, FETCH_MODE_PURPOSE, requester);
             var timeStamp = DateTime.Now.ToUniversalTime();
@@ -98,7 +99,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.FetchModeResponse(request, gatewayConfiguration))
-                .Returns(gatewayFetchModesRequestRepresentation);
+                .Returns(new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
+                    (gatewayFetchModesRequestRepresentation, null));
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_FETCH_AUTH_MODES,
@@ -116,7 +118,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         private void ShouldSendAuthInitAndOnAuthInit()
         {
             var purpose = "KYC_AND_LINK";
-            var request = new AuthInitRequest("hina_patel@ncg", "MOBILE_OTP",purpose);
+            var request = new AuthInitRequest("hina_patel@ncg", "MOBILE_OTP", purpose);
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);
@@ -130,7 +132,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var authOnInitRequest =
                 new AuthOnInitRequest(requestId, timeStamp, auth, null, new Resp(requestId.ToString()));
             userAuthService.Setup(a => a.AuthInitResponse(request, gatewayConfiguration))
-                .Returns(gatewayAuthInitRequestRepresentation);
+                .Returns(new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
+                    (gatewayAuthInitRequestRepresentation, null));
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_AUTH_INIT,
@@ -150,7 +153,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldSendAuthInitAndNotOnAuthInit()
         {
-            var request = new AuthInitRequest("123", "12344","KYC_AND_LINK");
+            var request = new AuthInitRequest("hina_patel@ncg", "12344", "KYC_AND_LINK");
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
             var query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);
@@ -161,7 +164,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.AuthInitResponse(request, gatewayConfiguration))
-                .Returns(gatewayAuthInitRequestRepresentation);
+                .Returns(new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
+                    (gatewayAuthInitRequestRepresentation, null));
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_AUTH_INIT,
@@ -199,7 +203,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))
-                .Returns(gatewayAuthConfirmRequestRepresentation);
+                .Returns(new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
+                    (gatewayAuthConfirmRequestRepresentation, null));
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_AUTH_CONFIRM,
@@ -231,7 +236,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))
-                .Returns(gatewayAuthConfirmRequestRepresentation);
+                .Returns(new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
+                    (gatewayAuthConfirmRequestRepresentation, null));
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_AUTH_CONFIRM,
@@ -242,6 +248,43 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             {
                 Log.Information(authMode.ToString());
                 authMode.StatusCode.Should().Be((int) HttpStatusCode.GatewayTimeout);
+            }
+        }
+
+        [Fact]
+        private void ShouldGiveInvalidHealthIdErrorForFetchModes()
+        {
+            var purpose = "KYC_AND_LINK";
+            var request = new FetchRequest("invalidHealthId", purpose);
+            var error = new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "Invalid HealthId"));
+            var correlationId = Uuid.Generate().ToString();
+
+            userAuthService.Setup(a => a.FetchModeResponse(request, gatewayConfiguration))
+                .Returns(new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
+                    (null, error));
+            
+            if (userAuthController.GetAuthModes(correlationId, request).Result is ObjectResult authMode)
+            {
+                Log.Information(authMode.ToString());
+                authMode.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [Fact]
+        private void ShouldGiveInvalidHealthIdErrorForAuthInit()
+        {
+            var request = new AuthInitRequest("invalidHealthId", "12344", "KYC_AND_LINK");
+            var error = new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "Invalid HealthId"));
+            var correlationId = Uuid.Generate().ToString();
+
+            userAuthService.Setup(a => a.AuthInitResponse(request, gatewayConfiguration))
+                .Returns(new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
+                    (null, error));
+
+            if (userAuthController.GetTransactionId(correlationId, request).Result is ObjectResult authMode)
+            {
+                Log.Information(authMode.ToString());
+                authMode.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
             }
         }
     }
