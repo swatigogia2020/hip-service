@@ -53,7 +53,7 @@ namespace In.ProjectEKA.HipService.DataFlow
         private async Task<string> GetForVisits(string hiType, string consentId, string grantedContext, string toDate,
             string fromDate)
         {
-            var pathForVisit = $"{Constants.OPENMRS_HITYPE}{hiTypeToRootElement[hiType]}/visit/";
+            var pathForVisit = $"{Constants.PATH_OPENMRS_HITYPE}{hiTypeToRootElement[hiType]}/visit/";
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (
                 !string.IsNullOrEmpty(consentId) &&
@@ -91,7 +91,7 @@ namespace In.ProjectEKA.HipService.DataFlow
             string toDate,
             string fromDate)
         {
-            var pathForProgram = $"{Constants.OPENMRS_HITYPE}{hiTypeToRootElement[hiType]}/program/";
+            var pathForProgram = $"{Constants.PATH_OPENMRS_HITYPE}{hiTypeToRootElement[hiType]}/program/";
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (
                 !string.IsNullOrEmpty(consentId) &&

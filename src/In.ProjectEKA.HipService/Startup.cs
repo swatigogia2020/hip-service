@@ -109,8 +109,8 @@ namespace In.ProjectEKA.HipService
                 .AddSingleton(HttpClient)
                 .AddScoped<IHealthCheckClient>(_ => new OpenMrsHealthCheckClient(new Dictionary<string, string>
                     {
-                        {"OpenMRS-FHIR", Constants.OPENMRS_FHIR},
-                        {"OpenMRS-REST", Constants.OPENMRS_REST}
+                        {"OpenMRS-FHIR", Constants.PATH_OPENMRS_FHIR},
+                        {"OpenMRS-REST", Constants.PATH_OPENMRS_REST}
                     },
                     new OpenMrsClient(HttpClient,
                         Configuration.GetSection(Constants.CONFIG_KEY).Get<OpenMrsConfiguration>())))

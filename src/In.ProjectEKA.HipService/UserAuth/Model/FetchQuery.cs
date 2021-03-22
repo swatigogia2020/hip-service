@@ -1,11 +1,11 @@
-using In.ProjectEKA.HipService.Common;
+using static In.ProjectEKA.HipService.Common.Constants;
 
 namespace In.ProjectEKA.HipService.UserAuth.Model
 {
     public class FetchQuery
     {
         public string id { get; }
-        public string purpose { get; } = Constants.FETCH_MODE_PURPOSE;
+        public string purpose { get; } = KYC_AND_LINK;
         public Requester requester { get; }
 
         public FetchQuery(string id, Requester requester)

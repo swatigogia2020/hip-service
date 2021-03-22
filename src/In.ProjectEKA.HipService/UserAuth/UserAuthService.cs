@@ -21,7 +21,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
             var patientIdSplit = healthId.Split("@");
             cmSuffix = patientIdSplit[1];
-            var requester = new Requester(bahmniConfiguration.Id, FETCH_MODE_REQUEST_TYPE);
+            var requester = new Requester(bahmniConfiguration.Id, HIP);
             var purpose = fetchRequest.purpose;
             var query = purpose != null
                 ? new FetchQuery(healthId, purpose, requester)
@@ -41,7 +41,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
-            var requester = new Requester(bahmniConfiguration.Id, FETCH_MODE_REQUEST_TYPE);
+            var requester = new Requester(bahmniConfiguration.Id, HIP);
             var purpose = authInitRequest.purpose;
             var authInitQuery = purpose != null
                 ? new AuthInitQuery(healthId, purpose, authInitRequest.authMode, requester)

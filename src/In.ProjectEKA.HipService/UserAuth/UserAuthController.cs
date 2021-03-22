@@ -35,26 +35,29 @@ namespace In.ProjectEKA.HipService.UserAuth
             this.bahmniConfiguration = bahmniConfiguration;
         }
 
-        [Route(FETCH_MODES)]
+        [Route(PATH_FETCH_MODES)]
         public async Task<ActionResult> GetAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
-            var (gr, error) =
+            var (gatewayFetchModesRequestRepresentation, error) =
                 userAuthService.FetchModeResponse(fetchRequest, bahmniConfiguration);
             if (error != null)
                 return StatusCode(StatusCodes.Status400BadRequest, error);
-            Guid requestId = gr.requestId;
-            var cmSuffix = gr.cmSuffix;
+            Guid requestId = gatewayFetchModesRequestRepresentation.requestId;
+            var cmSuffix = gatewayFetchModesRequestRepresentation.cmSuffix;
 
             try
             {
                 logger.Log(LogLevel.Information,
                     LogEvents.UserAuth,
-                    "Request for fetch-modes to gateway: {@GatewayResponse}", gr.dump(gr));
-                logger.LogInformation($"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
-                                      $" healthId: {{healthId}}, requestId: {{requestId}}",
+                    "Request for fetch-modes to gateway: {@GatewayResponse}",
+                    gatewayFetchModesRequestRepresentation.dump(gatewayFetchModesRequestRepresentation));
+                logger.Log(LogLevel.Information,
+                    LogEvents.UserAuth, $"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
+                                        $" healthId: {{healthId}}, requestId: {{requestId}}",
                     cmSuffix, correlationId, fetchRequest.healthId, requestId);
-                await gatewayClient.SendDataToGateway(PATH_FETCH_AUTH_MODES, gr, cmSuffix, correlationId);
+                await gatewayClient.SendDataToGateway(PATH_FETCH_AUTH_MODES, gatewayFetchModesRequestRepresentation,
+                    cmSuffix, correlationId);
 
                 var i = 0;
                 do
@@ -85,14 +88,16 @@ namespace In.ProjectEKA.HipService.UserAuth
         [HttpPost(PATH_ON_FETCH_AUTH_MODES)]
         public AcceptedResult SetAuthModes(OnFetchAuthModeRequest request)
         {
-            Log.Information("On fetch mode request received." +
-                            $" RequestId:{request.RequestId}, " +
-                            $" Timestamp:{request.Timestamp}," +
-                            $" ResponseRequestId:{request.Resp.RequestId}, ");
+            logger.Log(LogLevel.Information,
+                LogEvents.UserAuth, "On fetch mode request received." +
+                                    $" RequestId:{request.RequestId}, " +
+                                    $" Timestamp:{request.Timestamp}," +
+                                    $" ResponseRequestId:{request.Resp.RequestId}, ");
             if (request.Error != null)
             {
-                Log.Information($" Error Code:{request.Error.Code}," +
-                                $" Error Message:{request.Error.Message}.");
+                logger.Log(LogLevel.Information,
+                    LogEvents.UserAuth, $" Error Code:{request.Error.Code}," +
+                                        $" Error Message:{request.Error.Message}.");
             }
             else if (request.Auth != null)
             {
@@ -101,7 +106,8 @@ namespace In.ProjectEKA.HipService.UserAuth
                 UserAuthMap.RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), authModes);
             }
 
-            Log.Information($"Response RequestId:{request.Resp.RequestId}");
+            logger.Log(LogLevel.Information,
+                LogEvents.UserAuth, $"Response RequestId:{request.Resp.RequestId}");
             return Accepted();
         }
 
@@ -122,8 +128,9 @@ namespace In.ProjectEKA.HipService.UserAuth
                     LogEvents.UserAuth,
                     "Request for auth-init to gateway: {@GatewayResponse}",
                     gatewayAuthInitRequestRepresentation.dump(gatewayAuthInitRequestRepresentation));
-                logger.LogInformation($"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
-                                      $" healthId: {{healthId}}, requestId: {{requestId}}",
+                logger.Log(LogLevel.Information, LogEvents.UserAuth, $"cmSuffix: {{cmSuffix}}," +
+                                                                     $" correlationId: {{correlationId}}, " +
+                                                                     $"healthId: {{healthId}}, requestId: {{requestId}}",
                     cmSuffix, correlationId, authInitRequest.healthId, requestId);
                 await gatewayClient.SendDataToGateway(PATH_AUTH_INIT, gatewayAuthInitRequestRepresentation, cmSuffix,
                     correlationId);
@@ -156,13 +163,15 @@ namespace In.ProjectEKA.HipService.UserAuth
         [HttpPost(PATH_ON_AUTH_INIT)]
         public AcceptedResult SetTransactionId(AuthOnInitRequest request)
         {
-            Log.Information("Auth on init request received." +
-                            $" RequestId:{request.RequestId}, " +
-                            $" Timestamp:{request.Timestamp},");
+            logger.Log(LogLevel.Information,
+                LogEvents.UserAuth, "Auth on init request received." +
+                                    $" RequestId:{request.RequestId}, " +
+                                    $" Timestamp:{request.Timestamp},");
             if (request.Error != null)
             {
-                Log.Information($" Error Code:{request.Error.Code}," +
-                                $" Error Message:{request.Error.Message}.");
+                logger.Log(LogLevel.Information,
+                    LogEvents.UserAuth, $" Error Code:{request.Error.Code}," +
+                                        $" Error Message:{request.Error.Message}.");
             }
             else if (request.Auth != null)
             {
@@ -170,11 +179,12 @@ namespace In.ProjectEKA.HipService.UserAuth
                 UserAuthMap.RequestIdToTransactionIdMap.Add(Guid.Parse(request.Resp.RequestId), transactionId);
             }
 
-            Log.Information($"Response RequestId:{request.Resp.RequestId}");
+            logger.Log(LogLevel.Information,
+                LogEvents.UserAuth, $"Response RequestId:{request.Resp.RequestId}");
             return Accepted();
         }
 
-        [Route(HIP_AUTH_CONFIRM)]
+        [Route(PATH_HIP_AUTH_CONFIRM)]
         public async Task<ActionResult> GetAccessToken(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
@@ -191,8 +201,9 @@ namespace In.ProjectEKA.HipService.UserAuth
                     LogEvents.UserAuth,
                     "Request for auth-confirm to gateway: {@GatewayResponse}",
                     gatewayAuthConfirmRequestRepresentation.dump(gatewayAuthConfirmRequestRepresentation));
-                logger.LogInformation($"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
-                                      $" authCode: {{authCode}}, transactionId: {{transactionId}} requestId: {{requestId}}",
+                logger.Log(LogLevel.Information,
+                    LogEvents.UserAuth, $"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
+                                        $" authCode: {{authCode}}, transactionId: {{transactionId}} requestId: {{requestId}}",
                     cmSuffix, correlationId, authConfirmRequest.authCode, authConfirmRequest.transactionId, requestId);
                 await gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gatewayAuthConfirmRequestRepresentation
                     , cmSuffix, correlationId);
@@ -221,17 +232,19 @@ namespace In.ProjectEKA.HipService.UserAuth
         }
 
         [Authorize]
-        [HttpPost(ON_AUTH_CONFIRM)]
+        [HttpPost(PATH_ON_AUTH_CONFIRM)]
         public AcceptedResult SetAccessToken(OnAuthConfirmRequest request)
         {
-            Log.Information("Auth on confirm request received." +
-                            $" RequestId:{request.requestID}, " +
-                            $" Timestamp:{request.timestamp}," +
-                            $" ResponseRequestId:{request.resp.RequestId}, ");
+            logger.Log(LogLevel.Information,
+                LogEvents.UserAuth, "Auth on confirm request received." +
+                                    $" RequestId:{request.requestID}, " +
+                                    $" Timestamp:{request.timestamp}," +
+                                    $" ResponseRequestId:{request.resp.RequestId}, ");
             if (request.error != null)
             {
-                Log.Information($" Error Code:{request.error.Code}," +
-                                $" Error Message:{request.error.Message}.");
+                logger.Log(LogLevel.Information,
+                    LogEvents.UserAuth, $" Error Code:{request.error.Code}," +
+                                        $" Error Message:{request.error.Message}.");
             }
             else if (request.auth != null)
             {
@@ -239,7 +252,8 @@ namespace In.ProjectEKA.HipService.UserAuth
                 UserAuthMap.RequestIdToAccessToken.Add(Guid.Parse(request.resp.RequestId), accessToken);
             }
 
-            Log.Information($"Response RequestId:{request.resp.RequestId}");
+            logger.Log(LogLevel.Information,
+                LogEvents.UserAuth, $"Response RequestId:{request.resp.RequestId}");
             return Accepted();
         }
     }

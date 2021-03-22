@@ -4,6 +4,7 @@ using System.Net;
 using FluentAssertions;
 using Hl7.Fhir.Model;
 using In.ProjectEKA.HipLibrary.Patient.Model;
+using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.UserAuth;
@@ -31,25 +32,24 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         private readonly Mock<GatewayClient> gatewayClient = new Mock<GatewayClient>(MockBehavior.Strict, null, null);
         private readonly Mock<IUserAuthService> userAuthService = new Mock<IUserAuthService>();
 
-        private readonly GatewayConfiguration gatewayConfiguration = new GatewayConfiguration
+        private readonly BahmniConfiguration bahmniConfiguration = new BahmniConfiguration()
         {
-            CmSuffix = "ncg"
+            Id = "Bahmni"
         };
 
         public UserAuthControllerTest()
         {
             userAuthController = new UserAuthController(gatewayClient.Object,
                 logger.Object,
-                userAuthService.Object);
+                userAuthService.Object, bahmniConfiguration);
         }
 
         [Fact]
         private void ShouldFetchPatientsAuthModes()
         {
-            var purpose = "KYC_AND_LINK";
-            var request = new FetchRequest("hina_patel@ncg", purpose);
-            var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
-            var query = new FetchQuery(request.healthId, FETCH_MODE_PURPOSE, requester);
+            var request = new FetchRequest("hina_patel@ncg", KYC_AND_LINK);
+            var requester = new Requester(bahmniConfiguration.Id, HIP);
+            var query = new FetchQuery(request.healthId, KYC_AND_LINK, requester);
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
             var cmSuffix = "ncg";
@@ -64,7 +64,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var onFetchAuthModeRequest = new OnFetchAuthModeRequest(requestId, timeStamp,
                 new AuthModeFetch("KYC_AND_LINK", modes), null, new Resp(requestId.ToString()));
             var authModes = string.Join(',', onFetchAuthModeRequest.Auth.Modes);
-            userAuthService.Setup(a => a.FetchModeResponse(request, gatewayConfiguration))
+            userAuthService.Setup(a => a.FetchModeResponse(request, bahmniConfiguration))
                 .Returns(new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
                     (gatewayFetchModesRequestRepresentation, null));
             gatewayClient.Setup(
@@ -86,10 +86,9 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldNotFetchPatientsAuthModes()
         {
-            var purpose = "KYC_AND_LINK";
-            var request = new FetchRequest("hina_patel@ncg", purpose);
-            var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
-            var query = new FetchQuery(request.healthId, FETCH_MODE_PURPOSE, requester);
+            var request = new FetchRequest("hina_patel@ncg", KYC_AND_LINK);
+            var requester = new Requester(bahmniConfiguration.Id, HIP);
+            var query = new FetchQuery(request.healthId, KYC_AND_LINK, requester);
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
             var cmSuffix = "ncg";
@@ -97,7 +96,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                 new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query, cmSuffix);
             var correlationId = Uuid.Generate().ToString();
 
-            userAuthService.Setup(a => a.FetchModeResponse(request, gatewayConfiguration))
+            userAuthService.Setup(a => a.FetchModeResponse(request, bahmniConfiguration))
                 .Returns(new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
                     (gatewayFetchModesRequestRepresentation, null));
             gatewayClient.Setup(
@@ -116,11 +115,10 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldSendAuthInitAndOnAuthInit()
         {
-            var purpose = "KYC_AND_LINK";
-            var request = new AuthInitRequest("hina_patel@ncg", "MOBILE_OTP", purpose);
+            var request = new AuthInitRequest("hina_patel@ncg", "MOBILE_OTP", KYC_AND_LINK);
             var timeStamp = DateTime.Now.ToUniversalTime();
-            var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
-            var query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);
+            var requester = new Requester(bahmniConfiguration.Id, HIP);
+            var query = new AuthInitQuery(request.healthId, KYC_AND_LINK, request.authMode, requester);
             var requestId = Guid.NewGuid();
             var cmSuffix = "ncg";
             var gatewayAuthInitRequestRepresentation =
@@ -130,7 +128,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var auth = new Auth(transactionId, new Meta("string", new DateTime()), Mode.MOBILE_OTP);
             var authOnInitRequest =
                 new AuthOnInitRequest(requestId, timeStamp, auth, null, new Resp(requestId.ToString()));
-            userAuthService.Setup(a => a.AuthInitResponse(request, gatewayConfiguration))
+            userAuthService.Setup(a => a.AuthInitResponse(request, bahmniConfiguration))
                 .Returns(new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
                     (gatewayAuthInitRequestRepresentation, null));
             gatewayClient.Setup(
@@ -152,17 +150,17 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldSendAuthInitAndNotOnAuthInit()
         {
-            var request = new AuthInitRequest("hina_patel@ncg", "12344", "KYC_AND_LINK");
+            var request = new AuthInitRequest("hina_patel@ncg", "12344", KYC_AND_LINK);
             var timeStamp = DateTime.Now.ToUniversalTime();
-            var requester = new Requester(gatewayConfiguration.ClientId, FETCH_MODE_REQUEST_TYPE);
-            var query = new AuthInitQuery(request.healthId, FETCH_MODE_PURPOSE, request.authMode, requester);
+            var requester = new Requester(bahmniConfiguration.Id, HIP);
+            var query = new AuthInitQuery(request.healthId, KYC_AND_LINK, request.authMode, requester);
             var requestId = Guid.NewGuid();
             var cmSuffix = "ncg";
             var gatewayAuthInitRequestRepresentation =
                 new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query, cmSuffix);
             var correlationId = Uuid.Generate().ToString();
 
-            userAuthService.Setup(a => a.AuthInitResponse(request, gatewayConfiguration))
+            userAuthService.Setup(a => a.AuthInitResponse(request, bahmniConfiguration))
                 .Returns(new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
                     (gatewayAuthInitRequestRepresentation, null));
             gatewayClient.Setup(
@@ -253,15 +251,14 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldGiveInvalidHealthIdErrorForFetchModes()
         {
-            var purpose = "KYC_AND_LINK";
-            var request = new FetchRequest("invalidHealthId", purpose);
+            var request = new FetchRequest("invalidHealthId", KYC_AND_LINK);
             var error = new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "Invalid HealthId"));
             var correlationId = Uuid.Generate().ToString();
 
-            userAuthService.Setup(a => a.FetchModeResponse(request, gatewayConfiguration))
+            userAuthService.Setup(a => a.FetchModeResponse(request, bahmniConfiguration))
                 .Returns(new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
                     (null, error));
-            
+
             if (userAuthController.GetAuthModes(correlationId, request).Result is ObjectResult authMode)
             {
                 Log.Information(authMode.ToString());
@@ -272,11 +269,11 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldGiveInvalidHealthIdErrorForAuthInit()
         {
-            var request = new AuthInitRequest("invalidHealthId", "12344", "KYC_AND_LINK");
+            var request = new AuthInitRequest("invalidHealthId", "12344", KYC_AND_LINK);
             var error = new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "Invalid HealthId"));
             var correlationId = Uuid.Generate().ToString();
 
-            userAuthService.Setup(a => a.AuthInitResponse(request, gatewayConfiguration))
+            userAuthService.Setup(a => a.AuthInitResponse(request, bahmniConfiguration))
                 .Returns(new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
                     (null, error));
 
