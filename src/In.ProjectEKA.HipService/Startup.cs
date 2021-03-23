@@ -1,3 +1,6 @@
+using In.ProjectEKA.HipService.Common.Model;
+using In.ProjectEKA.HipService.UserAuth;
+
 namespace In.ProjectEKA.HipService
 {
     using System;
@@ -95,6 +98,7 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<ICareContextRepository, OpenMrsCareContextRepository>()
                 .AddScoped<IDiscoveryRequestRepository, DiscoveryRequestRepository>()
                 .AddScoped<IPatientDiscovery, PatientDiscovery>()
+                .AddScoped<IUserAuthService,UserAuthService>()
                 .AddScoped<LinkPatient>()
                 .AddScoped<ReferenceNumberGenerator>()
                 .AddSingleton(Configuration)
@@ -105,8 +109,8 @@ namespace In.ProjectEKA.HipService
                 .AddSingleton(HttpClient)
                 .AddScoped<IHealthCheckClient>(_ => new OpenMrsHealthCheckClient(new Dictionary<string, string>
                     {
-                        {"OpenMRS-FHIR", Constants.OPENMRS_FHIR},
-                        {"OpenMRS-REST", Constants.OPENMRS_REST}
+                        {"OpenMRS-FHIR", Constants.PATH_OPENMRS_FHIR},
+                        {"OpenMRS-REST", Constants.PATH_OPENMRS_REST}
                     },
                     new OpenMrsClient(HttpClient,
                         Configuration.GetSection(Constants.CONFIG_KEY).Get<OpenMrsConfiguration>())))
@@ -118,6 +122,7 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<IDataFlowRepository, DataFlowRepository>()
                 .AddScoped<IHealthInformationRepository, HealthInformationRepository>()
                 .AddSingleton(Configuration.GetSection("Gateway").Get<GatewayConfiguration>())
+                .AddSingleton(Configuration.GetSection("Bahmni").Get<BahmniConfiguration>())
                 .AddSingleton(new GatewayClient(HttpClient,
                     Configuration.GetSection("Gateway").Get<GatewayConfiguration>()))
                 .AddScoped<IGatewayClient, GatewayClient>()

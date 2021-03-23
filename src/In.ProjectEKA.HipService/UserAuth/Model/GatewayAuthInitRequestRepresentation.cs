@@ -1,26 +1,29 @@
 using System;
 using Newtonsoft.Json;
 
-namespace In.ProjectEKA.HipService.Linkage
+namespace In.ProjectEKA.HipService.UserAuth.Model
 {
-    public class GatewayFetchModesRequestRepresentation
+    public class GatewayAuthInitRequestRepresentation
     {
         public Guid requestId { get; }
 
         public DateTime timestamp { get; }
 
-        public FetchQuery query { get; }
+        public AuthInitQuery query { get; }
 
-        public GatewayFetchModesRequestRepresentation(Guid requestId, DateTime timestamp, FetchQuery query)
+        public string cmSuffix { get; }
+
+        public GatewayAuthInitRequestRepresentation(Guid requestId, DateTime timestamp, AuthInitQuery query, string cmSuffix)
         {
             this.requestId = requestId;
             this.timestamp = timestamp;
             this.query = query;
+            this.cmSuffix = cmSuffix;
         }
+
         public string dump(Object o)
         {
             return JsonConvert.SerializeObject(o);
         }
-        
     }
 }

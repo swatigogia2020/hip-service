@@ -1,6 +1,6 @@
 using System;
 
-namespace In.ProjectEKA.HipService.Linkage
+namespace In.ProjectEKA.HipService.UserAuth.Model
 {
     public class OnConfirmAuth
     {

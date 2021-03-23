@@ -12,8 +12,7 @@ namespace In.ProjectEKA.HipService.Common
         public const string PATH_HEART_BEAT = CURRENT_VERSION + "/heartbeat";
         public const string PATH_READINESS = CURRENT_VERSION + "/readiness";
 
-        public const string ON_AUTH_CONFIRM = CURRENT_VERSION + "/users/auth/on-confirm";
-        public const string AUTH_CONFIRM = CURRENT_VERSION + "/users/auth/confirm";
+        public const string PATH_ON_AUTH_CONFIRM = CURRENT_VERSION + "/users/auth/on-confirm";
         public const string PATH_ON_AUTH_INIT = "/" + CURRENT_VERSION + "/users/auth/on-init";
         public const string PATH_ON_FETCH_AUTH_MODES = "/" + CURRENT_VERSION + "/users/auth/on-fetch-modes";
         public const string PATH_ON_ADD_CONTEXTS = "/" + CURRENT_VERSION + "/links/link/on-add-contexts";
@@ -31,21 +30,21 @@ namespace In.ProjectEKA.HipService.Common
 
         public static readonly string PATH_AUTH_CONFIRM = "/" + CURRENT_VERSION + "/users/auth/confirm";
 
-        public static readonly string OPENMRS_FHIR = "ws/fhir2/R4/Patient";
-        public static readonly string OPENMRS_REST = "ws/rest/v1/visit";
-        public static readonly string OPENMRS_HITYPE = "ws/rest/v1/hip/";
+        public static readonly string PATH_OPENMRS_FHIR = "ws/fhir2/R4/Patient";
+        public static readonly string PATH_OPENMRS_REST = "ws/rest/v1/visit";
+        public static readonly string PATH_OPENMRS_HITYPE = "ws/rest/v1/hip/";
         public static readonly string CONFIG_KEY = "OpenMrs";
 
         public const string CORRELATION_ID = "CORRELATION-ID";
         public const string PATH_PATIENT_PROFILE_SHARE = "/" + CURRENT_VERSION + "/patients/profile/share";
         public const string PATH_PATIENT_PROFILE_ON_SHARE = "/" + CURRENT_VERSION + "/patients/profile/on-share";
         public const string PATH_FETCH_AUTH_MODES = "/" + CURRENT_VERSION + "/users/auth/fetch-modes";
-        public const string FETCH_MODES = "/" + CURRENT_VERSION + "/hip/fetch-modes";
-        public const string FETCH_MODE_PURPOSE = "KYC_AND_LINK";
-        public const string FETCH_MODE_REQUEST_TYPE = "HIP";
+        public const string PATH_FETCH_MODES = "/" + CURRENT_VERSION + "/hip/fetch-modes";
+        public const string KYC_AND_LINK = "KYC_AND_LINK";
+        public const string HIP = "HIP";
         
         public const string PATH_AUTH_INIT = "/" + CURRENT_VERSION + "/users/auth/init";
         public const string PATH_HIP_AUTH_INIT = "/" + CURRENT_VERSION + "/hip/auth/init";
-        public const string HIP_AUTH_CONFIRM = "/" + CURRENT_VERSION + "/hip/auth/confirm";
+        public const string PATH_HIP_AUTH_CONFIRM = "/" + CURRENT_VERSION + "/hip/auth/confirm";
     }
 }
