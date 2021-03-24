@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace In.ProjectEKA.HipService.UserAuth
 {
@@ -36,13 +37,13 @@ namespace In.ProjectEKA.HipService.UserAuth
         }
 
         [Route(PATH_FETCH_MODES)]
-        public async Task<ActionResult> GetAuthModes(
+        public async Task<string> GetAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
             var (gatewayFetchModesRequestRepresentation, error) =
                 userAuthService.FetchModeResponse(fetchRequest, bahmniConfiguration);
             if (error != null)
-                return StatusCode(StatusCodes.Status400BadRequest, error);
+                return StatusCode(StatusCodes.Status400BadRequest, error).ToString();
             Guid requestId = gatewayFetchModesRequestRepresentation.requestId;
             var cmSuffix = gatewayFetchModesRequestRepresentation.cmSuffix;
 
@@ -69,7 +70,9 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with authModes: {AuthModes}",
                             requestId, UserAuthMap.RequestIdToAuthModes[requestId]
                         );
-                        return Ok(UserAuthMap.RequestIdToAuthModes[requestId]);
+                        string[] authModes = UserAuthMap.RequestIdToAuthModes[requestId].Split(",");
+                        FetchModeResponse fetchModeResponse = new FetchModeResponse(null, authModes);
+                        return JsonConvert.SerializeObject(fetchModeResponse);
                     }
 
                     i++;
@@ -81,7 +84,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                                                                " fetch-mode request", requestId);
             }
 
-            return new StatusCodeResult((int) HttpStatusCode.GatewayTimeout);
+            return HttpStatusCode.GatewayTimeout.ToString();
         }
 
         [Authorize]
