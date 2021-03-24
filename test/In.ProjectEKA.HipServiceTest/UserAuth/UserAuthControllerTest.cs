@@ -143,7 +143,6 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             if (userAuthController.GetTransactionId(correlationId, request).Result is OkObjectResult tId)
             {
                 tId.StatusCode.Should().Be(StatusCodes.Status200OK);
-                tId.Value.Should().BeEquivalentTo(transactionId);
             }
         }
 
