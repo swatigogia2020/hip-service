@@ -37,13 +37,13 @@ namespace In.ProjectEKA.HipService.UserAuth
         }
 
         [Route(PATH_FETCH_MODES)]
-        public async Task<string> GetAuthModes(
+        public async Task<JsonResult> GetAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
             var (gatewayFetchModesRequestRepresentation, error) =
                 userAuthService.FetchModeResponse(fetchRequest, bahmniConfiguration);
             if (error != null)
-                return StatusCode(StatusCodes.Status400BadRequest, error).ToString();
+                return Json(StatusCode(StatusCodes.Status400BadRequest, error));
             Guid requestId = gatewayFetchModesRequestRepresentation.requestId;
             var cmSuffix = gatewayFetchModesRequestRepresentation.cmSuffix;
 
@@ -71,8 +71,8 @@ namespace In.ProjectEKA.HipService.UserAuth
                             requestId, UserAuthMap.RequestIdToAuthModes[requestId]
                         );
                         string[] authModes = UserAuthMap.RequestIdToAuthModes[requestId].Split(",");
-                        FetchModeResponse fetchModeResponse = new FetchModeResponse(null, authModes);
-                        return JsonConvert.SerializeObject(fetchModeResponse);
+                        FetchModeResponse fetchModeResponse = new FetchModeResponse( authModes);
+                        return Json(fetchModeResponse);
                     }
 
                     i++;
@@ -84,7 +84,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                                                                " fetch-mode request", requestId);
             }
 
-            return HttpStatusCode.GatewayTimeout.ToString();
+            return Json(HttpStatusCode.GatewayTimeout);
         }
 
         [Authorize]
