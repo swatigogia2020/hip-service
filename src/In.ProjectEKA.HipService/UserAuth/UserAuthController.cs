@@ -144,7 +144,9 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with transactionId: {TransactionId}",
                             requestId, UserAuthMap.RequestIdToTransactionIdMap[requestId]
                         );
-                        return Ok(UserAuthMap.RequestIdToTransactionIdMap[requestId]);
+                        UserAuthMap.HealthIdToTransactionId.Add(authInitRequest.healthId,
+                            UserAuthMap.RequestIdToTransactionIdMap[requestId]);
+                        return Ok(Accepted());
                     }
 
                     i++;
