@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with authModes: {AuthModes}",
                             requestId, UserAuthMap.RequestIdToAuthModes[requestId]
                         );
-                        string[] authModes = UserAuthMap.RequestIdToAuthModes[requestId].Split(",");
+                        List<Mode> authModes = UserAuthMap.RequestIdToAuthModes[requestId];
                         FetchModeResponse fetchModeResponse = new FetchModeResponse( authModes);
                         return Json(fetchModeResponse);
                     }
@@ -104,9 +105,8 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             else if (request.Auth != null)
             {
-                string authModes = string.Join(',', request.Auth.Modes);
 
-                UserAuthMap.RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), authModes);
+                UserAuthMap.RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), request.Auth.Modes);
             }
 
             logger.Log(LogLevel.Information,
