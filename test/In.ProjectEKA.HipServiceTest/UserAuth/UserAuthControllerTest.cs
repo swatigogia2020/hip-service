@@ -178,20 +178,23 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldSendAuthConfirmAndOnAuthConfirm()
         {
-            var authConfirmRequest = new AuthConfirmRequest(new Guid().ToString(), "123444");
+            var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx");
             AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             var transactionId = TestBuilder.Faker().Random.Hash();
             Guid requestId = Guid.NewGuid();
             var requester = new Requester("1000005", "HIP");
-            var validity = new Validity("LINK", requester);
-            var onAuthConfirm = new OnConfirmAuth("12", validity, new DateTime(), "1");
+            var validity = new Validity("LINK", requester, new DateTime(), "1");
             var address = new AuthConfirmAddress(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>());
-            var identifiers = new Identifiers("MOBILE", "+919800083232");
+            var identifiers = new List<Identifiers>()
+            {
+                new Identifiers("MOBILE", "+919800083232")
+            };
             var patient = new AuthConfirmPatient("hina_patel@ncg", "Hina Patel", "F", "1998",
                 address, identifiers);
-            var onAuthConfirmRequest = new OnAuthConfirmRequest(requestId, timeStamp, onAuthConfirm, patient,
+            var onAuthConfirm = new OnConfirmAuth("12", validity, patient);
+            var onAuthConfirmRequest = new OnAuthConfirmRequest(requestId, timeStamp, onAuthConfirm,
                 null, new Resp(requestId.ToString()));
             var cmSuffix = "ncg";
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
@@ -221,7 +224,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldSendAuthConfirmAndNotOnAuthConfirm()
         {
-            var authConfirmRequest = new AuthConfirmRequest(new Guid().ToString(), "123444");
+            var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx");
             AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             var transactionId = TestBuilder.Faker().Random.Hash();
