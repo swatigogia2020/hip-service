@@ -75,8 +75,10 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                 .Callback<string, GatewayFetchModesRequestRepresentation, string, string>
                 ((path, gr, suffix, corId)
                     => userAuthController.SetAuthModes(onFetchAuthModeRequest));
-            
-            String[] modesReturned = {Mode.MOBILE_OTP.ToString(), Mode.AADHAAR_OTP.ToString()};
+
+            List<Mode> modesReturned = new List<Mode>();
+            modesReturned.Add(Mode.MOBILE_OTP);
+            modesReturned.Add(Mode.AADHAAR_OTP);
             FetchModeResponse fetchModeResponse = new FetchModeResponse(modesReturned);
 
             if (userAuthController.GetAuthModes(correlationId, request).Result is JsonResult authMode)
