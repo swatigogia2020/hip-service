@@ -6,7 +6,6 @@ using In.ProjectEKA.HipService.Common;
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
-using In.ProjectEKA.HipService.Logger;
 using In.ProjectEKA.HipService.UserAuth.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +27,8 @@ namespace In.ProjectEKA.HipService.UserAuth
 
         public UserAuthController(IGatewayClient gatewayClient,
             ILogger<UserAuthController> logger,
-            IUserAuthService userAuthService, BahmniConfiguration bahmniConfiguration)
+            IUserAuthService userAuthService,
+            BahmniConfiguration bahmniConfiguration)
         {
             this.gatewayClient = gatewayClient;
             this.logger = logger;
@@ -147,7 +147,9 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with transactionId: {TransactionId}",
                             requestId, UserAuthMap.RequestIdToTransactionIdMap[requestId]
                         );
-                        return Ok(UserAuthMap.RequestIdToTransactionIdMap[requestId]);
+                        UserAuthMap.HealthIdToTransactionId.Add(authInitRequest.healthId,
+                            UserAuthMap.RequestIdToTransactionIdMap[requestId]);
+                        return Accepted();
                     }
 
                     i++;
@@ -207,7 +209,8 @@ namespace In.ProjectEKA.HipService.UserAuth
                 logger.Log(LogLevel.Information,
                     LogEvents.UserAuth, $"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
                                         $" authCode: {{authCode}}, transactionId: {{transactionId}} requestId: {{requestId}}",
-                    cmSuffix, correlationId, authConfirmRequest.authCode, authConfirmRequest.transactionId, requestId);
+                    cmSuffix, correlationId, authConfirmRequest.authCode,
+                    gatewayAuthConfirmRequestRepresentation.transactionId, requestId);
                 await gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gatewayAuthConfirmRequestRepresentation
                     , cmSuffix, correlationId);
                 var i = 0;
@@ -220,7 +223,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with accessToken: {AccessToken}",
                             requestId, UserAuthMap.RequestIdToAccessToken[requestId]
                         );
-                        return Ok(UserAuthMap.RequestIdToAccessToken[requestId]);
+                        return Accepted();
                     }
 
                     i++;
@@ -236,7 +239,7 @@ namespace In.ProjectEKA.HipService.UserAuth
 
         [Authorize]
         [HttpPost(PATH_ON_AUTH_CONFIRM)]
-        public AcceptedResult SetAccessToken(OnAuthConfirmRequest request)
+        public async Task<ActionResult> SetAccessToken(OnAuthConfirmRequest request)
         {
             logger.Log(LogLevel.Information,
                 LogEvents.UserAuth, "Auth on confirm request received." +
@@ -251,8 +254,9 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             else if (request.auth != null)
             {
-                var accessToken = request.auth.accessToken;
-                UserAuthMap.RequestIdToAccessToken.Add(Guid.Parse(request.resp.RequestId), accessToken);
+                var (response, error) = await userAuthService.OnAuthConfirmResponse(request);
+                if (error != null)
+                    return StatusCode(StatusCodes.Status400BadRequest, error);
             }
 
             logger.Log(LogLevel.Information,

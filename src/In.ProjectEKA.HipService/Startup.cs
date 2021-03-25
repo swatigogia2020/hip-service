@@ -1,5 +1,6 @@
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.UserAuth;
+using In.ProjectEKA.HipService.UserAuth.Database;
 
 namespace In.ProjectEKA.HipService
 {
@@ -26,8 +27,8 @@ namespace In.ProjectEKA.HipService
     using Hangfire.MemoryStorage;
     using HipLibrary.Matcher;
     using HipLibrary.Patient;
-    using In.ProjectEKA.HipService.OpenMrs.HealthCheck;
-    using In.ProjectEKA.HipService.OpenMrs;
+    using OpenMrs.HealthCheck;
+    using OpenMrs;
     using Link;
     using Link.Database;
     using MessagingQueue;
@@ -75,6 +76,9 @@ namespace In.ProjectEKA.HipService
         {
             services
                 .AddDbContext<LinkPatientContext>(options =>
+                    options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
+                        x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
+                .AddDbContext<AuthContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
                 .AddDbContext<DiscoveryContext>(options =>
@@ -131,6 +135,7 @@ namespace In.ProjectEKA.HipService
                     Configuration.GetSection("OpenMrs").Get<OpenMrsConfiguration>()))
                 .AddScoped<IOpenMrsClient, OpenMrsClient>()
                 .AddScoped<IOpenMrsPatientData,OpenMrsPatientData>()
+                .AddScoped<IUserAuthRepository,UserAuthRepository>()
                 .AddSingleton<ICollectHipService,CollectHipService>()
                 .AddScoped<IPatientDal, FhirDiscoveryDataSource>()
                 .AddScoped<IPhoneNumberRepository, OpenMrsPhoneNumberRepository>()
