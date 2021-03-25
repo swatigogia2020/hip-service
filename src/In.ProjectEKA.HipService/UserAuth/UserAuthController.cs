@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace In.ProjectEKA.HipService.UserAuth
 {
@@ -36,13 +38,13 @@ namespace In.ProjectEKA.HipService.UserAuth
         }
 
         [Route(PATH_FETCH_MODES)]
-        public async Task<ActionResult> GetAuthModes(
+        public async Task<JsonResult> GetAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
             var (gatewayFetchModesRequestRepresentation, error) =
                 userAuthService.FetchModeResponse(fetchRequest, bahmniConfiguration);
             if (error != null)
-                return StatusCode(StatusCodes.Status400BadRequest, error);
+                return Json(StatusCode(StatusCodes.Status400BadRequest, error));
             Guid requestId = gatewayFetchModesRequestRepresentation.requestId;
             var cmSuffix = gatewayFetchModesRequestRepresentation.cmSuffix;
 
@@ -69,7 +71,9 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with authModes: {AuthModes}",
                             requestId, UserAuthMap.RequestIdToAuthModes[requestId]
                         );
-                        return Ok(UserAuthMap.RequestIdToAuthModes[requestId]);
+                        List<Mode> authModes = UserAuthMap.RequestIdToAuthModes[requestId];
+                        FetchModeResponse fetchModeResponse = new FetchModeResponse( authModes);
+                        return Json(fetchModeResponse);
                     }
 
                     i++;
@@ -81,7 +85,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                                                                " fetch-mode request", requestId);
             }
 
-            return new StatusCodeResult((int) HttpStatusCode.GatewayTimeout);
+            return Json(HttpStatusCode.GatewayTimeout);
         }
 
         [Authorize]
@@ -101,9 +105,8 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             else if (request.Auth != null)
             {
-                string authModes = string.Join(',', request.Auth.Modes);
 
-                UserAuthMap.RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), authModes);
+                UserAuthMap.RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), request.Auth.Modes);
             }
 
             logger.Log(LogLevel.Information,

@@ -76,10 +76,14 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                 ((path, gr, suffix, corId)
                     => userAuthController.SetAuthModes(onFetchAuthModeRequest));
 
-            if (userAuthController.GetAuthModes(correlationId, request).Result is OkObjectResult authMode)
+            List<Mode> modesReturned = new List<Mode>();
+            modesReturned.Add(Mode.MOBILE_OTP);
+            modesReturned.Add(Mode.AADHAAR_OTP);
+            FetchModeResponse fetchModeResponse = new FetchModeResponse(modesReturned);
+
+            if (userAuthController.GetAuthModes(correlationId, request).Result is JsonResult authMode)
             {
-                authMode.StatusCode.Should().Be(StatusCodes.Status200OK);
-                authMode.Value.Should().BeEquivalentTo(authModes);
+                authMode.Value.Should().BeEquivalentTo(fetchModeResponse);
             }
         }
 
@@ -105,10 +109,10 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                             gatewayFetchModesRequestRepresentation, cmSuffix, correlationId))
                 .Returns(Task.FromResult(""));
 
-            if (userAuthController.GetAuthModes(correlationId, request).Result is ObjectResult authMode)
+            if (userAuthController.GetAuthModes(correlationId, request).Result is JsonResult authMode)
             {
                 Log.Information(authMode.ToString());
-                authMode.StatusCode.Should().Be((int) HttpStatusCode.GatewayTimeout);
+                authMode.Value.Equals( HttpStatusCode.GatewayTimeout);
             }
         }
 
@@ -261,10 +265,10 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                 .Returns(new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
                     (null, error));
 
-            if (userAuthController.GetAuthModes(correlationId, request).Result is ObjectResult authMode)
+            if (userAuthController.GetAuthModes(correlationId, request).Result is JsonResult authMode)
             {
                 Log.Information(authMode.ToString());
-                authMode.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+                authMode.Value.Equals(StatusCodes.Status400BadRequest);
             }
         }
 
