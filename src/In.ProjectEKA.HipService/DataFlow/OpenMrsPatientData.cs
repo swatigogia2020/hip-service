@@ -32,10 +32,10 @@ namespace In.ProjectEKA.HipService.DataFlow
             return Regex.Match(careContextName, pattern).Success;
         }
 
-        public async Task<string> GetPatientData(string patientUuid, string careContextReference, string toDate,
+        public async Task<List<string>> GetPatientData(string patientUuid, string careContextReference, string toDate,
             string fromDate, string hiType)
         {
-            if (!hiTypeToRootElement.ContainsKey(hiType)) return "";
+            if (!hiTypeToRootElement.ContainsKey(hiType)) return new List<string>();
             if (!IsValidProgramCareContext(careContextReference))
                 return await GetForVisits(hiType, patientUuid, careContextReference, toDate, fromDate);
             var programName = careContextReference
@@ -50,7 +50,8 @@ namespace In.ProjectEKA.HipService.DataFlow
             return await GetForPrograms(hiType, patientUuid, programName, programId, toDate, fromDate);
         }
 
-        private async Task<string> GetForVisits(string hiType, string consentId, string grantedContext, string toDate,
+        private async Task<List<string>> GetForVisits(string hiType, string consentId, string grantedContext,
+            string toDate,
             string fromDate)
         {
             var pathForVisit = $"{Constants.PATH_OPENMRS_HITYPE}{hiTypeToRootElement[hiType]}/visit/";
@@ -75,19 +76,25 @@ namespace In.ProjectEKA.HipService.DataFlow
 
             Log.Information("VISIT endpoint being called: " + pathForVisit);
             var response = await openMrsClient.GetAsync(pathForVisit);
-            if (response == null) return "";
+            if (response == null) return new List<string>();
             var content = await response.Content.ReadAsStringAsync();
             var jsonDoc = JsonDocument.Parse(content);
             var root = jsonDoc.RootElement;
-            if (root.GetProperty(hiTypeToRootElement[hiType]).GetArrayLength() > 0)
+            var entries = root.GetProperty(hiTypeToRootElement[hiType]);
+            var listOfData = new List<string>();
+            if (entries.GetArrayLength() > 0)
             {
-                return root.GetProperty(hiTypeToRootElement[hiType])[0].GetProperty("bundle").ToString();
+                foreach (JsonElement jsonElement in entries.EnumerateArray())
+                {
+                    listOfData.Add(jsonElement.GetProperty("bundle").ToString());
+                }
             }
 
-            return "";
+            return listOfData;
         }
 
-        private async Task<string> GetForPrograms(string hiType, string consentId, string programName, string programId,
+        private async Task<List<string>> GetForPrograms(string hiType, string consentId, string programName,
+            string programId,
             string toDate,
             string fromDate)
         {
@@ -114,15 +121,21 @@ namespace In.ProjectEKA.HipService.DataFlow
 
             Log.Information("PROGRAM endpoint being called: " + pathForProgram);
             var response = await openMrsClient.GetAsync(pathForProgram);
+            if (response == null) return new List<string>();
             var content = await response.Content.ReadAsStringAsync();
             var jsonDoc = JsonDocument.Parse(content);
             var root = jsonDoc.RootElement;
-            if (root.GetProperty(hiTypeToRootElement[hiType]).GetArrayLength() > 0)
+            var entries = root.GetProperty(hiTypeToRootElement[hiType]);
+            var listOfData = new List<string>();
+            if (entries.GetArrayLength() > 0)
             {
-                return root.GetProperty(hiTypeToRootElement[hiType])[0].GetProperty("bundle").ToString();
+                foreach (JsonElement jsonElement in entries.EnumerateArray())
+                {
+                    listOfData.Add(jsonElement.GetProperty("bundle").ToString());
+                }
             }
 
-            return "";
+            return listOfData;
         }
     }
 }

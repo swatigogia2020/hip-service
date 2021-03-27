@@ -84,11 +84,12 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
                 {
                     StatusCode = HttpStatusCode.OK,
                     Content = new StringContent(
-                        "{\"diagnosticReports\": [{\"careContext\":{},\"bundle\":{\"resourceType\": \"Bundle\"}}]}")
+                        "{\"diagnosticReports\": [{\"careContext\":{},\"bundle\":{\"resourceType\": \"Bundle\"}}," +
+                        "{\"careContext\":{},\"bundle\":{\"resourceType\": \"Bundle\"}}]}")
                 })
                 .Verifiable();
             var response = openMrsPatientData.GetPatientData(patientUuid, grantedContext, toDate, fromDate, hiType);
-            response.Result.Should().BeEquivalentTo("{\"resourceType\": \"Bundle\"}");
+            response.Result.Should().BeEquivalentTo("{\"resourceType\": \"Bundle\"},{\"resourceType\": \"Bundle\"}");
         }
 
         [Fact]

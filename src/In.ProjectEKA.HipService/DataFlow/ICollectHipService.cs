@@ -1,4 +1,3 @@
-using System;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 
 namespace In.ProjectEKA.HipService.DataFlow
