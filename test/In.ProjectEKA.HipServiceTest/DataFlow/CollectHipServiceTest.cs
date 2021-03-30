@@ -43,12 +43,14 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
                 Uuid.Generate().ToString(),
                 "patientUuid"
             );
+            var listOfDataFiles = new List<string>();
+            listOfDataFiles.Add("{\"resourceType\": \"Bundle\"}");
             openMrsPatientData
                 .Setup(x => x.GetPatientData("patientUuid", grantedContexts[0].CareContextReference,
                     dateRange.To,
                     dateRange.From,
                     HiType.Prescription.ToString().ToLower()))
-                .ReturnsAsync("{\"resourceType\": \"Bundle\"}")
+                .ReturnsAsync(listOfDataFiles)
                 .Verifiable();
             var entries = await collectHipService.CollectData(traceableDataRequest);
             entries.ValueOrDefault().CareBundles.Count().Should().Be(1);
@@ -88,7 +90,7 @@ namespace In.ProjectEKA.HipServiceTest.DataFlow
                     dateRange.To,
                     dateRange.From,
                     HiType.Prescription.ToString().ToLower()))
-                .ReturnsAsync("")
+                .ReturnsAsync((List<string>) null)
                 .Verifiable();
             var entries = await collectHipService.CollectData(traceableDataRequest);
             entries.ValueOrDefault().CareBundles.Count().Should().Be(0);

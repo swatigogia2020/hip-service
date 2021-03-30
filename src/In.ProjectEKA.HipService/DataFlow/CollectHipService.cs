@@ -55,12 +55,13 @@ namespace In.ProjectEKA.HipService.DataFlow
                     foreach (var hiType in request.HiType) 
                     {
                         var hiTypeStr = hiType.ToString().ToLower();
-                        var result = openMrsPatientData
+                        var result = await openMrsPatientData
                             .GetPatientData(request.PatientUuid, grantedContext.CareContextReference, toDate, fromDate,
-                                hiTypeStr).Result;
-                        var dataFiles = result;
-                        if (!string.IsNullOrEmpty(dataFiles))
-                            listOfDataFiles.Add(dataFiles);
+                                hiTypeStr).ConfigureAwait(false);
+                        if (result?.Any() == true)
+                        {
+                            result.ForEach(item => listOfDataFiles.Add(item));
+                        }
                     }
 
                     careContextsAndListOfDataFiles.Add(grantedContext.CareContextReference, listOfDataFiles);
