@@ -78,6 +78,14 @@ namespace In.ProjectEKA.HipService
                 .AddDbContext<LinkPatientContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
+                .AddCors(options =>
+                {
+                    options.AddPolicy(name: "_myAllowSpecificOrigins",
+                        builder =>
+                        {
+                            builder.WithOrigins("https://ndhm-dev.bahmni-covid19.in","http://localhost:9052","https://192.168.33.10").AllowAnyMethod().AllowAnyHeader();
+                        });
+                })
                 .AddDbContext<AuthContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
@@ -219,12 +227,12 @@ namespace In.ProjectEKA.HipService
                 timer.Stop();
                 Log.Information($"Request {traceId} served in {timer.ElapsedMilliseconds}ms.");
             });
-
             app.UseSwagger();
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "HIP Service"); });
 
             app.UseStaticFilesWithYaml()
                 .UseRouting()
+                .UseCors("_myAllowSpecificOrigins")
                 .UseIf(!env.IsDevelopment(), x => x.UseHsts())
                 .UseIf(env.IsDevelopment(), x => x.UseDeveloperExceptionPage())
                 .UseSerilogRequestLogging()
