@@ -106,7 +106,6 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             else if (request.Auth != null)
             {
-
                 UserAuthMap.RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), request.Auth.Modes);
             }
 
@@ -116,7 +115,6 @@ namespace In.ProjectEKA.HipService.UserAuth
         }
 
         [Route(PATH_HIP_AUTH_INIT)]
-        [EnableCors("_myAllowSpecificOrigins")]
         public async Task<ActionResult> GetTransactionId(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
@@ -149,8 +147,12 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with transactionId: {TransactionId}",
                             requestId, UserAuthMap.RequestIdToTransactionIdMap[requestId]
                         );
-                        UserAuthMap.HealthIdToTransactionId.Add(authInitRequest.healthId,
-                            UserAuthMap.RequestIdToTransactionIdMap[requestId]);
+                        if (!UserAuthMap.HealthIdToTransactionId.ContainsKey(authInitRequest.healthId))
+                        {
+                            UserAuthMap.HealthIdToTransactionId.Add(authInitRequest.healthId,
+                                UserAuthMap.RequestIdToTransactionIdMap[requestId]);
+                        }
+
                         return Accepted();
                     }
 

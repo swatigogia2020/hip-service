@@ -83,7 +83,7 @@ namespace In.ProjectEKA.HipService
                     options.AddPolicy(name: "_myAllowSpecificOrigins",
                         builder =>
                         {
-                            builder.WithOrigins("https://ndhm-dev.bahmni-covid19.in","http://localhost:9052","https://192.168.33.10").AllowAnyMethod().AllowAnyHeader();
+                            builder.WithOrigins(CorsConfiguration.AllowedOrigins).AllowAnyMethod().AllowAnyHeader();
                         });
                 })
                 .AddDbContext<AuthContext>(options =>
@@ -135,6 +135,7 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<IHealthInformationRepository, HealthInformationRepository>()
                 .AddSingleton(Configuration.GetSection("Gateway").Get<GatewayConfiguration>())
                 .AddSingleton(Configuration.GetSection("Bahmni").Get<BahmniConfiguration>())
+                .AddSingleton(Configuration.GetSection("Cors").Get<CorsConfiguration>())
                 .AddSingleton(new GatewayClient(HttpClient,
                     Configuration.GetSection("Gateway").Get<GatewayConfiguration>()))
                 .AddScoped<IGatewayClient, GatewayClient>()
