@@ -9,6 +9,7 @@ using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.UserAuth.Model;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -105,7 +106,6 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             else if (request.Auth != null)
             {
-
                 UserAuthMap.RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), request.Auth.Modes);
             }
 
@@ -147,8 +147,12 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with transactionId: {TransactionId}",
                             requestId, UserAuthMap.RequestIdToTransactionIdMap[requestId]
                         );
-                        UserAuthMap.HealthIdToTransactionId.Add(authInitRequest.healthId,
-                            UserAuthMap.RequestIdToTransactionIdMap[requestId]);
+                        if (!UserAuthMap.HealthIdToTransactionId.ContainsKey(authInitRequest.healthId))
+                        {
+                            UserAuthMap.HealthIdToTransactionId.Add(authInitRequest.healthId,
+                                UserAuthMap.RequestIdToTransactionIdMap[requestId]);
+                        }
+
                         return Accepted();
                     }
 

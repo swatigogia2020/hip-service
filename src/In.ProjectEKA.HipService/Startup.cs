@@ -78,6 +78,14 @@ namespace In.ProjectEKA.HipService
                 .AddDbContext<LinkPatientContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
+                .AddCors(options =>
+                {
+                    options.AddPolicy(name: "_myAllowSpecificOrigins",
+                        builder =>
+                        {
+                            builder.WithOrigins(CorsConfiguration.AllowedOrigins).AllowAnyMethod().AllowAnyHeader();
+                        });
+                })
                 .AddDbContext<AuthContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
@@ -127,6 +135,7 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<IHealthInformationRepository, HealthInformationRepository>()
                 .AddSingleton(Configuration.GetSection("Gateway").Get<GatewayConfiguration>())
                 .AddSingleton(Configuration.GetSection("Bahmni").Get<BahmniConfiguration>())
+                .AddSingleton(Configuration.GetSection("Cors").Get<CorsConfiguration>())
                 .AddSingleton(new GatewayClient(HttpClient,
                     Configuration.GetSection("Gateway").Get<GatewayConfiguration>()))
                 .AddScoped<IGatewayClient, GatewayClient>()
@@ -219,12 +228,12 @@ namespace In.ProjectEKA.HipService
                 timer.Stop();
                 Log.Information($"Request {traceId} served in {timer.ElapsedMilliseconds}ms.");
             });
-
             app.UseSwagger();
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "HIP Service"); });
 
             app.UseStaticFilesWithYaml()
                 .UseRouting()
+                .UseCors("_myAllowSpecificOrigins")
                 .UseIf(!env.IsDevelopment(), x => x.UseHsts())
                 .UseIf(env.IsDevelopment(), x => x.UseDeveloperExceptionPage())
                 .UseSerilogRequestLogging()
