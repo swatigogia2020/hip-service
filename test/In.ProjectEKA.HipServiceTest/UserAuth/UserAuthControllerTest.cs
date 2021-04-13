@@ -202,7 +202,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                 null, new Resp(requestId.ToString()));
             var cmSuffix = "ncg";
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
-                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential, cmSuffix);
+                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))
@@ -235,7 +235,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             Guid requestId = Guid.NewGuid();
             var cmSuffix = "ncg";
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
-                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential, cmSuffix);
+                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))

@@ -65,15 +65,24 @@ namespace In.ProjectEKA.HipService.UserAuth
             if (!(IsValidHealthId(healthId) && IsPresentInMap(healthId)))
                 return new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
-            var patientIdSplit = healthId.Split("@");
-            var cmSuffix = patientIdSplit[1];
             var credential = new AuthConfirmCredential(authConfirmRequest.authCode);
             var transactionId = UserAuthMap.HealthIdToTransactionId[healthId];
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
             return new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
-            (new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential, cmSuffix),
+            (new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential),
                 null);
+        }
+
+        public string GetCmSuffix(string healthId)
+        {
+            if (IsValidHealthId(healthId))
+            {
+                var patientIdSplit = healthId.Split("@");
+                var cmSuffix = patientIdSplit[1];
+                return cmSuffix;
+            }
+            return "";
         }
 
         private static bool IsValidHealthId(string healthId)
@@ -106,10 +115,13 @@ namespace In.ProjectEKA.HipService.UserAuth
             }
             else
             {
-                 userAuthRepository.Update(authConfirm);
+                userAuthRepository.Update(authConfirm);
             }
+
             UserAuthMap.HealthIdToTransactionId.Remove(healthId);
-            UserAuthMap.RequestIdToAccessToken.Add(Guid.Parse(onAuthConfirmRequest.resp.RequestId), accessToken);
+            var requestId = Guid.Parse(onAuthConfirmRequest.resp.RequestId);
+            UserAuthMap.RequestIdToAccessToken.Add(requestId, accessToken);
+            UserAuthMap.RequestIdToPatientDetails.Add(requestId, onAuthConfirmRequest.auth.patient);
             return new Tuple<AuthConfirm, ErrorRepresentation>(authConfirm, null);
         }
     }

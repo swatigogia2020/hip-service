@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using In.ProjectEKA.HipService.Link.Model;
+using In.ProjectEKA.HipService.UserAuth.Model;
 
 namespace In.ProjectEKA.HipService.UserAuth
 {
@@ -9,5 +10,6 @@ namespace In.ProjectEKA.HipService.UserAuth
         public static Dictionary<Guid, string> RequestIdToTransactionIdMap = new Dictionary<Guid, string>();
         public static Dictionary<Guid, string> RequestIdToAccessToken = new Dictionary<Guid, string>();
         public static Dictionary<string, string> HealthIdToTransactionId = new Dictionary<string, string>();
+        public static Dictionary<Guid, AuthConfirmPatient> RequestIdToPatientDetails = new Dictionary<Guid, AuthConfirmPatient>();
     }
 }

@@ -9,11 +9,9 @@ using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.UserAuth.Model;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace In.ProjectEKA.HipService.UserAuth
 {
@@ -202,8 +200,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             if (error != null)
                 return StatusCode(StatusCodes.Status400BadRequest, error);
             var requestId = gatewayAuthConfirmRequestRepresentation.requestId;
-            var cmSuffix = gatewayAuthConfirmRequestRepresentation.cmSuffix;
-
+            var cmSuffix = userAuthService.GetCmSuffix(authConfirmRequest.healthId);
             try
             {
                 logger.Log(LogLevel.Information,
@@ -211,23 +208,24 @@ namespace In.ProjectEKA.HipService.UserAuth
                     "Request for auth-confirm to gateway: {@GatewayResponse}",
                     gatewayAuthConfirmRequestRepresentation.dump(gatewayAuthConfirmRequestRepresentation));
                 logger.Log(LogLevel.Information,
-                    LogEvents.UserAuth, $"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
+                    LogEvents.UserAuth, $" : {{cmSuffix}}, correlationId: {{correlationId}}," +
                                         $" authCode: {{authCode}}, transactionId: {{transactionId}} requestId: {{requestId}}",
-                    cmSuffix, correlationId, authConfirmRequest.authCode,
+                    cmSuffix, correlationId, gatewayAuthConfirmRequestRepresentation.credential.authCode,
                     gatewayAuthConfirmRequestRepresentation.transactionId, requestId);
                 await gatewayClient.SendDataToGateway(PATH_AUTH_CONFIRM, gatewayAuthConfirmRequestRepresentation
                     , cmSuffix, correlationId);
                 var i = 0;
                 do
                 {
-                    Thread.Sleep(2000);
-                    if (UserAuthMap.RequestIdToAccessToken.ContainsKey(requestId))
+                    Thread.Sleep(10000);
+                    if (UserAuthMap.RequestIdToAccessToken.ContainsKey(requestId) &&
+                        UserAuthMap.RequestIdToPatientDetails.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.UserAuth,
                             "Response about to be send for requestId: {RequestId} with accessToken: {AccessToken}",
                             requestId, UserAuthMap.RequestIdToAccessToken[requestId]
                         );
-                        return Accepted();
+                        return Accepted(new AuthConfirmResponse(UserAuthMap.RequestIdToPatientDetails[requestId]));
                     }
 
                     i++;
