@@ -180,31 +180,30 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         }
 
         [Fact]
-        private void ShouldSendAuthConfirmAndOnAuthConfirm()
+        private async void ShouldSendAuthConfirmAndOnAuthConfirm()
         {
             var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx");
             AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             var transactionId = TestBuilder.Faker().Random.Hash();
             Guid requestId = Guid.NewGuid();
-            var requester = new Requester("1000005", "HIP");
-            var validity = new Validity("LINK", requester, new DateTime(), "1");
             var address = new AuthConfirmAddress(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>());
             var identifiers = new List<Identifiers>()
             {
                 new Identifiers("MOBILE", "+919800083232")
             };
-            var patient = new AuthConfirmPatient("hina_patel@ncg", "Hina Patel", "F", "1998",
+            var patient = new AuthConfirmPatient("hinapatel@sbx", "Hina Patel", "F", "1998",
                 address, identifiers);
-            var onAuthConfirm = new OnConfirmAuth("12", validity, patient);
-            var onAuthConfirmRequest = new OnAuthConfirmRequest(requestId, timeStamp, onAuthConfirm,
-                null, new Resp(requestId.ToString()));
-            var cmSuffix = "ncg";
+            UserAuthMap.RequestIdToAccessToken.Add(requestId, "12");
+            UserAuthMap.RequestIdToPatientDetails.Add(requestId, patient);
+
+            var cmSuffix = "sbx";
             GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
                 new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
             var correlationId = Uuid.Generate().ToString();
 
+            userAuthService.Setup(a => a.GetCmSuffix("hinapatel@sbx")).Returns("sbx");
             userAuthService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))
                 .Returns(new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
                     (gatewayAuthConfirmRequestRepresentation, null));
@@ -212,17 +211,12 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                     client =>
                         client.SendDataToGateway(PATH_AUTH_CONFIRM,
                             gatewayAuthConfirmRequestRepresentation, cmSuffix, correlationId))
-                .Returns(Task.FromResult(""))
-                .Callback<string, GatewayAuthConfirmRequestRepresentation, string, string>
-                ((path, gr, suffix, corId)
-                    => userAuthController.SetAccessToken(onAuthConfirmRequest));
+                .Returns(Task.FromResult(""));
 
-            if (userAuthController.GetAccessToken(correlationId, authConfirmRequest).Result is OkObjectResult
-                accessToken)
-            {
-                accessToken.StatusCode.Should().Be(StatusCodes.Status200OK);
-                accessToken.Value.Should().BeEquivalentTo("12");
-            }
+            var response =
+                await userAuthController.GetAccessToken(correlationId, authConfirmRequest) as ObjectResult;
+            response.StatusCode.Should().Be(StatusCodes.Status202Accepted);
+            response.Value.Should().BeEquivalentTo(new AuthConfirmResponse(patient));
         }
 
         [Fact]
