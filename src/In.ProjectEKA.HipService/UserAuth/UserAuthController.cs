@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common;
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
@@ -24,28 +24,31 @@ namespace In.ProjectEKA.HipService.UserAuth
         private readonly ILogger<UserAuthController> logger;
         private readonly BahmniConfiguration bahmniConfiguration;
         private readonly IUserAuthService userAuthService;
+        private readonly GatewayConfiguration gatewayConfiguration;
 
         public UserAuthController(IGatewayClient gatewayClient,
             ILogger<UserAuthController> logger,
             IUserAuthService userAuthService,
-            BahmniConfiguration bahmniConfiguration)
+            BahmniConfiguration bahmniConfiguration,
+            GatewayConfiguration gatewayConfiguration)
         {
             this.gatewayClient = gatewayClient;
             this.logger = logger;
             this.userAuthService = userAuthService;
             this.bahmniConfiguration = bahmniConfiguration;
+            this.gatewayConfiguration = gatewayConfiguration;
         }
 
         [Route(PATH_FETCH_MODES)]
-        public async Task<JsonResult> GetAuthModes(
+        public async Task<ActionResult> GetAuthModes(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] FetchRequest fetchRequest)
         {
             var (gatewayFetchModesRequestRepresentation, error) =
                 userAuthService.FetchModeResponse(fetchRequest, bahmniConfiguration);
             if (error != null)
-                return Json(StatusCode(StatusCodes.Status400BadRequest, error));
+                return StatusCode(StatusCodes.Status400BadRequest, error);
             Guid requestId = gatewayFetchModesRequestRepresentation.requestId;
-            var cmSuffix = gatewayFetchModesRequestRepresentation.cmSuffix;
+            var cmSuffix = gatewayConfiguration.CmSuffix;
 
             try
             {
@@ -56,7 +59,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                 logger.Log(LogLevel.Information,
                     LogEvents.UserAuth, $"cmSuffix: {{cmSuffix}}, correlationId: {{correlationId}}," +
                                         $" healthId: {{healthId}}, requestId: {{requestId}}",
-                    cmSuffix, correlationId, fetchRequest.healthId, requestId);
+                    cmSuffix, correlationId, gatewayFetchModesRequestRepresentation.query.id, requestId);
                 await gatewayClient.SendDataToGateway(PATH_FETCH_AUTH_MODES, gatewayFetchModesRequestRepresentation,
                     cmSuffix, correlationId);
 
@@ -71,7 +74,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                             requestId, UserAuthMap.RequestIdToAuthModes[requestId]
                         );
                         List<Mode> authModes = UserAuthMap.RequestIdToAuthModes[requestId];
-                        FetchModeResponse fetchModeResponse = new FetchModeResponse( authModes);
+                        FetchModeResponse fetchModeResponse = new FetchModeResponse(authModes);
                         return Json(fetchModeResponse);
                     }
 
@@ -84,7 +87,8 @@ namespace In.ProjectEKA.HipService.UserAuth
                                                                " fetch-mode request", requestId);
             }
 
-            return Json(HttpStatusCode.GatewayTimeout);
+            return StatusCode(StatusCodes.Status504GatewayTimeout,
+                new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
         }
 
         [Authorize]
@@ -121,7 +125,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             if (error != null)
                 return StatusCode(StatusCodes.Status400BadRequest, error);
             Guid requestId = gatewayAuthInitRequestRepresentation.requestId;
-            var cmSuffix = gatewayAuthInitRequestRepresentation.cmSuffix;
+            var cmSuffix = gatewayConfiguration.CmSuffix;
 
             try
             {
@@ -132,7 +136,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                 logger.Log(LogLevel.Information, LogEvents.UserAuth, $"cmSuffix: {{cmSuffix}}," +
                                                                      $" correlationId: {{correlationId}}, " +
                                                                      $"healthId: {{healthId}}, requestId: {{requestId}}",
-                    cmSuffix, correlationId, authInitRequest.healthId, requestId);
+                    cmSuffix, correlationId, gatewayAuthInitRequestRepresentation.query.id, requestId);
                 await gatewayClient.SendDataToGateway(PATH_AUTH_INIT, gatewayAuthInitRequestRepresentation, cmSuffix,
                     correlationId);
                 var i = 0;
@@ -163,7 +167,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                                                                " auth-init request", requestId);
             }
 
-            return new StatusCodeResult((int) HttpStatusCode.GatewayTimeout);
+            return Json(new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
         }
 
         [Authorize]
@@ -200,7 +204,8 @@ namespace In.ProjectEKA.HipService.UserAuth
             if (error != null)
                 return StatusCode(StatusCodes.Status400BadRequest, error);
             var requestId = gatewayAuthConfirmRequestRepresentation.requestId;
-            var cmSuffix = userAuthService.GetCmSuffix(authConfirmRequest.healthId);
+            var cmSuffix = gatewayConfiguration.CmSuffix;
+
             try
             {
                 logger.Log(LogLevel.Information,
@@ -236,7 +241,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                 logger.LogError(LogEvents.UserAuth, exception, "Error happened for requestId: {RequestId}", requestId);
             }
 
-            return new StatusCodeResult((int) HttpStatusCode.GatewayTimeout);
+            return Json(new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
         }
 
         [Authorize]

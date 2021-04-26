@@ -11,15 +11,12 @@ namespace In.ProjectEKA.HipService.UserAuth.Model
 
         public FetchQuery query { get; }
 
-        public string cmSuffix { get; }
 
-        public GatewayFetchModesRequestRepresentation(Guid requestId, DateTime timestamp, FetchQuery query,
-            string cmSuffix)
+        public GatewayFetchModesRequestRepresentation(Guid requestId, DateTime timestamp, FetchQuery query)
         {
             this.requestId = requestId;
             this.timestamp = timestamp;
             this.query = query;
-            this.cmSuffix = cmSuffix;
         }
 
         public string dump(Object o)

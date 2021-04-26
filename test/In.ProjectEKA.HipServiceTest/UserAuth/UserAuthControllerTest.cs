@@ -32,16 +32,21 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         private readonly Mock<GatewayClient> gatewayClient = new Mock<GatewayClient>(MockBehavior.Strict, null, null);
         private readonly Mock<IUserAuthService> userAuthService = new Mock<IUserAuthService>();
 
-        private readonly BahmniConfiguration bahmniConfiguration = new BahmniConfiguration()
-        {
+        private readonly BahmniConfiguration bahmniConfiguration = new BahmniConfiguration()  {
             Id = "Bahmni"
         };
+
+        private readonly GatewayConfiguration gatewayConfiguration = new GatewayConfiguration()
+        {
+            CmSuffix = "sbx"
+        };
+      
 
         public UserAuthControllerTest()
         {
             userAuthController = new UserAuthController(gatewayClient.Object,
                 logger.Object,
-                userAuthService.Object, bahmniConfiguration);
+                userAuthService.Object, bahmniConfiguration,gatewayConfiguration);
         }
 
         [Fact]
@@ -54,7 +59,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var requestId = Guid.NewGuid();
             var cmSuffix = "ncg";
             var gatewayFetchModesRequestRepresentation =
-                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query, cmSuffix);
+                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query);
             var correlationId = Uuid.Generate().ToString();
             var modes = new List<Mode>
             {
@@ -97,7 +102,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var requestId = Guid.NewGuid();
             var cmSuffix = "ncg";
             var gatewayFetchModesRequestRepresentation =
-                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query, cmSuffix);
+                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query);
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.FetchModeResponse(request, bahmniConfiguration))
@@ -126,7 +131,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var requestId = Guid.NewGuid();
             var cmSuffix = "ncg";
             var gatewayAuthInitRequestRepresentation =
-                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query, cmSuffix);
+                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
             var correlationId = Uuid.Generate().ToString();
             var transactionId = new Guid().ToString();
             var auth = new Auth(transactionId, new Meta("string", new DateTime()), Mode.MOBILE_OTP);
@@ -160,7 +165,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var requestId = Guid.NewGuid();
             var cmSuffix = "ncg";
             var gatewayAuthInitRequestRepresentation =
-                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query, cmSuffix);
+                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
             var correlationId = Uuid.Generate().ToString();
 
             userAuthService.Setup(a => a.AuthInitResponse(request, bahmniConfiguration))
@@ -203,7 +208,6 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
                 new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
             var correlationId = Uuid.Generate().ToString();
 
-            userAuthService.Setup(a => a.GetCmSuffix("hinapatel@sbx")).Returns("sbx");
             userAuthService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))
                 .Returns(new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
                     (gatewayAuthConfirmRequestRepresentation, null));

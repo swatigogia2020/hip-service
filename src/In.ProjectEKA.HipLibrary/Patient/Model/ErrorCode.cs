@@ -23,6 +23,7 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
         OpenMrsConnection = 3431,
         HeartBeat = 3432,
         InvalidHealthId = 3433,
-        DuplicateAuthConfirmRequest = 3434
+        DuplicateAuthConfirmRequest = 3434,
+        GatewayTimedOut = 3435
     }
 }

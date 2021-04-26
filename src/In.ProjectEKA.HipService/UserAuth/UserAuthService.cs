@@ -22,11 +22,14 @@ namespace In.ProjectEKA.HipService.UserAuth
             FetchRequest fetchRequest, BahmniConfiguration bahmniConfiguration)
         {
             var healthId = fetchRequest.healthId;
-            if (!IsValidHealthId(healthId))
+            if (!(IsValidHealthId(healthId) || IsValidHealthNumber(healthId)))
                 return new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
-            var patientIdSplit = healthId.Split("@");
-            var cmSuffix = patientIdSplit[1];
+            if (IsValidHealthNumber(healthId))
+            {
+                healthId = Regex.Replace(healthId, @"^(.{2})(.{4})(.{4})(.{4})$", "$1-$2-$3-$4");
+            }
+
             var requester = new Requester(bahmniConfiguration.Id, HIP);
             var purpose = fetchRequest.purpose;
             var query = purpose != null
@@ -35,18 +38,16 @@ namespace In.ProjectEKA.HipService.UserAuth
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
             return new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
-                (new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query, cmSuffix), null);
+                (new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query), null);
         }
 
         public Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation> AuthInitResponse(
             AuthInitRequest authInitRequest, BahmniConfiguration bahmniConfiguration)
         {
             var healthId = authInitRequest.healthId;
-            if (!IsValidHealthId(healthId))
+            if (!(IsValidHealthId(healthId) || IsValidHealthNumber(healthId)))
                 return new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
-            var patientIdSplit = healthId.Split("@");
-            var cmSuffix = patientIdSplit[1];
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
             var requester = new Requester(bahmniConfiguration.Id, HIP);
@@ -55,14 +56,14 @@ namespace In.ProjectEKA.HipService.UserAuth
                 ? new AuthInitQuery(healthId, purpose, authInitRequest.authMode, requester)
                 : new AuthInitQuery(healthId, authInitRequest.authMode, requester);
             return new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
-                (new GatewayAuthInitRequestRepresentation(requestId, timeStamp, authInitQuery, cmSuffix), null);
+                (new GatewayAuthInitRequestRepresentation(requestId, timeStamp, authInitQuery), null);
         }
 
         public Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation> AuthConfirmResponse(
             AuthConfirmRequest authConfirmRequest)
         {
             var healthId = authConfirmRequest.healthId;
-            if (!(IsValidHealthId(healthId) && IsPresentInMap(healthId)))
+            if (!((IsValidHealthId(healthId) || IsValidHealthNumber(healthId)) && IsPresentInMap(healthId)))
                 return new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
             var credential = new AuthConfirmCredential(authConfirmRequest.authCode);
@@ -74,20 +75,15 @@ namespace In.ProjectEKA.HipService.UserAuth
                 null);
         }
 
-        public string GetCmSuffix(string healthId)
-        {
-            if (IsValidHealthId(healthId))
-            {
-                var patientIdSplit = healthId.Split("@");
-                var cmSuffix = patientIdSplit[1];
-                return cmSuffix;
-            }
-            return "";
-        }
-
         private static bool IsValidHealthId(string healthId)
         {
             string pattern = @"\w+\S\w+@\w+";
+            return Regex.Match(healthId, pattern).Success;
+        }
+
+        private static bool IsValidHealthNumber(string healthId)
+        {
+            string pattern = @"^(\d{14})$";
             return Regex.Match(healthId, pattern).Success;
         }
 
