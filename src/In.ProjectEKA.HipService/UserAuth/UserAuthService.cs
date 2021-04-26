@@ -77,7 +77,7 @@ namespace In.ProjectEKA.HipService.UserAuth
 
         private static bool IsValidHealthId(string healthId)
         {
-            string pattern = @"\w+\S\w+@\w+";
+            string pattern = @"^[a-zA-Z]+(([a-zA-Z.0-9]+){2})[a-zA-Z0-9]+@[a-zA-Z]+$";
             return Regex.Match(healthId, pattern).Success;
         }
 
