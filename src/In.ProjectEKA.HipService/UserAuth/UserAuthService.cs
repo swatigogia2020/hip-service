@@ -1,9 +1,11 @@
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.UserAuth.Model;
+using Microsoft.Extensions.Logging;
 using Optional;
 using static In.ProjectEKA.HipService.Common.Constants;
 
@@ -12,10 +14,12 @@ namespace In.ProjectEKA.HipService.UserAuth
     public class UserAuthService : IUserAuthService
     {
         private readonly IUserAuthRepository userAuthRepository;
+        private readonly ILogger<UserAuthController> logger;
 
-        public UserAuthService(IUserAuthRepository userAuthRepository)
+        public UserAuthService(IUserAuthRepository userAuthRepository, ILogger<UserAuthController> logger)
         {
             this.userAuthRepository = userAuthRepository;
+            this.logger = logger;
         }
 
         public Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation> FetchModeResponse(
@@ -65,7 +69,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             if (!(IsValidHealthId(healthId) && IsPresentInMap(healthId)))
                 return new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
-            var credential = new AuthConfirmCredential(authConfirmRequest.authCode);
+            var credential = new AuthConfirmCredential(GetDecodedOtp(authConfirmRequest.authCode));
             var transactionId = UserAuthMap.HealthIdToTransactionId[healthId];
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
@@ -83,6 +87,13 @@ namespace In.ProjectEKA.HipService.UserAuth
                 return cmSuffix;
             }
             return "";
+        }
+        
+        private static string GetDecodedOtp(String authCode)
+        {
+            var decodedOtp = Convert.FromBase64String(authCode);
+            var otp = Encoding.UTF8.GetString(decodedOtp);
+            return otp;
         }
 
         private static bool IsValidHealthId(string healthId)
