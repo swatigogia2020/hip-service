@@ -49,6 +49,11 @@ namespace In.ProjectEKA.HipService.UserAuth
             if (!(IsValidHealthId(healthId) || IsValidHealthNumber(healthId)))
                 return new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
                     (null, new ErrorRepresentation(ErrorResponse.InvalidHealthId));
+            if (IsValidHealthNumber(healthId))
+            {
+                healthId = Regex.Replace(healthId, @"^(.{2})(.{4})(.{4})(.{4})$", "$1-$2-$3-$4");
+            }
+
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
             var requester = new Requester(bahmniConfiguration.Id, HIP);
