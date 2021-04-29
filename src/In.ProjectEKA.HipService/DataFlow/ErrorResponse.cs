@@ -9,5 +9,8 @@ namespace In.ProjectEKA.HipService.DataFlow
 
         public static readonly Error HealthInformationNotFound =
             new Error(ErrorCode.HealthInformationNotFound, ErrorMessage.HealthInformationNotFound);
+
+        public static readonly Error InvalidHealthId =
+            new Error(ErrorCode.InvalidHealthId, ErrorMessage.InvalidHealthId);
     }
 }

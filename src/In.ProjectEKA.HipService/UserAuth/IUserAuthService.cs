@@ -20,7 +20,5 @@ namespace In.ProjectEKA.HipService.UserAuth
 
         public Task<Tuple<AuthConfirm, ErrorRepresentation>> OnAuthConfirmResponse(
             OnAuthConfirmRequest onAuthConfirmRequest);
-
-        public string GetCmSuffix(string healthId);
     }
 }
