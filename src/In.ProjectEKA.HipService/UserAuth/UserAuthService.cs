@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common.Model;
+using In.ProjectEKA.HipService.DataFlow;
 using In.ProjectEKA.HipService.UserAuth.Model;
 using Optional;
 using static In.ProjectEKA.HipService.Common.Constants;
@@ -24,7 +25,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             var healthId = fetchRequest.healthId;
             if (!(IsValidHealthId(healthId) || IsValidHealthNumber(healthId)))
                 return new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
-                    (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
+                    (null, new ErrorRepresentation(ErrorResponse.InvalidHealthId));
             if (IsValidHealthNumber(healthId))
             {
                 healthId = Regex.Replace(healthId, @"^(.{2})(.{4})(.{4})(.{4})$", "$1-$2-$3-$4");
@@ -47,7 +48,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             var healthId = authInitRequest.healthId;
             if (!(IsValidHealthId(healthId) || IsValidHealthNumber(healthId)))
                 return new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
-                    (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
+                    (null, new ErrorRepresentation(ErrorResponse.InvalidHealthId));
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
             var requester = new Requester(bahmniConfiguration.Id, HIP);
@@ -65,7 +66,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             var healthId = authConfirmRequest.healthId;
             if (!((IsValidHealthId(healthId) || IsValidHealthNumber(healthId)) && IsPresentInMap(healthId)))
                 return new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
-                    (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
+                    (null, new ErrorRepresentation(ErrorResponse.InvalidHealthId));
             var credential = new AuthConfirmCredential(authConfirmRequest.authCode);
             var transactionId = UserAuthMap.HealthIdToTransactionId[healthId];
             var timeStamp = DateTime.Now.ToUniversalTime();
