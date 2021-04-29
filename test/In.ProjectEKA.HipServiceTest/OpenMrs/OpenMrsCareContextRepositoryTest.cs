@@ -39,7 +39,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Then
             combinedCareContexts.Count().Should().Be(1);
             combinedCareContexts[0].ReferenceNumber.Should().Be("OPD");
-            combinedCareContexts[0].Display.Should().Be("4");
+            combinedCareContexts[0].Display.Should().Be("");
         }
 
         [Fact]
