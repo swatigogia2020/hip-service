@@ -76,7 +76,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         string ProgramEnrollmentSampleFull = @"[{
             ""careContextType"": ""VISIT_TYPE"",
             ""careContextName"": ""OPD"",
-            ""careContextReference"": 4}]";
+            ""careContextReference"": """"}]";
 
 
         private const string EmptySample = @"[]
