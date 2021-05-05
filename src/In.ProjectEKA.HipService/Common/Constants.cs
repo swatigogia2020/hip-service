@@ -46,5 +46,9 @@ namespace In.ProjectEKA.HipService.Common
         public const string PATH_AUTH_INIT = "/" + CURRENT_VERSION + "/users/auth/init";
         public const string PATH_HIP_AUTH_INIT = "/" + CURRENT_VERSION + "/hip/auth/init";
         public const string PATH_HIP_AUTH_CONFIRM = "/" + CURRENT_VERSION + "/hip/auth/confirm";
+
+        public const string REPORTING_SESSION = "reporting_session";
+        public const string OPENMRS_SESSION_ID_COOKIE_NAME = "JSESSIONID";
+        public const string WHO_AM_I = "/ws/rest/v1/bahmnicore/whoami";
     }
 }
