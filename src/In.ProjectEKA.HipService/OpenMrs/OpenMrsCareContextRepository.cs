@@ -43,6 +43,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 var careContextType = root[i].GetProperty("careContextType").ToString();
                 if (careContextType.Equals("PROGRAM"))
                     careContextName = careContextName + "(ID Number:" + careContextReferenceNumber + ")";
+                else
+                    careContextReferenceNumber = "";
                 careContexts.Add(new CareContextRepresentation(careContextName, careContextReferenceNumber,
                     careContextType));
             }
