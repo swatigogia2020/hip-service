@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using FluentAssertions;
 using Hl7.Fhir.Model;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
+using In.ProjectEKA.HipService.OpenMrs;
 using In.ProjectEKA.HipService.UserAuth;
 using In.ProjectEKA.HipService.UserAuth.Model;
 using In.ProjectEKA.HipServiceTest.Common.Builder;
@@ -40,13 +42,19 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         {
             CmSuffix = "sbx"
         };
+
+        private readonly OpenMrsConfiguration openMrsConfiguration = new OpenMrsConfiguration()
+        {
+            Url = "https://192.168.33.10/openmrs"
+        };
+        private readonly HttpClient httpClient;
       
 
         public UserAuthControllerTest()
         {
             userAuthController = new UserAuthController(gatewayClient.Object,
                 logger.Object,
-                userAuthService.Object, bahmniConfiguration,gatewayConfiguration);
+                userAuthService.Object, bahmniConfiguration,gatewayConfiguration, httpClient,openMrsConfiguration );
         }
 
         [Fact]
