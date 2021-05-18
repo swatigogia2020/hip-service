@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using static In.ProjectEKA.HipService.UserAuth.UserAuthMap;
 
 namespace In.ProjectEKA.HipService.UserAuth
 {
@@ -95,13 +96,21 @@ namespace In.ProjectEKA.HipService.UserAuth
                 do
                 {
                     Thread.Sleep(2000);
-                    if (UserAuthMap.RequestIdToAuthModes.ContainsKey(requestId))
+                    if (RequestIdToErrorMessage.ContainsKey(requestId))
+                    {
+                        var gatewayError = RequestIdToErrorMessage[requestId];
+                        RequestIdToErrorMessage.Remove(requestId);
+                        return StatusCode(StatusCodes.Status400BadRequest,
+                            new ErrorRepresentation(gatewayError));
+                    }
+
+                    if (RequestIdToAuthModes.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.UserAuth,
                             "Response about to be send for requestId: {RequestId} with authModes: {AuthModes}",
-                            requestId, UserAuthMap.RequestIdToAuthModes[requestId]
+                            requestId, RequestIdToAuthModes[requestId]
                         );
-                        List<Mode> authModes = UserAuthMap.RequestIdToAuthModes[requestId];
+                        List<Mode> authModes = RequestIdToAuthModes[requestId];
                         FetchModeResponse fetchModeResponse = new FetchModeResponse(authModes);
                         return Json(fetchModeResponse);
                     }
@@ -130,17 +139,16 @@ namespace In.ProjectEKA.HipService.UserAuth
                                     $" ResponseRequestId:{request.Resp.RequestId}, ");
             if (request.Error != null)
             {
+                RequestIdToErrorMessage.Add(Guid.Parse(request.Resp.RequestId), request.Error);
                 logger.Log(LogLevel.Information,
                     LogEvents.UserAuth, $" Error Code:{request.Error.Code}," +
                                         $" Error Message:{request.Error.Message}.");
             }
             else if (request.Auth != null)
             {
-                UserAuthMap.RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), request.Auth.Modes);
+                RequestIdToAuthModes.Add(Guid.Parse(request.Resp.RequestId), request.Auth.Modes);
             }
 
-            logger.Log(LogLevel.Information,
-                LogEvents.UserAuth, $"Response RequestId:{request.Resp.RequestId}");
             return Accepted();
         }
 
@@ -189,16 +197,24 @@ namespace In.ProjectEKA.HipService.UserAuth
                 do
                 {
                     Thread.Sleep(2000);
-                    if (UserAuthMap.RequestIdToTransactionIdMap.ContainsKey(requestId))
+                    if (RequestIdToErrorMessage.ContainsKey(requestId))
+                    {
+                        var gatewayError = RequestIdToErrorMessage[requestId];
+                        RequestIdToErrorMessage.Remove(requestId);
+                        return StatusCode(StatusCodes.Status400BadRequest,
+                            new ErrorRepresentation(gatewayError));
+                    }
+
+                    if (RequestIdToTransactionIdMap.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.UserAuth,
                             "Response about to be send for requestId: {RequestId} with transactionId: {TransactionId}",
-                            requestId, UserAuthMap.RequestIdToTransactionIdMap[requestId]
+                            requestId, RequestIdToTransactionIdMap[requestId]
                         );
-                        if (!UserAuthMap.HealthIdToTransactionId.ContainsKey(authInitRequest.healthId))
+                        if (!HealthIdToTransactionId.ContainsKey(authInitRequest.healthId))
                         {
-                            UserAuthMap.HealthIdToTransactionId.Add(authInitRequest.healthId,
-                                UserAuthMap.RequestIdToTransactionIdMap[requestId]);
+                            HealthIdToTransactionId.Add(authInitRequest.healthId,
+                                RequestIdToTransactionIdMap[requestId]);
                         }
 
                         return Accepted();
@@ -213,7 +229,8 @@ namespace In.ProjectEKA.HipService.UserAuth
                                                                " auth-init request", requestId);
             }
 
-            return Json(new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
+            return StatusCode(StatusCodes.Status504GatewayTimeout,
+                new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
         }
 
         [Authorize]
@@ -226,6 +243,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                                     $" Timestamp:{request.Timestamp},");
             if (request.Error != null)
             {
+                RequestIdToErrorMessage.Add(Guid.Parse(request.Resp.RequestId), request.Error);
                 logger.Log(LogLevel.Information,
                     LogEvents.UserAuth, $" Error Code:{request.Error.Code}," +
                                         $" Error Message:{request.Error.Message}.");
@@ -233,7 +251,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             else if (request.Auth != null)
             {
                 string transactionId = request.Auth.TransactionId;
-                UserAuthMap.RequestIdToTransactionIdMap.Add(Guid.Parse(request.Resp.RequestId), transactionId);
+                RequestIdToTransactionIdMap.Add(Guid.Parse(request.Resp.RequestId), transactionId);
             }
 
             logger.Log(LogLevel.Information,
@@ -287,14 +305,22 @@ namespace In.ProjectEKA.HipService.UserAuth
                 do
                 {
                     Thread.Sleep(10000);
-                    if (UserAuthMap.RequestIdToAccessToken.ContainsKey(requestId) &&
-                        UserAuthMap.RequestIdToPatientDetails.ContainsKey(requestId))
+                    if (RequestIdToErrorMessage.ContainsKey(requestId))
+                    {
+                        var gatewayError = RequestIdToErrorMessage[requestId];
+                        RequestIdToErrorMessage.Remove(requestId);
+                        return StatusCode(StatusCodes.Status400BadRequest,
+                            new ErrorRepresentation(gatewayError));
+                    }
+
+                    if (RequestIdToAccessToken.ContainsKey(requestId) &&
+                        RequestIdToPatientDetails.ContainsKey(requestId))
                     {
                         logger.LogInformation(LogEvents.UserAuth,
                             "Response about to be send for requestId: {RequestId} with accessToken: {AccessToken}",
-                            requestId, UserAuthMap.RequestIdToAccessToken[requestId]
+                            requestId, RequestIdToAccessToken[requestId]
                         );
-                        return Accepted(new AuthConfirmResponse(UserAuthMap.RequestIdToPatientDetails[requestId]));
+                        return Accepted(new AuthConfirmResponse(RequestIdToPatientDetails[requestId]));
                     }
 
                     i++;
@@ -305,7 +331,8 @@ namespace In.ProjectEKA.HipService.UserAuth
                 logger.LogError(LogEvents.UserAuth, exception, "Error happened for requestId: {RequestId}", requestId);
             }
 
-            return Json(new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
+            return StatusCode(StatusCodes.Status504GatewayTimeout,
+                new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
         }
 
         [Authorize]
@@ -319,6 +346,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                                     $" ResponseRequestId:{request.resp.RequestId}, ");
             if (request.error != null)
             {
+                RequestIdToErrorMessage.Add(Guid.Parse(request.resp.RequestId), request.error);
                 logger.Log(LogLevel.Information,
                     LogEvents.UserAuth, $" Error Code:{request.error.Code}," +
                                         $" Error Message:{request.error.Message}.");
