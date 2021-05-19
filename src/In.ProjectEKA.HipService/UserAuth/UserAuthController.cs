@@ -338,8 +338,10 @@ namespace In.ProjectEKA.HipService.UserAuth
         [NonAction]
         public async Task<StatusCodeResult> IsAuthorised(String sessionId)
         {
-            httpClient.DefaultRequestHeaders.Add("Cookie", OPENMRS_SESSION_ID_COOKIE_NAME + "=" + sessionId);
-            var response = await httpClient.GetAsync(new Uri(openMrsConfiguration.Url+WHO_AM_I));
+            var request = new HttpRequestMessage(HttpMethod.Get, openMrsConfiguration.Url+WHO_AM_I);
+            request.Headers.Add("Cookie", OPENMRS_SESSION_ID_COOKIE_NAME + "=" + sessionId);
+
+            var response = await httpClient.SendAsync(request).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 return StatusCode(StatusCodes.Status401Unauthorized);
