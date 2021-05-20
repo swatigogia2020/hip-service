@@ -6,7 +6,6 @@ using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.DataFlow;
 using In.ProjectEKA.HipService.UserAuth.Model;
-using Microsoft.Extensions.Logging;
 using Optional;
 using static In.ProjectEKA.HipService.Common.Constants;
 
