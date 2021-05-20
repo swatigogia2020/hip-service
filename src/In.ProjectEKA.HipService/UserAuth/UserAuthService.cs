@@ -14,14 +14,12 @@ namespace In.ProjectEKA.HipService.UserAuth
     public class UserAuthService : IUserAuthService
     {
         private readonly IUserAuthRepository userAuthRepository;
-        private readonly ILogger<UserAuthController> logger;
 
-        public UserAuthService(IUserAuthRepository userAuthRepository, ILogger<UserAuthController> logger)
+        public UserAuthService(IUserAuthRepository userAuthRepository)
         {
             this.userAuthRepository = userAuthRepository;
-            this.logger = logger;
-        }
 
+        }
         public Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation> FetchModeResponse(
             FetchRequest fetchRequest, BahmniConfiguration bahmniConfiguration)
         {
