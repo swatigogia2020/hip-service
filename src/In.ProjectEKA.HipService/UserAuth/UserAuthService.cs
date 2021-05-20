@@ -94,6 +94,13 @@ namespace In.ProjectEKA.HipService.UserAuth
             var otp = Encoding.UTF8.GetString(decodedOtp);
             return otp;
         }
+        
+        private static string GetDecodedOtp(String authCode)
+        {
+            var decodedOtp = Convert.FromBase64String(authCode);
+            var otp = Encoding.UTF8.GetString(decodedOtp);
+            return otp;
+        }
 
         private static bool IsValidHealthNumber(string healthId)
         {
