@@ -87,14 +87,7 @@ namespace In.ProjectEKA.HipService.UserAuth
             string pattern = @"^[a-zA-Z]+(([a-zA-Z.0-9]+){2})[a-zA-Z0-9]+@[a-zA-Z]+$";
             return Regex.Match(healthId, pattern).Success;
         }
-        
-        private static string GetDecodedOtp(String authCode)
-        {
-            var decodedOtp = Convert.FromBase64String(authCode);
-            var otp = Encoding.UTF8.GetString(decodedOtp);
-            return otp;
-        }
-        
+
         private static string GetDecodedOtp(String authCode)
         {
             var decodedOtp = Convert.FromBase64String(authCode);
