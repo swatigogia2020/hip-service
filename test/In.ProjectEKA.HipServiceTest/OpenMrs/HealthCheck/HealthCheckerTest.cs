@@ -65,8 +65,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
 
             Thread.Sleep(25);
 
-            healthCheckStatus.Verify(x => x.AddStatus(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.AtLeast(1));
-            healthCheckStatus.Verify(x => x.AddStatus(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.AtLeast(1));
+            healthCheckStatus.Verify(x => x.AddStatus(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.AtLeastOnce);
         }
 
     }
