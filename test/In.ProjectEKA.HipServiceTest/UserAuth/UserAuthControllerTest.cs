@@ -34,7 +34,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         private readonly Mock<GatewayClient> gatewayClient = new Mock<GatewayClient>(MockBehavior.Strict, null, null);
         private readonly Mock<IUserAuthService> userAuthService = new Mock<IUserAuthService>();
 
-        private readonly BahmniConfiguration bahmniConfiguration = new BahmniConfiguration()  {
+        private readonly BahmniConfiguration bahmniConfiguration = new BahmniConfiguration()
+        {
             Id = "Bahmni"
         };
 
@@ -47,14 +48,15 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         {
             Url = "https://192.168.33.10/openmrs"
         };
+
         private readonly HttpClient httpClient;
-      
+
 
         public UserAuthControllerTest()
         {
             userAuthController = new UserAuthController(gatewayClient.Object,
                 logger.Object,
-                userAuthService.Object, bahmniConfiguration,gatewayConfiguration, httpClient,openMrsConfiguration );
+                userAuthService.Object, bahmniConfiguration, gatewayConfiguration, httpClient, openMrsConfiguration);
         }
 
         [Fact]
@@ -125,7 +127,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             if (userAuthController.GetAuthModes(correlationId, request).Result is JsonResult authMode)
             {
                 Log.Information(authMode.ToString());
-                authMode.Value.Equals( HttpStatusCode.GatewayTimeout);
+                authMode.Value.Equals(HttpStatusCode.GatewayTimeout);
             }
         }
 
@@ -293,6 +295,101 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             {
                 Log.Information(authMode.ToString());
                 authMode.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [Fact]
+        private async void ShouldReturnGatewayErrorForAuthConfirm()
+        {
+            var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx");
+            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
+            DateTime timeStamp = DateTime.Now.ToUniversalTime();
+            var transactionId = TestBuilder.Faker().Random.Hash();
+            Guid requestId = Guid.NewGuid();
+            Error error = new Error(ErrorCode.OtpInValid, "Invalid OTP");
+            UserAuthMap.RequestIdToErrorMessage.Add(requestId, error);
+            GatewayAuthConfirmRequestRepresentation gatewayAuthConfirmRequestRepresentation =
+                new GatewayAuthConfirmRequestRepresentation(requestId, timeStamp, transactionId, credential);
+            var correlationId = Uuid.Generate().ToString();
+
+            userAuthService.Setup(a => a.AuthConfirmResponse(authConfirmRequest))
+                .Returns(new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
+                    (gatewayAuthConfirmRequestRepresentation, null));
+            gatewayClient.Setup(
+                    client =>
+                        client.SendDataToGateway(PATH_AUTH_CONFIRM,
+                            gatewayAuthConfirmRequestRepresentation, gatewayConfiguration.CmSuffix, correlationId))
+                .Returns(Task.FromResult(""));
+
+            var response =
+                await userAuthController.GetAccessToken(correlationId, authConfirmRequest) as ObjectResult;
+            if (response != null)
+            {
+                response.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+                response.Value.Should().BeEquivalentTo(new ErrorRepresentation(error));
+            }
+        }
+
+        [Fact]
+        private async void ShouldReturnGatewayErrorForAuthInit()
+        {
+            var request = new AuthInitRequest("hina_patel@ncg", "MOBILE_OTP", KYC_AND_LINK);
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requester = new Requester(bahmniConfiguration.Id, HIP);
+            var query = new AuthInitQuery(request.healthId, KYC_AND_LINK, request.authMode, requester);
+            var requestId = Guid.NewGuid();
+            var gatewayAuthInitRequestRepresentation =
+                new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
+            var correlationId = Uuid.Generate().ToString();
+            Error error = new Error(ErrorCode.GatewayTimedOut, "Timeout Error");
+            UserAuthMap.RequestIdToErrorMessage.Add(requestId, error);
+
+            userAuthService.Setup(a => a.AuthInitResponse(request, bahmniConfiguration))
+                .Returns(new Tuple<GatewayAuthInitRequestRepresentation, ErrorRepresentation>
+                    (gatewayAuthInitRequestRepresentation, null));
+            gatewayClient.Setup(
+                    client =>
+                        client.SendDataToGateway(PATH_AUTH_INIT,
+                            gatewayAuthInitRequestRepresentation, gatewayConfiguration.CmSuffix, correlationId))
+                .Returns(Task.FromResult(""));
+
+            var response = await userAuthController.GetTransactionId(correlationId, request) as ObjectResult;
+            if (response != null)
+            {
+                response.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+                response.Value.Should().BeEquivalentTo(new ErrorRepresentation(error));
+            }
+        }
+
+        [Fact]
+        private async void ShouldReturnGatewayErrorForAuthFetch()
+        {
+            var request = new FetchRequest("hina_patel@sbx", KYC_AND_LINK);
+            var requester = new Requester(bahmniConfiguration.Id, HIP);
+            var query = new FetchQuery(request.healthId, KYC_AND_LINK, requester);
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requestId = Guid.NewGuid();
+            var gatewayFetchModesRequestRepresentation =
+                new GatewayFetchModesRequestRepresentation(requestId, timeStamp, query);
+            var correlationId = Uuid.Generate().ToString();
+            Error error = new Error(ErrorCode.GatewayTimedOut, "Timeout Error");
+            UserAuthMap.RequestIdToErrorMessage.Add(requestId, error);
+
+            userAuthService.Setup(a => a.FetchModeResponse(request, bahmniConfiguration))
+                .Returns(new Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation>
+                    (gatewayFetchModesRequestRepresentation, null));
+            gatewayClient.Setup(
+                    client =>
+                        client.SendDataToGateway(PATH_FETCH_AUTH_MODES,
+                            gatewayFetchModesRequestRepresentation, gatewayConfiguration.CmSuffix, correlationId))
+                .Returns(Task.CompletedTask);
+
+            var response = await userAuthController.GetAuthModes(correlationId, request) as ObjectResult;
+
+            if (response != null)
+            {
+                response.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+                response.Value.Should().BeEquivalentTo(new ErrorRepresentation(error));
             }
         }
     }

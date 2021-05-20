@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient.Model;
@@ -366,7 +365,7 @@ namespace In.ProjectEKA.HipService.UserAuth
         [NonAction]
         public async Task<StatusCodeResult> IsAuthorised(String sessionId)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, openMrsConfiguration.Url+WHO_AM_I);
+            var request = new HttpRequestMessage(HttpMethod.Get, openMrsConfiguration.Url + WHO_AM_I);
             request.Headers.Add("Cookie", OPENMRS_SESSION_ID_COOKIE_NAME + "=" + sessionId);
 
             var response = await httpClient.SendAsync(request).ConfigureAwait(false);
