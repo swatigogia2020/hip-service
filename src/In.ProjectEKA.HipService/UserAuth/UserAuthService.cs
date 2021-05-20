@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.UserAuth.Model;
-using Microsoft.Extensions.Logging;
 using Optional;
 using static In.ProjectEKA.HipService.Common.Constants;
 
