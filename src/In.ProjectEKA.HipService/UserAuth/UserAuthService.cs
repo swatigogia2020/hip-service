@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient.Model;
@@ -17,8 +18,8 @@ namespace In.ProjectEKA.HipService.UserAuth
         public UserAuthService(IUserAuthRepository userAuthRepository)
         {
             this.userAuthRepository = userAuthRepository;
-        }
 
+        }
         public Tuple<GatewayFetchModesRequestRepresentation, ErrorRepresentation> FetchModeResponse(
             FetchRequest fetchRequest, BahmniConfiguration bahmniConfiguration)
         {
@@ -71,8 +72,8 @@ namespace In.ProjectEKA.HipService.UserAuth
             var healthId = authConfirmRequest.healthId;
             if (!((IsValidHealthId(healthId) || IsValidHealthNumber(healthId)) && IsPresentInMap(healthId)))
                 return new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
-                    (null, new ErrorRepresentation(ErrorResponse.InvalidHealthId));
-            var credential = new AuthConfirmCredential(authConfirmRequest.authCode);
+                    (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
+            var credential = new AuthConfirmCredential(GetDecodedOtp(authConfirmRequest.authCode));
             var transactionId = UserAuthMap.HealthIdToTransactionId[healthId];
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
@@ -85,6 +86,13 @@ namespace In.ProjectEKA.HipService.UserAuth
         {
             string pattern = @"^[a-zA-Z]+(([a-zA-Z.0-9]+){2})[a-zA-Z0-9]+@[a-zA-Z]+$";
             return Regex.Match(healthId, pattern).Success;
+        }
+
+        private static string GetDecodedOtp(String authCode)
+        {
+            var decodedOtp = Convert.FromBase64String(authCode);
+            var otp = Encoding.UTF8.GetString(decodedOtp);
+            return otp;
         }
 
         private static bool IsValidHealthNumber(string healthId)
