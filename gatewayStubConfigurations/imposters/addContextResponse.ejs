@@ -1,5 +1,4 @@
 function(config) {
-config.logger.info("I'm up");
 config.logger.info(config.request.body);
 config.logger.info(config.request.path + " is called");
 var reqBody = JSON.parse(config.request.body);

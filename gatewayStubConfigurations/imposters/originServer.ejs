@@ -58,15 +58,6 @@
                     }],
                     "responses": [{ "inject": "<%- stringify('authConfirmResponse.ejs') %>" }]
                   },
-{
-"predicates": [{
-"equals": {
-"method": "POST",
-"path": "/v0.5/links/link/add-context"
-}
-}],
-"responses": [{ "inject": "<%- stringify('addContextResponse.ejs') %>" }]
-},
       {
         "predicates": [{
           "equals": {
