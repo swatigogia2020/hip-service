@@ -1,18 +1,17 @@
 using System;
 using In.ProjectEKA.HipLibrary.Patient.Model;
-using In.ProjectEKA.HipService.Common.Model;
 
 namespace In.ProjectEKA.HipService.Link.Model
 {
     public class CareContextService : ICareContextService
     {
         public Tuple<GatewayAddContextsRequestRepresentation, ErrorRepresentation> AddContextsResponse(
-            AddContextsRequest addContextsRequest, BahmniConfiguration bahmniConfiguration)
+            AddContextsRequest addContextsRequest)
         {
-            var accessToken = addContextsRequest.accessToken;
-            var referenceNumber = addContextsRequest.referenceNumber;
-            var careContexts = addContextsRequest.careContexts;
-            var display = addContextsRequest.display;
+            var accessToken = addContextsRequest.AccessToken;
+            var referenceNumber = addContextsRequest.ReferenceNumber;
+            var careContexts = addContextsRequest.CareContexts;
+            var display = addContextsRequest.Display;
             var patient = new AddCareContextsPatient(referenceNumber, display, careContexts);
             var link = new AddCareContextsLink(accessToken, patient);
             var timeStamp = DateTime.Now.ToUniversalTime();

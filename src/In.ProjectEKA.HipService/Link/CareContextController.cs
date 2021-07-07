@@ -42,10 +42,10 @@ namespace In.ProjectEKA.HipService.Link
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AddContextsRequest addContextsRequest)
         {
             var (gatewayAddContextsRequestRepresentation, error) =
-                careContextService.AddContextsResponse(addContextsRequest, bahmniConfiguration);
+                careContextService.AddContextsResponse(addContextsRequest);
             if (error != null)
                 return StatusCode(StatusCodes.Status400BadRequest, error);
-            Guid requestId = gatewayAddContextsRequestRepresentation.requestId;
+            Guid requestId = gatewayAddContextsRequestRepresentation.RequestId;
             var cmSuffix = gatewayConfiguration.CmSuffix;
             try
             {
@@ -53,30 +53,19 @@ namespace In.ProjectEKA.HipService.Link
                     LogEvents.AddContext,
                     "Request for add-contexts to gateway: {@GatewayResponse}",
                     gatewayAddContextsRequestRepresentation.dump(gatewayAddContextsRequestRepresentation));
-                await gatewayClient.SendDataToGateway(PATH_ADD_PATIENT_CARECONTEXTS,
+                await gatewayClient.SendDataToGateway(PATH_ADD_PATIENT_CONTEXTS,
                     gatewayAddContextsRequestRepresentation,
                     cmSuffix, correlationId);
-                return Json("");
+                return Accepted();
             }
             catch (Exception exception)
             {
                 logger.LogError(LogEvents.AddContext, exception, "Error happened for requestId: {RequestId} for" +
-                                                               " Add-Carecontexs request", requestId);
+                                                                 " add-carecontexs request", requestId);
             }
 
             return StatusCode(StatusCodes.Status504GatewayTimeout,
                 new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
-        }
-        [Authorize]
-        [HttpPost(PATH_ON_PATIENT_CARECONTEXTS)]
-        public AcceptedResult SetAuthModes(OnFetchAuthModeRequest request)
-        {
-            logger.Log(LogLevel.Information,
-                LogEvents.AddContext, "On add context request received." +
-                                    $" RequestId:{request.RequestId}, " +
-                                    $" Timestamp:{request.Timestamp}," +
-                                    $" ResponseRequestId:{request.Resp.RequestId}, ");
-            return Accepted();
         }
     }
 }
