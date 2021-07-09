@@ -6,54 +6,29 @@ var reqBody = JSON.parse(config.request.body);
 var reqId = reqBody.requestId;
 var token = config.request.headers.Authorization;
 var body1 ={
-    "requestId": "3d839b9a-0479-46bd-a620-d9f885ad11e9",
-    "timestamp": "2021-03-10T11:04:25.454Z",
-    "auth": {
-        "accessToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjNFRjUzMkVGREQ1OEY4NEQxNURDNUFDMjg2NDEyM0E1IiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2MTYxMzcxNzUsImV4cCI6MTYxNjE0MDc3NSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwIiwiY2xpZW50X2lkIjoiY2xpZW50LWNyZWRlbnRpYWxzLW1vY2stY2xpZW50IiwiY2xpZW50SWQiOiJ0aGlzIGlzIHRoZSBjbGllbnQgaWQgY2xhaW0gdHlwZSIsImp0aSI6IjMwOTU0NzZDQTNCMDU4MjVEMDQzRkFCRjMyQjM1NzBEIiwiaWF0IjoxNjE2MTM3MTc1LCJzY29wZSI6WyJzb21lLWFwcC1zY29wZS0xIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJnYXRld2F5Il19fQ.Kq_HXRJdy-BYAlN0KBRT24Cca0IQs6ZmMJzFUlfTCaUQyFNQu8fKOauTHKxGX4tT2RZhQc9G37-N-ZSzPr5LpgakLB5t4DK_t2jAXypQPXKuhXtlzbaWCJffh0pvjjaSqsRigV-n1PXOIvEJCrDsa2EJObBYYEEw92ERGxpG4sRdESWxPLngbfHfHwZ3cOidipKwDtPLkRSn7XVpeh-BoGqFMxVIigitkx0GWFtM5nWnfgObLVZcSg6W8wvwx1kA3N0FlI6rK3umOx3RQikqFkZVh-tUiZaz3Bs0gkmcX2r5T-n3EFfwBkxcUMNcE-oDD_j1lhtM0rJ2K7Vviosfbw",
-        "validity": {
-          "purpose": "LINK",
-          "requester": {
-            "type": "HIP",
-            "id": 100005
-          },
-          "expiry": "2021-03-12T10:42:02.524Z",
-          "limit": "1"
-        },
-        "patient": {
-          "id": "sheenapatel@sbx",
-          "name": "Sheena Patel",
-          "gender": "F",
-          "yearOfBirth": 2000,
-          "address": {
-            "line": "A-12, Dholakpur",
-            "district": "Bhopal",
-            "state": "Madhya Pradesh",
-            "pincode": "212021"
-          },
-          "identifiers": [
-            {
-              "type": "MOBILE",
-              "value": "+919800083232"
-            }
-          ]
-        }
-      },
-    "resp": {
-        "requestId": reqId
-    }
+
+              "requestId": "5f7a535d-a3fd-416b-b069-c97d021fbacd",
+              "timestamp": "2021-07-08T10:04:59.988Z",
+              "acknowledgement": {
+                "status": "SUCCESS"
+              },
+              "resp": {
+                "requestId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              }
+
 };
-var reqBodyOnFetchModes = JSON.stringify(body1);
+var reqBodyOnNotifyContext = JSON.stringify(body1);
 var http = require('http');
 var options = {
     method: 'POST',
     port: '9052',
     hostname: 'host.docker.internal',
-    path: '/v0.5/users/auth/on-confirm',
+    path: '/v0.5/links/context/on-notify',
     json: body1,
     headers: {
         'Content-Type': 'application/json',
         'Authorization': token,
-        'content-length': reqBodyOnFetchModes.length,
+        'content-length': reqBodyOnNotifyContext.length,
         'X-HIP-ID': '10000005'
     }
 },
@@ -72,7 +47,7 @@ httpRequest = http.request(options, response => {
         config.logger.info('Successfully proxied: ' + JSON.stringify(stubResponse));
     });
 });
-httpRequest.write(reqBodyOnFetchModes);
+httpRequest.write(reqBodyOnNotifyContext);
 httpRequest.end();
 
 return {

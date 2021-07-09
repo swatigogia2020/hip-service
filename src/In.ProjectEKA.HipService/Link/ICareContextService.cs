@@ -7,5 +7,8 @@ namespace In.ProjectEKA.HipService.Link.Model
     {
         public Tuple<GatewayAddContextsRequestRepresentation, ErrorRepresentation> AddContextsResponse(
             AddContextsRequest addContextsRequest);
+
+        public Tuple<GatewayNotificationContextRepresentation, ErrorRepresentation> NotificationContextResponse(
+            NotifyContextRequest notifyContextRequest);
     }
 }
