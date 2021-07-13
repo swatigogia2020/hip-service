@@ -25,7 +25,6 @@ namespace In.ProjectEKA.HipService.Link
 
         public CareContextController(IGatewayClient gatewayClient,
             ILogger<CareContextController> logger,
-            BahmniConfiguration bahmniConfiguration,
             GatewayConfiguration gatewayConfiguration,
             ICareContextService careContextService
         )
