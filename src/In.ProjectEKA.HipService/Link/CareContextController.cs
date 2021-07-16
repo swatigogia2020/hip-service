@@ -2,11 +2,9 @@ using System;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common;
-using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.Logger;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -59,9 +57,9 @@ namespace In.ProjectEKA.HipService.Link
             catch (Exception exception)
             {
                 logger.LogError(LogEvents.AddContext, exception, "Error happened for requestId: {RequestId} for" +
-                                                                 " add-carecontexs request", requestId);
+                                                                 " add-care context request", requestId);
             }
-
+            
             return StatusCode(StatusCodes.Status504GatewayTimeout,
                 new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
         }
@@ -91,7 +89,7 @@ namespace In.ProjectEKA.HipService.Link
             catch (Exception exception)
             {
                 logger.LogError(LogEvents.AddContext, exception, "Error happened for requestId: {RequestId} for" +
-                                                                 " notification-carecontext request", requestId);
+                                                                 " notification-care context request", requestId);
             }
 
             return StatusCode(StatusCodes.Status504GatewayTimeout,
@@ -101,7 +99,7 @@ namespace In.ProjectEKA.HipService.Link
         [HttpPost(PATH_ON_NOTIFY_CONTEXTS)]
         public AcceptedResult HipLinkOnAddContexts(HipLinkContextConfirmation confirmation)
         {
-            Log.Information("Link on-add-context received." +
+            Log.Information("Link on-notify context received." +
                             $" RequestId:{confirmation.RequestId}, " +
                             $" Timestamp:{confirmation.Timestamp}");
             if (confirmation.Error != null)

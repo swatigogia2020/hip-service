@@ -7,7 +7,6 @@ using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link;
 using In.ProjectEKA.HipService.Link.Model;
-using In.ProjectEKA.HipService.UserAuth.Model;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -32,9 +31,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
         {
             CmSuffix = "sbx"
         };
-
-        private readonly HttpClient httpClient;
-
+        
         public CareContextControllerTest()
         {
             careContextController =
@@ -43,7 +40,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
         }
 
         [Fact]
-        private void shouldAddContext()
+        private void ShouldAddContext()
         {
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
@@ -81,7 +78,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
         }
 
         [Fact]
-        private void shouldNotify()
+        private void ShouldNotify()
         {
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();

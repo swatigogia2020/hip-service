@@ -1,8 +1,9 @@
 using System;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common.Model;
+using In.ProjectEKA.HipService.Link.Model;
 
-namespace In.ProjectEKA.HipService.Link.Model
+namespace In.ProjectEKA.HipService.Link
 {
     public class CareContextService : ICareContextService
     {
@@ -29,7 +30,7 @@ namespace In.ProjectEKA.HipService.Link.Model
             var careContextReference = notifyContextRequest.CareContextReference;
             var hiTypes = notifyContextRequest.HiTypes;
             var hipId = notifyContextRequest.HipId;
-            var patient = new Patient(id);
+            var patient = new Model.Patient(id);
             var careContext = new NotificationCareContext(patientReference, careContextReference);
             var hip = new HIPReference(hipId);
             var date = notifyContextRequest.Date;
