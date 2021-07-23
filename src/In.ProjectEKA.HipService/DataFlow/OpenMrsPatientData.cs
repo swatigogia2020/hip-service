@@ -16,7 +16,8 @@ namespace In.ProjectEKA.HipService.DataFlow
         private readonly Dictionary<string, string> hiTypeToRootElement = new Dictionary<string, string>()
         {
             {HiType.Prescription.ToString().ToLower(), "prescriptions"},
-            {HiType.DiagnosticReport.ToString().ToLower(), "diagnosticReports"}
+            {HiType.DiagnosticReport.ToString().ToLower(), "diagnosticReports"},
+            {HiType.OPConsultation.ToString().ToLower(), "opConsult"}
         };
 
         private readonly IOpenMrsClient openMrsClient;
