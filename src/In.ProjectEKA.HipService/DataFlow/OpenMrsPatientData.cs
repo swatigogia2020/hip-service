@@ -17,7 +17,7 @@ namespace In.ProjectEKA.HipService.DataFlow
         {
             {HiType.Prescription.ToString().ToLower(), "prescriptions"},
             {HiType.DiagnosticReport.ToString().ToLower(), "diagnosticReports"},
-            {HiType.OPConsultation.ToString().ToLower(), "opConsult"}
+            {HiType.OPConsultation.ToString().ToLower(), "opConsults"}
         };
 
         private readonly IOpenMrsClient openMrsClient;
