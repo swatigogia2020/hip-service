@@ -6,8 +6,8 @@ namespace In.ProjectEKA.HipService.Link.Model
     public class GatewayNotificationContextRepresentation
     {
         public Guid RequestId { get; }
-        private DateTime Timestamp { get; }
-        private NotificationContext NotificationContext { get; }
+        public DateTime Timestamp { get; }
+        public NotificationContext NotificationContext { get; }
 
         public GatewayNotificationContextRepresentation(Guid requestId, DateTime timestamp,
             NotificationContext notificationContext)

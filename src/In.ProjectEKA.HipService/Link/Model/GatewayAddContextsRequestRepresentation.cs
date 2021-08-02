@@ -6,8 +6,8 @@ namespace In.ProjectEKA.HipService.Link.Model
     public class GatewayAddContextsRequestRepresentation
     {
         public Guid RequestId { get; }
-        private DateTime Timestamp { get; }
-        private AddCareContextsLink Link { get; }
+        public DateTime Timestamp { get; }
+        public AddCareContextsLink Link { get; }
 
         public GatewayAddContextsRequestRepresentation(Guid requestId, DateTime timestamp, AddCareContextsLink link)
         {
