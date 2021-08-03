@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common;
+using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.UserAuth;
 using In.ProjectEKA.HipService.UserAuth.Model;
@@ -19,11 +21,12 @@ namespace In.ProjectEKA.HipService.Link
     {
         private readonly HttpClient httpClient;
         private readonly IUserAuthRepository userAuthRepository;
-
-        public CareContextService(HttpClient httpClient, IUserAuthRepository userAuthRepository)
+        private readonly BahmniConfiguration bahmniConfiguration;
+        public CareContextService(HttpClient httpClient, IUserAuthRepository userAuthRepository, BahmniConfiguration bahmniConfiguration)
         {
             this.httpClient = httpClient;
             this.userAuthRepository = userAuthRepository;
+            this.bahmniConfiguration = bahmniConfiguration;
         }
 
         public Tuple<GatewayAddContextsRequestRepresentation, ErrorRepresentation> AddContextsResponse(
@@ -72,7 +75,7 @@ namespace In.ProjectEKA.HipService.Link
                     .Select(v => v.ToString())
                     .ToList(),
                 DateTime.Now,
-                HIP_ID
+                bahmniConfiguration.Id
             );
             request.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(notifyContext),
                 Encoding.UTF8, "application/json");

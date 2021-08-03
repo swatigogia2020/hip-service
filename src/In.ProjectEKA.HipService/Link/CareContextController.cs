@@ -50,10 +50,10 @@ namespace In.ProjectEKA.HipService.Link
             try
             {
                 logger.Log(LogLevel.Information,
-                    LogEvents.UserAuth,
+                    LogEvents.AddContext,
                     "Request for auth-init to gateway: {@GatewayResponse}",
                     gatewayAddContextsRequestRepresentation.dump(gatewayAddContextsRequestRepresentation));
-                logger.Log(LogLevel.Information, LogEvents.UserAuth, $"cmSuffix: {{cmSuffix}}," +
+                logger.Log(LogLevel.Information, LogEvents.AddContext, $"cmSuffix: {{cmSuffix}}," +
                                                                      $" correlationId: {{correlationId}}, " +
                                                                      $"requestId: {{requestId}}",
                     cmSuffix, correlationId, requestId);
