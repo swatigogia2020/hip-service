@@ -128,6 +128,22 @@ namespace In.ProjectEKA.HipService.Link
                 return new Tuple<List<string>, Exception>(null, exception);
             }
         }
+        
+        public async Task<Tuple<string, Exception>> GetHealthID(
+            string patientReferenceNumber)
+        {
+            try
+            {
+                var linkRequest = await linkPatientContext.LinkedAccounts
+                    .FirstOrDefaultAsync(request => request.PatientReferenceNumber.Equals(patientReferenceNumber));
+                return new Tuple<string, Exception>(linkRequest.ConsentManagerUserId, null);
+            }
+            catch (Exception exception)
+            {
+                Log.Fatal(exception, exception.StackTrace);
+                return new Tuple<string, Exception>(null, exception);
+            }
+        }
 
         public async Task<Option<InitiatedLinkRequest>> Save(string requestId,
             string transactionId,

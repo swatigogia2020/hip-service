@@ -22,17 +22,19 @@ namespace In.ProjectEKA.HipService.Link
         private readonly HttpClient httpClient;
         private readonly IUserAuthRepository userAuthRepository;
         private readonly BahmniConfiguration bahmniConfiguration;
-        public CareContextService(HttpClient httpClient, IUserAuthRepository userAuthRepository, BahmniConfiguration bahmniConfiguration)
+        private readonly ILinkPatientRepository linkPatientRepository;
+        public CareContextService(HttpClient httpClient, IUserAuthRepository userAuthRepository, BahmniConfiguration bahmniConfiguration, ILinkPatientRepository linkPatientRepository)
         {
             this.httpClient = httpClient;
             this.userAuthRepository = userAuthRepository;
             this.bahmniConfiguration = bahmniConfiguration;
+            this.linkPatientRepository = linkPatientRepository;
         }
 
-        public Tuple<GatewayAddContextsRequestRepresentation, ErrorRepresentation> AddContextsResponse(
+        public  Tuple<GatewayAddContextsRequestRepresentation, ErrorRepresentation> AddContextsResponse(
             AddContextsRequest addContextsRequest)
         {
-            var accessToken = addContextsRequest.AccessToken;
+            var accessToken = GetAccessToken(addContextsRequest.ReferenceNumber, addContextsRequest).Result;
             var referenceNumber = addContextsRequest.ReferenceNumber;
             var careContexts = addContextsRequest.CareContexts;
             var display = addContextsRequest.Display;
@@ -44,6 +46,15 @@ namespace In.ProjectEKA.HipService.Link
                 (new GatewayAddContextsRequestRepresentation(requestId, timeStamp, link), null);
         }
 
+        private async Task<string> GetAccessToken(string patientReferenceNumber, AddContextsRequest addContextsRequest)
+        {
+            var (healthId, exception) =
+                await linkPatientRepository.GetHealthID(addContextsRequest.ReferenceNumber);
+            var (accessToken, error) = await userAuthRepository.GetAccessToken(healthId);
+            return accessToken;
+        }
+        
+        
         public Tuple<GatewayNotificationContextRepresentation, ErrorRepresentation> NotificationContextResponse(
             NotifyContextRequest notifyContextRequest)
         {

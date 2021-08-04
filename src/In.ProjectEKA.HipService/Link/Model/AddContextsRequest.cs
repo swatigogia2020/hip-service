@@ -5,7 +5,6 @@ namespace In.ProjectEKA.HipService.Link.Model
 {
     public class AddContextsRequest
     {
-        public string AccessToken { get; }
         public string ReferenceNumber { get; }
         public string Display { get; }
         public List<CareContextRepresentation> CareContexts { get; }
@@ -13,7 +12,6 @@ namespace In.ProjectEKA.HipService.Link.Model
         public AddContextsRequest(string accessToken, string referenceNumber, List<CareContextRepresentation> careContexts,
             string display)
         {
-            AccessToken = accessToken;
             ReferenceNumber = referenceNumber;
             CareContexts = careContexts;
             Display = display;
