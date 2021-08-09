@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using In.ProjectEKA.HipService.UserAuth.Model;
 using Optional;
 
 namespace In.ProjectEKA.HipService.UserAuth
@@ -8,5 +9,6 @@ namespace In.ProjectEKA.HipService.UserAuth
         Task<Option<AuthConfirm>> Add(AuthConfirm authConfirm);
         Task<Option<AuthConfirm>> Get(string healthId);
         bool Update(AuthConfirm authConfirm);
+        Task<Option<NdhmDemographics>> AddDemographics(NdhmDemographics ndhmDemographics);
     }
 }
