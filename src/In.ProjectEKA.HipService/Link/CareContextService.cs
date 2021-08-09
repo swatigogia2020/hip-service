@@ -34,7 +34,7 @@ namespace In.ProjectEKA.HipService.Link
         public  Tuple<GatewayAddContextsRequestRepresentation, ErrorRepresentation> AddContextsResponse(
             AddContextsRequest addContextsRequest)
         {
-            var accessToken = GetAccessToken(addContextsRequest.ReferenceNumber, addContextsRequest).Result;
+            var accessToken = GetAccessToken(addContextsRequest.ReferenceNumber).Result;
             var referenceNumber = addContextsRequest.ReferenceNumber;
             var careContexts = addContextsRequest.CareContexts;
             var display = addContextsRequest.Display;
@@ -46,10 +46,10 @@ namespace In.ProjectEKA.HipService.Link
                 (new GatewayAddContextsRequestRepresentation(requestId, timeStamp, link), null);
         }
 
-        private async Task<string> GetAccessToken(string patientReferenceNumber, AddContextsRequest addContextsRequest)
+        private async Task<string> GetAccessToken(string patientReferenceNumber)
         {
             var (healthId, exception) =
-                await linkPatientRepository.GetHealthID(addContextsRequest.ReferenceNumber);
+                await linkPatientRepository.GetHealthID(patientReferenceNumber);
             var (accessToken, error) = await userAuthRepository.GetAccessToken(healthId);
             return accessToken;
         }
