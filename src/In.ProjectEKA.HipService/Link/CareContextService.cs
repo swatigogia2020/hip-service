@@ -11,7 +11,10 @@ using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Link.Model;
 using In.ProjectEKA.HipService.UserAuth;
 using In.ProjectEKA.HipService.UserAuth.Model;
+using Newtonsoft.Json;
+using Optional.Unsafe;
 using HiType = In.ProjectEKA.HipService.Common.Model.HiType;
+using Identifier = In.ProjectEKA.HipService.UserAuth.Model.Identifier;
 
 namespace In.ProjectEKA.HipService.Link
 {
@@ -23,7 +26,9 @@ namespace In.ProjectEKA.HipService.Link
         private readonly IUserAuthRepository userAuthRepository;
         private readonly BahmniConfiguration bahmniConfiguration;
         private readonly ILinkPatientRepository linkPatientRepository;
-        public CareContextService(HttpClient httpClient, IUserAuthRepository userAuthRepository, BahmniConfiguration bahmniConfiguration, ILinkPatientRepository linkPatientRepository)
+
+        public CareContextService(HttpClient httpClient, IUserAuthRepository userAuthRepository,
+            BahmniConfiguration bahmniConfiguration, ILinkPatientRepository linkPatientRepository)
         {
             this.httpClient = httpClient;
             this.userAuthRepository = userAuthRepository;
@@ -50,10 +55,47 @@ namespace In.ProjectEKA.HipService.Link
         {
             var (healthId, exception) =
                 await linkPatientRepository.GetHealthID(patientReferenceNumber);
+
+            await CallAuthInit(healthId);
+            await CallAuthConfirm(healthId);
+
             var (accessToken, error) = await userAuthRepository.GetAccessToken(healthId);
             return accessToken;
         }
-        
+        private async Task CallAuthConfirm(string healthId)
+        {
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, HIP_URL + PATH_HIP_AUTH_CONFIRM);
+                var ndhmDemographics = (userAuthRepository.GetDemographics(healthId).Result).ValueOrDefault();
+                var identifier = new Identifier(MOBILE, ndhmDemographics.PhoneNumber);
+                var demographics = new Demographics(ndhmDemographics.Name, ndhmDemographics.Gender,
+                    ndhmDemographics.DateOfBirth, identifier);
+                var authConfirmRequest = new AuthConfirmRequest(null, healthId, demographics);
+                request.Content = new StringContent(JsonConvert.SerializeObject(authConfirmRequest),
+                    Encoding.UTF8, "application/json");
+                await httpClient.SendAsync(request).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+        private async Task CallAuthInit(string healthId)
+        {
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, HIP_URL + PATH_HIP_AUTH_INIT);
+                var authInitRequest = new AuthInitRequest(healthId, "DEMOGRAPHICS", "KYC_AND_LINK");
+                request.Content = new StringContent(JsonConvert.SerializeObject(authInitRequest), Encoding.UTF8,
+                    "application/json");
+                await httpClient.SendAsync(request).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
         
         public Tuple<GatewayNotificationContextRepresentation, ErrorRepresentation> NotificationContextResponse(
             NotifyContextRequest notifyContextRequest)

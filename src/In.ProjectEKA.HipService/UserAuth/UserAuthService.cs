@@ -73,7 +73,10 @@ namespace In.ProjectEKA.HipService.UserAuth
             if (!((IsValidHealthId(healthId) || IsValidHealthNumber(healthId)) && IsPresentInMap(healthId)))
                 return new Tuple<GatewayAuthConfirmRequestRepresentation, ErrorRepresentation>
                     (null, new ErrorRepresentation(new Error(ErrorCode.InvalidHealthId, "HealthId is invalid")));
-            var credential = new AuthConfirmCredential(GetDecodedOtp(authConfirmRequest.authCode));
+            var credential = authConfirmRequest.Demographic == null
+                ? new AuthConfirmCredential(GetDecodedOtp(authConfirmRequest.authCode), null)
+                : new AuthConfirmCredential(null, authConfirmRequest.Demographic);
+
             var transactionId = UserAuthMap.HealthIdToTransactionId[healthId];
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
@@ -90,6 +93,7 @@ namespace In.ProjectEKA.HipService.UserAuth
 
         private static string GetDecodedOtp(String authCode)
         {
+            if (authCode == null) return null;
             var decodedOtp = Convert.FromBase64String(authCode);
             var otp = Encoding.UTF8.GetString(decodedOtp);
             return otp;

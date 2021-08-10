@@ -29,6 +29,14 @@ namespace In.ProjectEKA.HipService.UserAuth
             return Option.Some<AuthConfirm>(authConfirm);
         }
 
+        public async Task<Option<NdhmDemographics>> GetDemographics(string healthId)
+        {
+            var ndhmDemographics = await ndhmDemographicsContext.NdhmDemographics
+                .FirstOrDefaultAsync(c =>
+                    c.HealthId == healthId).ConfigureAwait(false);
+            return Option.Some(ndhmDemographics);
+        }
+
         public async Task<Option<AuthConfirm>> Add(AuthConfirm authConfirm)
         {
             try
