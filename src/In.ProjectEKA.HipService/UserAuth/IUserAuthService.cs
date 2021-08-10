@@ -20,5 +20,7 @@ namespace In.ProjectEKA.HipService.UserAuth
 
         public Task<Tuple<AuthConfirm, ErrorRepresentation>> OnAuthConfirmResponse(
             OnAuthConfirmRequest onAuthConfirmRequest);
+
+        public Task Dump(NdhmDemographics ndhmDemographics);
     }
 }
