@@ -376,18 +376,5 @@ namespace In.ProjectEKA.HipService.UserAuth
 
             return StatusCode(StatusCodes.Status200OK);
         }
-
-        [Route(PATH_ADD_NDHM_DEMOGRAPHICS)]
-        public async Task SetDemographicDetails(
-            [FromBody] NDHMDemographicRequest ndhmDemographicRequest)
-        {
-            var healthId = ndhmDemographicRequest.HealthId;
-            var name = ndhmDemographicRequest.Name;
-            var gender = ndhmDemographicRequest.Gender;
-            var dateOfBirth = ndhmDemographicRequest.DateOfBirth;
-            var phoneNumber = ndhmDemographicRequest.PhoneNumber;
-            var ndhmDemographics = new NdhmDemographics(healthId, name, gender, dateOfBirth, phoneNumber);
-            await userAuthService.Dump(ndhmDemographics);
-        }
     }
 }

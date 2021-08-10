@@ -90,9 +90,6 @@ namespace In.ProjectEKA.HipService
                 .AddDbContext<AuthContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
-                .AddDbContext<NdhmDemographicsContext>(options =>
-                    options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
-                        x => x.MigrationsAssembly("In.ProjectEKA.HipService")))
                 .AddDbContext<DiscoveryContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                         x => x.MigrationsAssembly("In.ProjectEKA.HipService")))

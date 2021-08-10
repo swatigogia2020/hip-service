@@ -134,9 +134,5 @@ namespace In.ProjectEKA.HipService.UserAuth
             UserAuthMap.RequestIdToPatientDetails.Add(requestId, onAuthConfirmRequest.auth.patient);
             return new Tuple<AuthConfirm, ErrorRepresentation>(authConfirm, null);
         }
-        public async Task Dump(NdhmDemographics ndhmDemographics)
-        {
-            await userAuthRepository.AddDemographics(ndhmDemographics).ConfigureAwait(false);
-        }
     }
 }

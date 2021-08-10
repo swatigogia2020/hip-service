@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipService.UserAuth.Database;
-using In.ProjectEKA.HipService.UserAuth.Model;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 using Serilog;
@@ -11,12 +10,10 @@ namespace In.ProjectEKA.HipService.UserAuth
     public class UserAuthRepository : IUserAuthRepository
     {
         private readonly AuthContext authContext;
-        private readonly NdhmDemographicsContext ndhmDemographicsContext;
 
-        public UserAuthRepository(AuthContext authContext, NdhmDemographicsContext ndhmDemographicsContext)
+        public UserAuthRepository(AuthContext authContext)
         {
             this.authContext = authContext;
-            this.ndhmDemographicsContext = ndhmDemographicsContext;
         }
 
         public async Task<Option<AuthConfirm>> Get(string healthId)
@@ -42,27 +39,6 @@ namespace In.ProjectEKA.HipService.UserAuth
             {
                 Log.Fatal(e, e.StackTrace);
                 return Option.None<AuthConfirm>();
-            }
-        }
-
-        public async Task<Option<NdhmDemographics>> AddDemographics(NdhmDemographics ndhmDemographics)
-        {
-            try
-            {
-                var result = await ndhmDemographicsContext.NdhmDemographics
-                    .FirstOrDefaultAsync(c =>
-                        c.HealthId == ndhmDemographics.HealthId).ConfigureAwait(false);
-                if (result != null) return Option.None<NdhmDemographics>();
-                await ndhmDemographicsContext.NdhmDemographics.AddAsync(ndhmDemographics).ConfigureAwait(false);
-                await ndhmDemographicsContext.SaveChangesAsync();
-                ndhmDemographicsContext.Entry(ndhmDemographics).State = EntityState.Detached;
-                return Option.Some(ndhmDemographics);
-
-            }
-            catch (Exception e)
-            {
-                Log.Fatal(e, e.StackTrace);
-                return Option.None<NdhmDemographics>();
             }
         }
 
