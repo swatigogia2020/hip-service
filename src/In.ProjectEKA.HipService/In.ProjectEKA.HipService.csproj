@@ -64,6 +64,7 @@
     </ItemGroup>
     
     <ItemGroup>
+      <Folder Include="Migrations" />
       <Folder Include="OpenMrs\" />
       <Folder Include="OpenMrs\Mappings\" />
     </ItemGroup>
