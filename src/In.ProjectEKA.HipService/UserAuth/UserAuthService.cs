@@ -135,9 +135,19 @@ namespace In.ProjectEKA.HipService.UserAuth
             UserAuthMap.HealthIdToTransactionId.Remove(healthId);
             var requestId = Guid.Parse(onAuthConfirmRequest.resp.RequestId);
             UserAuthMap.RequestIdToAccessToken.Add(requestId, accessToken);
+            if (UserAuthMap.HealthIdToAccessToken.ContainsKey(healthId))
+            {
+                UserAuthMap.HealthIdToAccessToken[healthId] = accessToken;
+            }
+            else
+            {
+                UserAuthMap.HealthIdToAccessToken.Add(healthId, accessToken);
+            }
+
             UserAuthMap.RequestIdToPatientDetails.Add(requestId, onAuthConfirmRequest.auth.patient);
             return new Tuple<AuthConfirm, ErrorRepresentation>(authConfirm, null);
         }
+
         public async Task Dump(NdhmDemographics ndhmDemographics)
         {
             await userAuthRepository.AddDemographics(ndhmDemographics).ConfigureAwait(false);

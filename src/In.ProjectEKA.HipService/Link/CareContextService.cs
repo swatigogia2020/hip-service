@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient.Model;
@@ -51,16 +51,38 @@ namespace In.ProjectEKA.HipService.Link
                 (new GatewayAddContextsRequestRepresentation(requestId, timeStamp, link), null);
         }
 
+        private bool IsExpired(string accessToken)
+        {
+            var token = new JwtSecurityTokenHandler().ReadToken(accessToken) as JwtSecurityToken;
+            var expInUnixTimeStamp = token?.Claims.First(c => c.Type == "exp").Value;
+            var exp = DateTimeOffset
+                .FromUnixTimeSeconds(long.Parse(expInUnixTimeStamp ?? throw new InvalidOperationException()))
+                .LocalDateTime;
+            return DateTime.Compare(exp, DateTime.Now.ToLocalTime()) < 0;
+        }
+
+        public async Task SetAccessToken(string patientReferenceNumber)
+        {
+            var (healthId, exception) =
+                await linkPatientRepository.GetHealthID(patientReferenceNumber);
+            if (!UserAuthMap.HealthIdToAccessToken.TryGetValue(healthId, out _))
+            {
+                var (accessToken, error) = await userAuthRepository.GetAccessToken(healthId);
+                UserAuthMap.HealthIdToAccessToken.Add(healthId, accessToken);
+            }
+
+            if (IsExpired(UserAuthMap.HealthIdToAccessToken[healthId]))
+            {
+                await CallAuthInit(healthId);
+                await CallAuthConfirm(healthId);
+            }
+        }
+
         private async Task<string> GetAccessToken(string patientReferenceNumber)
         {
             var (healthId, exception) =
                 await linkPatientRepository.GetHealthID(patientReferenceNumber);
-
-            await CallAuthInit(healthId);
-            await CallAuthConfirm(healthId);
-
-            var (accessToken, error) = await userAuthRepository.GetAccessToken(healthId);
-            return accessToken;
+            return UserAuthMap.HealthIdToAccessToken[healthId];
         }
         private async Task CallAuthConfirm(string healthId)
         {
@@ -146,7 +168,7 @@ namespace In.ProjectEKA.HipService.Link
                 newContextRequest.CareContexts,
                 newContextRequest.PatientName);
 
-            request.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(addContextRequest),
+            request.Content = new StringContent(JsonConvert.SerializeObject(addContextRequest),
                 Encoding.UTF8, "application/json");
             await httpClient.SendAsync(request).ConfigureAwait(false);
         }

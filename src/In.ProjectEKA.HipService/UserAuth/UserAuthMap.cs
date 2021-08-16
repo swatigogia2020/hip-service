@@ -13,5 +13,6 @@ namespace In.ProjectEKA.HipService.UserAuth
         public static Dictionary<string, string> HealthIdToTransactionId = new Dictionary<string, string>();
         public static Dictionary<Guid, AuthConfirmPatient> RequestIdToPatientDetails = new Dictionary<Guid, AuthConfirmPatient>();
         public static Dictionary<Guid, Error> RequestIdToErrorMessage = new Dictionary<Guid, Error>();
+        public static Dictionary<string, string> HealthIdToAccessToken = new Dictionary<string, string>();
     }
 }
