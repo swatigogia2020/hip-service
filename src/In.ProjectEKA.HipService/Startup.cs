@@ -1,5 +1,6 @@
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Link.Model;
+using In.ProjectEKA.HipService.SmsNotification;
 using In.ProjectEKA.HipService.UserAuth;
 using In.ProjectEKA.HipService.UserAuth.Database;
 
@@ -116,6 +117,7 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<IPatientDiscovery, PatientDiscovery>()
                 .AddScoped<IUserAuthService,UserAuthService>()
                 .AddScoped<ICareContextService,CareContextService>()
+                .AddScoped<ISmsNotificationService,SmsNotificationService>()
                 .AddScoped<LinkPatient>()
                 .AddScoped<ReferenceNumberGenerator>()
                 .AddSingleton(Configuration)
