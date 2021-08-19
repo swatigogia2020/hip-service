@@ -40,7 +40,7 @@ namespace In.ProjectEKA.HipServiceTest.SmsNotification
         }
 
         [Fact]
-        private void shouldSendSMSNotificationForNewCareContext()
+        private void shouldSendSMSNotificationForNewCareContextAndReturnAccepted()
         {
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
@@ -49,15 +49,15 @@ namespace In.ProjectEKA.HipServiceTest.SmsNotification
             var cmSuffix = "sbx";
             var correlationId = Uuid.Generate().ToString();
             var smsNotificationAcknowledgement = new SmsNotificationAcknowledgement("success");
-            
+
             var onSmsContextRequest =
                 new SmsContextConfirmation(requestId.ToString(), timeStamp, smsNotificationAcknowledgement, error,
                     resp);
-            
+
             var gatewaySmsNotifyRequestRepresentation = new GatewaySmsNotifyRepresentation(requestId, timeStamp,
                 new HipService.SmsNotification.Model.SmsNotification("123456789", "abc", "xyz", "url",
                     new SmsNotifyHip("anc", "123")));
-           
+
             gatewayClient.Setup(
                     client =>
                         client.SendDataToGateway(PATH_SMS_NOTIFY,
@@ -66,6 +66,97 @@ namespace In.ProjectEKA.HipServiceTest.SmsNotification
                 .Callback<string, GatewaySmsNotifyRepresentation, string, string>
                 ((path, gr, suffix, corId)
                     => smsNotificationController.Accepted(onSmsContextRequest));
+        }
+
+        [Fact]
+        private void shouldSendSMSNotificationForNewCareContextAndReturnRejected()
+        {
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requestId = Guid.NewGuid();
+            var cmSuffix = "abc";
+            var correlationId = Uuid.Generate().ToString();
+
+            var gatewaySmsNotifyRequestRepresentation = new GatewaySmsNotifyRepresentation(requestId, timeStamp,
+                new HipService.SmsNotification.Model.SmsNotification("123456789", "abc", "xyz", "url",
+                    new SmsNotifyHip("anc", "123")));
+
+            gatewayClient.Setup(
+                    client =>
+                        client.SendDataToGateway(PATH_SMS_NOTIFY,
+                            gatewaySmsNotifyRequestRepresentation, cmSuffix, correlationId))
+                .Returns(Task.CompletedTask)
+                .Callback<string, GatewaySmsNotifyRepresentation, string, string>
+                ((path, gr, suffix, corId)
+                    => smsNotificationController.Problem());
+        }
+
+        [Fact]
+        private bool shouldReturnGatewayRequestObject()
+        {
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requestId = Guid.NewGuid();
+            var cmSuffix = "sbx";
+
+            var gatewaySmsNotifyRequestRepresentation = new GatewaySmsNotifyRepresentation(requestId, timeStamp,
+                new HipService.SmsNotification.Model.SmsNotification("123456789", "abc", "xyz", "url",
+                    new SmsNotifyHip("anc", "123")));
+            if (gatewaySmsNotifyRequestRepresentation != null)
+                return true;
+            return false;
+        }
+
+        [Fact]
+        private bool shouldReturnOnSmsNotifyRequest()
+        {
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requestId = Guid.NewGuid();
+            var error = new Error(ErrorCode.GatewayTimedOut, "Gateway timed out");
+            var resp = new Resp("123");
+            var cmSuffix = "sbx";
+            var correlationId = Uuid.Generate().ToString();
+            var smsNotificationAcknowledgement = new SmsNotificationAcknowledgement("success");
+
+            var onSmsNotify =
+                new OnSmsNotifyRequest(requestId, timeStamp, "Ok", error, resp);
+            if (onSmsNotify != null)
+                return true;
+            return false;
+        }
+
+        [Fact]
+        private bool shouldReturnSmsNotification()
+        {
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requestId = Guid.NewGuid();
+            var error = new Error(ErrorCode.GatewayTimedOut, "Gateway timed out");
+            var resp = new Resp("123");
+            var cmSuffix = "sbx";
+            var correlationId = Uuid.Generate().ToString();
+            var smsNotificationAcknowledgement = new SmsNotificationAcknowledgement("success");
+
+            var smsNotification =
+                new HipService.SmsNotification.Model.SmsNotification("123456789", "abs", "xyz", "url",
+                    new SmsNotifyHip("anc", "123"));
+            if (smsNotification != null)
+                return true;
+            return false;
+        }
+        
+        [Fact]
+        private AcceptedResult shouldReturnOnSmsRequestObjectAndReturnAccepted()
+        {
+            var timeStamp = DateTime.Now.ToUniversalTime();
+            var requestId = Guid.NewGuid();
+            var error = new Error(ErrorCode.GatewayTimedOut, "Gateway timed out");
+            var resp = new Resp("123");
+            var cmSuffix = "sbx";
+            var correlationId = Uuid.Generate().ToString();
+            var smsNotificationAcknowledgement = new SmsNotificationAcknowledgement("success");
+
+            var onSmsNotifyRequest =
+                new OnSmsNotifyRequest(requestId, timeStamp, "Ok", error, resp);
+
+            return new AcceptedResult();
         }
     }
 }

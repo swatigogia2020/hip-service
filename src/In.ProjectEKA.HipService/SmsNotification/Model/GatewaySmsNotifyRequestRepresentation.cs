@@ -14,13 +14,11 @@ namespace In.ProjectEKA.HipService.SmsNotification.Model
             this.requestId = requestId;
             this.timestamp = timestamp;
             this.notification = notification;
-            
         }
-        
+
         public string dump(Object o)
         {
             return JsonConvert.SerializeObject(o);
         }
-        
     }
 }

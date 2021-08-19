@@ -17,10 +17,5 @@ namespace In.ProjectEKA.HipService.SmsNotification.Model
             SmsNotification = smsNotification;
         }
 
-        public string dump(Object o)
-        {
-            return JsonConvert.SerializeObject(o);
-        }
-        
     }
 }
