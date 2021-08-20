@@ -155,23 +155,23 @@ namespace In.ProjectEKA.HipService.UserAuth
         public async Task<ActionResult> GetTransactionId(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthInitRequest authInitRequest)
         {
-            if (Request != null)
-            {
-                if (Request.Cookies.ContainsKey(REPORTING_SESSION))
-                {
-                    string sessionId = Request.Cookies[REPORTING_SESSION];
-
-                    Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
-                    if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
-                    {
-                        return statusCodeResult.Result;
-                    }
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status401Unauthorized);
-                }
-            }
+            // if (Request != null)
+            // {
+            //     if (Request.Cookies.ContainsKey(REPORTING_SESSION))
+            //     {
+            //         string sessionId = Request.Cookies[REPORTING_SESSION];
+            //
+            //         Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
+            //         if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
+            //         {
+            //             return statusCodeResult.Result;
+            //         }
+            //     }
+            //     else
+            //     {
+            //         return StatusCode(StatusCodes.Status401Unauthorized);
+            //     }
+            // }
 
             var (gatewayAuthInitRequestRepresentation, error) =
                 userAuthService.AuthInitResponse(authInitRequest, bahmniConfiguration);
@@ -262,23 +262,23 @@ namespace In.ProjectEKA.HipService.UserAuth
         public async Task<ActionResult> GetAccessToken(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AuthConfirmRequest authConfirmRequest)
         {
-            if (Request != null)
-            {
-                if (Request.Cookies.ContainsKey(REPORTING_SESSION))
-                {
-                    string sessionId = Request.Cookies[REPORTING_SESSION];
-
-                    Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
-                    if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
-                    {
-                        return statusCodeResult.Result;
-                    }
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status401Unauthorized);
-                }
-            }
+            // if (Request != null)
+            // {
+            //     if (Request.Cookies.ContainsKey(REPORTING_SESSION))
+            //     {
+            //         string sessionId = Request.Cookies[REPORTING_SESSION];
+            //
+            //         Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
+            //         if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
+            //         {
+            //             return statusCodeResult.Result;
+            //         }
+            //     }
+            //     else
+            //     {
+            //         return StatusCode(StatusCodes.Status401Unauthorized);
+            //     }
+            // }
 
             var (gatewayAuthConfirmRequestRepresentation, error) =
                 userAuthService.AuthConfirmResponse(authConfirmRequest);

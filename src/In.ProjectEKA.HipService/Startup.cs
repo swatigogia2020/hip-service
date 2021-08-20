@@ -59,7 +59,7 @@ namespace In.ProjectEKA.HipService
                     cert,
                     chain,
                     sslPolicyErrors) => true
-            };            
+            };
             HttpClient = new HttpClient(clientHandler)
             {
                 Timeout = TimeSpan.FromSeconds(Configuration.GetSection("Gateway:timeout").Get<int>())
@@ -114,8 +114,8 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<ICareContextRepository, OpenMrsCareContextRepository>()
                 .AddScoped<IDiscoveryRequestRepository, DiscoveryRequestRepository>()
                 .AddScoped<IPatientDiscovery, PatientDiscovery>()
-                .AddScoped<IUserAuthService,UserAuthService>()
-                .AddScoped<ICareContextService,CareContextService>()
+                .AddScoped<IUserAuthService, UserAuthService>()
+                .AddScoped<ICareContextService, CareContextService>()
                 .AddScoped<LinkPatient>()
                 .AddScoped<ReferenceNumberGenerator>()
                 .AddSingleton(Configuration)
@@ -140,6 +140,7 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<IHealthInformationRepository, HealthInformationRepository>()
                 .AddSingleton(Configuration.GetSection("Gateway").Get<GatewayConfiguration>())
                 .AddSingleton(Configuration.GetSection("Bahmni").Get<BahmniConfiguration>())
+                .AddSingleton(Configuration.GetSection("Hip-Service").Get<HipConfiguration>())
                 .AddSingleton(Configuration.GetSection("Cors").Get<CorsConfiguration>())
                 .AddSingleton(new GatewayClient(HttpClient,
                     Configuration.GetSection("Gateway").Get<GatewayConfiguration>()))
@@ -148,9 +149,9 @@ namespace In.ProjectEKA.HipService
                 .AddSingleton(new OpenMrsClient(HttpClient,
                     Configuration.GetSection("OpenMrs").Get<OpenMrsConfiguration>()))
                 .AddScoped<IOpenMrsClient, OpenMrsClient>()
-                .AddScoped<IOpenMrsPatientData,OpenMrsPatientData>()
-                .AddScoped<IUserAuthRepository,UserAuthRepository>()
-                .AddSingleton<ICollectHipService,CollectHipService>()
+                .AddScoped<IOpenMrsPatientData, OpenMrsPatientData>()
+                .AddScoped<IUserAuthRepository, UserAuthRepository>()
+                .AddSingleton<ICollectHipService, CollectHipService>()
                 .AddScoped<IPatientDal, FhirDiscoveryDataSource>()
                 .AddScoped<IPhoneNumberRepository, OpenMrsPhoneNumberRepository>()
                 .AddTransient<IDataFlow, DataFlow.DataFlow>()

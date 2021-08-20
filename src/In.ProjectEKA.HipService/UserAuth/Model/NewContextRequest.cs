@@ -7,7 +7,7 @@ namespace In.ProjectEKA.HipService.UserAuth.Model
     {
         public string PatientReferenceNumber { get; }
         public string PatientName { get; }
-        
+
         public string HealthId { get; }
 
         public List<CareContextRepresentation> CareContexts { get; }

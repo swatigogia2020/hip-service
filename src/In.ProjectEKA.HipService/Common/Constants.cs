@@ -56,9 +56,6 @@ namespace In.ProjectEKA.HipService.Common
         public const string REPORTING_SESSION = "reporting_session";
         public const string OPENMRS_SESSION_ID_COOKIE_NAME = "JSESSIONID";
         public const string WHO_AM_I = "/ws/rest/v1/bahmnicore/whoami";
-        public const string PROTOCOL = "https";
-        public const string NDHM_URL = "/ndhm-dev.bahmni-covid19.in";
-        public const string HIP_URL = PROTOCOL + ":/" + NDHM_URL + "/hiprovider";
 
         public const string MOBILE = "MOBILE";
     }
