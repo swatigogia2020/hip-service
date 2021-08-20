@@ -1,3 +1,7 @@
 fileignoreconfig:
 - filename: gatewayStubConfigurations/imposters/notifyContextResponse.ejs
   checksum: 9987fe10d1d63588b41248f41684932b4f0e5e074ffe373733e6eb497a0f7e8a
+  
+- filename: gatewayStubConfigurations/imposters/authConfirmResponse.ejs
+  checksum: dfac424e048d3b28a6d7898c3ecd538995377f7116846ac9625caa6eeefd9953
+
