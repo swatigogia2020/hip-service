@@ -50,23 +50,23 @@ namespace In.ProjectEKA.HipService.SmsNotification
         [Route(PATH_HIP_SMS_NOTIFY)]
         public async Task<ActionResult> SendSMSNotification([FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] SmsNotifyRequest smsNotifyRequest)
         {
-            // if (Request != null)
-            // {
-            //     if (Request.Cookies.ContainsKey(REPORTING_SESSION))
-            //     {
-            //         string sessionId = Request.Cookies[REPORTING_SESSION];
-            //
-            //         Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
-            //         if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
-            //         {
-            //             return statusCodeResult.Result;
-            //         }
-            //     }
-            //     else
-            //     {
-            //         return StatusCode(StatusCodes.Status401Unauthorized);
-            //     }
-            // }
+            if (Request != null)
+            {
+                if (Request.Cookies.ContainsKey(REPORTING_SESSION))
+                {
+                    string sessionId = Request.Cookies[REPORTING_SESSION];
+            
+                    Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
+                    if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
+                    {
+                        return statusCodeResult.Result;
+                    }
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized);
+                }
+            }
 
             var (gatewaySmsNotifyRequestRepresentation, error) =
                 _smsNotificationService.SmsNotifyRequest(smsNotifyRequest, bahmniConfiguration);
