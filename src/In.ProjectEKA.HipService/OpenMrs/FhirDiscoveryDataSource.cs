@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using Microsoft.VisualBasic;
+using Serilog;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
@@ -16,7 +19,36 @@ namespace In.ProjectEKA.HipService.OpenMrs
             this.openMrsClient = openMrsClient;
         }
 
-        public async Task<List<Patient>> LoadPatientsAsync(string name, AdministrativeGender? gender, string yearOfBirth)
+        private async Task<List<Patient>> addPatientToList(string path) {
+            var patients = new List<Patient>();
+            var response = await openMrsClient.GetAsync(path);
+            var content = await response.Content.ReadAsStringAsync();
+            var bundle = new FhirJsonParser().Parse<Bundle>(content);
+            bundle.Entry.ForEach(entry =>
+            {
+                if (entry.Resource.ResourceType.Equals(ResourceType.Patient))
+                {
+                    patients.Add((Patient) entry.Resource);
+                }
+            });
+            return patients;
+        }
+
+        public Task<List<Patient>> LoadPatientsAsyncWithId(string id)
+        {
+            var path = DiscoveryPathConstants.OnPatientPath;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+
+            if (!string.IsNullOrEmpty(id)) {
+                query["identifier"]=id;
+            }
+            if (query.ToString() != ""){
+                path = $"{path}?{query}";
+            }
+            return addPatientToList(path);;
+        }
+
+        public Task<List<Patient>> LoadPatientsAsyncWithDemographics(string name, AdministrativeGender? gender, string yearOfBirth)
         {
             var path = DiscoveryPathConstants.OnPatientPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
@@ -32,20 +64,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             if (query.ToString() != ""){
                 path = $"{path}?{query}";
             }
-
-            var patients = new List<Patient>();
-            var response = await openMrsClient.GetAsync(path);
-            var content = await response.Content.ReadAsStringAsync();
-            var bundle = new FhirJsonParser().Parse<Bundle>(content);
-            bundle.Entry.ForEach(entry =>
-            {
-                if (entry.Resource.ResourceType.Equals(ResourceType.Patient))
-                {
-                    patients.Add((Patient) entry.Resource);
-                }
-            });
-
-            return patients;
+            return addPatientToList(path);
         }
 
         public async Task<Patient> LoadPatientAsync(string patientId) {

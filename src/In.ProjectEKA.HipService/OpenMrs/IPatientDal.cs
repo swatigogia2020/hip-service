@@ -6,8 +6,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
     using Hl7.Fhir.Model;
     public interface IPatientDal
     {
-        Task<List<Patient>> LoadPatientsAsync(string name, AdministrativeGender? gender, string yearOfBirth);
-        Task<Patient> LoadPatientAsync(string id);
+        Task<List<Patient>> LoadPatientsAsyncWithDemographics(string name, AdministrativeGender? gender, string yearOfBirth);
+        Task<List<Patient>> LoadPatientsAsyncWithId(string id);
         Task<Patient> LoadPatientAsyncWithIdentifier(string patientIdentifier);
     }
 }
