@@ -1,28 +1,27 @@
 using System;
 using System.Collections.Generic;
-using In.ProjectEKA.HipService.Common.Model;
 
 namespace In.ProjectEKA.HipService.Link.Model
 {
     public class NotificationContext
     {
-        public Patient Patient { get; }
+        public NotificationPatientContext Patient { get; }
 
         public NotificationCareContext NotificationCareContext { get; }
 
-        public List<string> HiType { get; }
+        public List<string> HiTypes { get; }
 
         public DateTime Date { get; }
 
-        public HIPReference Hip { get; }
+        public NotificationContextHip Hip { get; }
 
 
-        public NotificationContext(Patient patient, NotificationCareContext notificationCareContext,
-            List<string> hiType, DateTime dateTime, HIPReference hip)
+        public NotificationContext(NotificationPatientContext patient, NotificationCareContext notificationCareContext,
+            List<string> hiTypes, DateTime dateTime, NotificationContextHip hip)
         {
             Patient = patient;
             NotificationCareContext = notificationCareContext;
-            HiType = hiType;
+            HiTypes = hiTypes;
             Date = dateTime;
             Hip = hip;
         }

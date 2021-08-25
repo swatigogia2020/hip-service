@@ -160,7 +160,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                 if (Request.Cookies.ContainsKey(REPORTING_SESSION))
                 {
                     string sessionId = Request.Cookies[REPORTING_SESSION];
-
+            
                     Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
                     if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
                     {
@@ -267,7 +267,7 @@ namespace In.ProjectEKA.HipService.UserAuth
                 if (Request.Cookies.ContainsKey(REPORTING_SESSION))
                 {
                     string sessionId = Request.Cookies[REPORTING_SESSION];
-
+            
                     Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
                     if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
                     {

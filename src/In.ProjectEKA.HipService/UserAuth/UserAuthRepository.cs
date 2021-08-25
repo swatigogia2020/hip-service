@@ -29,6 +29,14 @@ namespace In.ProjectEKA.HipService.UserAuth
             return Option.Some<AuthConfirm>(authConfirm);
         }
 
+        public async Task<Option<NdhmDemographics>> GetDemographics(string healthId)
+        {
+            var ndhmDemographics = await ndhmDemographicsContext.NdhmDemographics
+                .FirstOrDefaultAsync(c =>
+                    c.HealthId == healthId).ConfigureAwait(false);
+            return Option.Some(ndhmDemographics);
+        }
+
         public async Task<Option<AuthConfirm>> Add(AuthConfirm authConfirm)
         {
             try
@@ -78,6 +86,22 @@ namespace In.ProjectEKA.HipService.UserAuth
             {
                 Log.Fatal(e, e.StackTrace);
                 return false;
+            }
+        }
+
+        public async Task<Tuple<string, Exception>> GetAccessToken(
+            string healthId)
+        {
+            try
+            {
+                var authRequest = await authContext.AuthConfirm
+                    .FirstOrDefaultAsync(request => request.HealthId.Equals(healthId));
+                return new Tuple<string, Exception>(authRequest.AccessToken, null);
+            }
+            catch (Exception exception)
+            {
+                Log.Fatal(exception, exception.StackTrace);
+                return new Tuple<string, Exception>(null, exception);
             }
         }
     }

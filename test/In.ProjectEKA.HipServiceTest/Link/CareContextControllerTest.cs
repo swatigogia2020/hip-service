@@ -7,6 +7,8 @@ using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link;
 using In.ProjectEKA.HipService.Link.Model;
+using In.ProjectEKA.HipService.UserAuth;
+using In.ProjectEKA.HipService.UserAuth.Model;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -26,17 +28,20 @@ namespace In.ProjectEKA.HipServiceTest.Link
 
         private readonly Mock<GatewayClient> gatewayClient = new Mock<GatewayClient>(MockBehavior.Strict, null, null);
         private readonly Mock<ICareContextService> careContextService = new Mock<ICareContextService>();
+        private readonly Mock<ILinkPatientRepository> linkPatientRepository = new Mock<ILinkPatientRepository>();
+        private readonly Mock<HttpClient> httpClient = new Mock<HttpClient>();
+        private readonly Mock<IUserAuthRepository> userAuthRepository = new Mock<IUserAuthRepository>();
 
         private readonly GatewayConfiguration gatewayConfiguration = new GatewayConfiguration()
         {
             CmSuffix = "sbx"
         };
-        
+
         public CareContextControllerTest()
         {
             careContextController =
                 new CareContextController(gatewayClient.Object,
-                    logger.Object, gatewayConfiguration, careContextService.Object);
+                    logger.Object, gatewayConfiguration, careContextService.Object, linkPatientRepository.Object);
         }
 
         [Fact]
@@ -92,9 +97,9 @@ namespace In.ProjectEKA.HipServiceTest.Link
             var onNotifyContextRequest =
                 new HipLinkContextConfirmation(requestId.ToString(), timeStamp, addContextsAcknowledgement, error,
                     resp);
-            var patient = new Patient("12");
+            var patient = new NotificationPatientContext("12");
             var notificationCareContext = new NotificationCareContext("abc", "qqwq");
-            var hipReference = new HIPReference("1212");
+            var hipReference = new NotificationContextHip("1212");
             var gatewayNotificationContextsRequestRepresentation =
                 new GatewayNotificationContextRepresentation(requestId, timeStamp,
                     new NotificationContext(patient, notificationCareContext, hiTypes, new DateTime(), hipReference));
@@ -115,6 +120,26 @@ namespace In.ProjectEKA.HipServiceTest.Link
                 .Callback<string, GatewayNotificationContextRepresentation, string, string>
                 ((path, gr, suffix, corId)
                     => careContextController.Accepted(onNotifyContextRequest));
+        }
+
+        [Fact]
+        private void ShouldCallAddContextApi()
+        {
+            var careContexts = new List<CareContextRepresentation>
+            {
+                new CareContextRepresentation("3", "IPD")
+            };
+            var newContextRequest = new NewContextRequest("GAN204041", "some",
+                careContexts, "hinapatel@sbx");
+            var linkedCareContexts = new List<string> {"OPD", "Special OPD"};
+
+            linkPatientRepository.Setup(e => e.GetLinkedCareContextsOfPatient(newContextRequest.PatientReferenceNumber))
+                .ReturnsAsync(new Tuple<List<string>, Exception>(linkedCareContexts, null));
+            careContextService.Setup(e => e.IsLinkedContext(linkedCareContexts, careContexts[0].Display))
+                .Returns(false);
+            careContextController.PassContext(newContextRequest);
+
+            careContextService.Verify(a => a.CallAddContext(newContextRequest), Times.Exactly(1));
         }
     }
 }

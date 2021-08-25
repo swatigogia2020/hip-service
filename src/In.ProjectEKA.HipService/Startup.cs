@@ -60,7 +60,7 @@ namespace In.ProjectEKA.HipService
                     cert,
                     chain,
                     sslPolicyErrors) => true
-            };            
+            };
             HttpClient = new HttpClient(clientHandler)
             {
                 Timeout = TimeSpan.FromSeconds(Configuration.GetSection("Gateway:timeout").Get<int>())
@@ -118,6 +118,8 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<IUserAuthService,UserAuthService>()
                 .AddScoped<ICareContextService,CareContextService>()
                 .AddScoped<ISmsNotificationService,SmsNotificationService>()
+                .AddScoped<IUserAuthService, UserAuthService>()
+                .AddScoped<ICareContextService, CareContextService>()
                 .AddScoped<LinkPatient>()
                 .AddScoped<ReferenceNumberGenerator>()
                 .AddSingleton(Configuration)
@@ -150,9 +152,9 @@ namespace In.ProjectEKA.HipService
                 .AddSingleton(new OpenMrsClient(HttpClient,
                     Configuration.GetSection("OpenMrs").Get<OpenMrsConfiguration>()))
                 .AddScoped<IOpenMrsClient, OpenMrsClient>()
-                .AddScoped<IOpenMrsPatientData,OpenMrsPatientData>()
-                .AddScoped<IUserAuthRepository,UserAuthRepository>()
-                .AddSingleton<ICollectHipService,CollectHipService>()
+                .AddScoped<IOpenMrsPatientData, OpenMrsPatientData>()
+                .AddScoped<IUserAuthRepository, UserAuthRepository>()
+                .AddSingleton<ICollectHipService, CollectHipService>()
                 .AddScoped<IPatientDal, FhirDiscoveryDataSource>()
                 .AddScoped<IPhoneNumberRepository, OpenMrsPhoneNumberRepository>()
                 .AddTransient<IDataFlow, DataFlow.DataFlow>()

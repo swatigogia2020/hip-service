@@ -30,6 +30,12 @@ namespace In.ProjectEKA.HipService.Link
 
         Task<Tuple<IEnumerable<LinkedAccounts>, Exception>> GetLinkedCareContexts(string consentManagerUserId);
 
+        Task<Tuple<List<string>, Exception>> GetLinkedCareContextsOfPatient(
+            string patientReferenceNumber);
+        
+        Task<Tuple<string, Exception>> GetHealthID(
+            string patientReferenceNumber);
+
         Task<Option<InitiatedLinkRequest>> Save(string requestId, string transactionId, string linkReferenceNumber);
 
         Task<Option<IEnumerable<InitiatedLinkRequest>>> Get(string linkReferenceNumber);
