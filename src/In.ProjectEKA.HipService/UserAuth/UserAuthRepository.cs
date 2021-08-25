@@ -80,5 +80,21 @@ namespace In.ProjectEKA.HipService.UserAuth
                 return false;
             }
         }
+
+        public async Task<Tuple<string, Exception>> GetAccessToken(
+            string healthId)
+        {
+            try
+            {
+                var authRequest = await authContext.AuthConfirm
+                    .FirstOrDefaultAsync(request => request.HealthId.Equals(healthId));
+                return new Tuple<string, Exception>(authRequest.AccessToken, null);
+            }
+            catch (Exception exception)
+            {
+                Log.Fatal(exception, exception.StackTrace);
+                return new Tuple<string, Exception>(null, exception);
+            }
+        }
     }
 }

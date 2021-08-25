@@ -43,6 +43,7 @@ namespace In.ProjectEKA.HipService.Common
         public const string PATH_ADD_PATIENT_CONTEXTS = "/" + CURRENT_VERSION + "/links/link/add-contexts";
         public const string PATH_NOTIFY_PATIENT_CONTEXTS = "/" + CURRENT_VERSION + "/links/context/notify";
         public const string PATH_FETCH_MODES = "/" + CURRENT_VERSION + "/hip/fetch-modes";
+        public const string PATH_NEW_CARECONTEXT = "/" + CURRENT_VERSION + "/hip/new-carecontext";
         public const string PATH_ADD_CONTEXTS = "/" + CURRENT_VERSION + "/hip/add-contexts";
         public const string PATH_NOTIFY_CONTEXTS = "/" + CURRENT_VERSION + "/hip/notify";
         public const string KYC_AND_LINK = "KYC_AND_LINK";
@@ -55,5 +56,6 @@ namespace In.ProjectEKA.HipService.Common
         public const string REPORTING_SESSION = "reporting_session";
         public const string OPENMRS_SESSION_ID_COOKIE_NAME = "JSESSIONID";
         public const string WHO_AM_I = "/ws/rest/v1/bahmnicore/whoami";
+        public const string HIP_URL = "https://ndhm-dev.bahmni-covid19.in/hiprovider";
     }
 }

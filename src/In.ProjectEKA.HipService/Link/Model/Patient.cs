@@ -10,12 +10,7 @@ namespace In.ProjectEKA.HipService.Link.Model
             YearOfBirth = yearOfBirth;
             Address = address;
         }
-
-        public Patient(string id)
-        {
-            Id = id;
-        }
-
+        
         public string Id { get; }
         public string Name { get; }
         public Gender Gender { get; }
