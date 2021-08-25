@@ -9,10 +9,10 @@ namespace In.ProjectEKA.HipService.UserAuth.Model
         public string gender { get; }
         public string yearOfBirth { get; }
         public AuthConfirmAddress address { get; }
-        public List<Identifiers> identifiers { get; }
+        public List<Identifier> identifiers { get; }
 
         public AuthConfirmPatient(string id, string name, string gender, string yearOfBirth, AuthConfirmAddress address,
-            List<Identifiers> identifiers)
+            List<Identifier> identifiers)
         {
             this.id = id;
             this.name = name;

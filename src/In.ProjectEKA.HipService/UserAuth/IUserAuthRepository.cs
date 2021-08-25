@@ -12,5 +12,6 @@ namespace In.ProjectEKA.HipService.UserAuth
         bool Update(AuthConfirm authConfirm);
         Task<Tuple<string, Exception>> GetAccessToken(string healthId);
         Task<Option<NdhmDemographics>> AddDemographics(NdhmDemographics ndhmDemographics);
+        Task<Option<NdhmDemographics>> GetDemographics(string healthId);
     }
 }

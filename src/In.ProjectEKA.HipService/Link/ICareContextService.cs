@@ -20,5 +20,6 @@ namespace In.ProjectEKA.HipService.Link
 
         public Task CallAddContext(NewContextRequest newContextRequest);
         public bool IsLinkedContext(List<string> careContexts, string context);
+        Task SetAccessToken(string patientReferenceNumber);
     }
 }

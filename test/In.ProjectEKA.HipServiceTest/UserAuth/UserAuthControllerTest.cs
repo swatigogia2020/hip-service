@@ -19,6 +19,7 @@ using Moq;
 using Serilog;
 using Xunit;
 using static In.ProjectEKA.HipService.Common.Constants;
+using Identifier = In.ProjectEKA.HipService.UserAuth.Model.Identifier;
 using Meta = In.ProjectEKA.HipService.Link.Model.Meta;
 using Task = System.Threading.Tasks.Task;
 
@@ -197,16 +198,16 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private async void ShouldSendAuthConfirmAndOnAuthConfirm()
         {
-            var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx");
-            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
+            var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx",null);
+            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode,null);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             var transactionId = TestBuilder.Faker().Random.Hash();
             Guid requestId = Guid.NewGuid();
             var address = new AuthConfirmAddress(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>());
-            var identifiers = new List<Identifiers>()
+            var identifiers = new List<Identifier>()
             {
-                new Identifiers("MOBILE", "+919800083232")
+                new Identifier("MOBILE", "+919800083232")
             };
             var patient = new AuthConfirmPatient("hinapatel@sbx", "Hina Patel", "F", "1998",
                 address, identifiers);
@@ -236,8 +237,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private void ShouldSendAuthConfirmAndNotOnAuthConfirm()
         {
-            var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx");
-            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
+            var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx",null);
+            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode,null);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             var transactionId = TestBuilder.Faker().Random.Hash();
             Guid requestId = Guid.NewGuid();
@@ -301,8 +302,8 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
         [Fact]
         private async void ShouldReturnGatewayErrorForAuthConfirm()
         {
-            var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx");
-            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode);
+            var authConfirmRequest = new AuthConfirmRequest("123444", "hinapatel@sbx",null);
+            AuthConfirmCredential credential = new AuthConfirmCredential(authConfirmRequest.authCode,null);
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             var transactionId = TestBuilder.Faker().Random.Hash();
             Guid requestId = Guid.NewGuid();

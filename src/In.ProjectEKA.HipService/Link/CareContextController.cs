@@ -41,6 +41,7 @@ namespace In.ProjectEKA.HipService.Link
         public async Task<ActionResult> AddContexts(
             [FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] AddContextsRequest addContextsRequest)
         {
+            await careContextService.SetAccessToken(addContextsRequest.ReferenceNumber);
             var (gatewayAddContextsRequestRepresentation, error) =
                 careContextService.AddContextsResponse(addContextsRequest);
             if (error != null)
