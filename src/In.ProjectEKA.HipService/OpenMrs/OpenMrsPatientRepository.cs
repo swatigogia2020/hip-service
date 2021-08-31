@@ -15,6 +15,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
         private readonly IPatientDal _patientDal;
         private readonly ICareContextRepository _careContextRepository;
         private readonly IPhoneNumberRepository _phoneNumberRepository;
+        private const int PHONE_NUMBER_LENGTH = 10;
 
         public OpenMrsPatientRepository(IPatientDal patientDal, ICareContextRepository careContextRepository,
             IPhoneNumberRepository phoneNumberRepository)
@@ -45,8 +46,9 @@ namespace In.ProjectEKA.HipService.OpenMrs
             {
                 var hipPatient = patient.ToHipPatient(name);
                 var referenceNumber = hipPatient.Uuid;
-                var bahmniPhoneNumber =   _phoneNumberRepository.GetPhoneNumber(referenceNumber).Result;
-                if (phoneNumber.Equals(bahmniPhoneNumber))
+                var bahmniPhoneNumber = _phoneNumberRepository.GetPhoneNumber(referenceNumber).Result;
+                if (bahmniPhoneNumber != null && phoneNumber[^PHONE_NUMBER_LENGTH..]
+                    .Equals(bahmniPhoneNumber[^PHONE_NUMBER_LENGTH..]))
                 {
                     result.Add(hipPatient);
                 }
