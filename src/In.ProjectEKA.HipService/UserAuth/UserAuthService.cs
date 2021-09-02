@@ -101,7 +101,7 @@ namespace In.ProjectEKA.HipService.UserAuth
 
         private static bool IsValidHealthNumber(string healthId)
         {
-            string pattern = @"^(\d{14})$";
+            string pattern = @"^(\d{14})$|^([0-9]{2}[-][0-9]{4}[-][0-9]{4}[-][0-9]{4})$";
             return Regex.Match(healthId, pattern).Success;
         }
 
