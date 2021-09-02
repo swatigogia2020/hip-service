@@ -1,0 +1,140 @@
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Hl7.Fhir.Model;
+using In.ProjectEKA.HipService.Common;
+using In.ProjectEKA.HipService.Common.Model;
+using In.ProjectEKA.HipService.Gateway;
+using In.ProjectEKA.HipService.OpenMrs;
+using In.ProjectEKA.HipService.SmsNotification.Model;
+using In.ProjectEKA.HipService.UserAuth;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+
+namespace In.ProjectEKA.HipService.SmsNotification
+{
+    using static Constants;
+
+    [ApiController]
+    
+    public class SmsNotificationController : Controller
+    {
+        private readonly IGatewayClient gatewayClient;
+        private readonly ILogger<SmsNotificationController> logger;
+        private readonly BahmniConfiguration bahmniConfiguration;
+        private readonly ISmsNotificationService _smsNotificationService;
+        private readonly GatewayConfiguration gatewayConfiguration;
+        private readonly HttpClient httpClient;
+        private readonly OpenMrsConfiguration openMrsConfiguration;
+
+        public SmsNotificationController(IGatewayClient gatewayClient,
+            ILogger<SmsNotificationController> logger,
+            ISmsNotificationService smsNotificationService,
+            BahmniConfiguration bahmniConfiguration,
+            GatewayConfiguration gatewayConfiguration,
+            HttpClient httpClient,
+            OpenMrsConfiguration openMrsConfiguration)
+        {
+            this.gatewayClient = gatewayClient;
+            this.logger = logger;
+            this._smsNotificationService = smsNotificationService;
+            this.bahmniConfiguration = bahmniConfiguration;
+            this.gatewayConfiguration = gatewayConfiguration;
+            this.httpClient = httpClient;
+            this.openMrsConfiguration = openMrsConfiguration;
+        }
+
+
+        [Route(PATH_HIP_SMS_NOTIFY)]
+        public async Task<ActionResult> SendSMSNotification([FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] SmsNotifyRequest smsNotifyRequest)
+        {
+            if (Request != null)
+            {
+                if (Request.Cookies.ContainsKey(REPORTING_SESSION))
+                {
+                    string sessionId = Request.Cookies[REPORTING_SESSION];
+            
+                    Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
+                    if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
+                    {
+                        return statusCodeResult.Result;
+                    }
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized);
+                }
+            }
+
+            var (gatewaySmsNotifyRequestRepresentation, error) =
+                _smsNotificationService.SmsNotifyRequest(smsNotifyRequest, bahmniConfiguration);
+            if (error != null)
+                return StatusCode(StatusCodes.Status400BadRequest, error);
+            Guid requestId = gatewaySmsNotifyRequestRepresentation.requestId;
+            var cmSuffix = gatewayConfiguration.CmSuffix;
+
+            try
+            {
+                logger.Log(LogLevel.Information,
+                    LogEvents.SmsNotify,
+                    "Request for sms Notify to gateway: {@GatewayResponse}",
+                    gatewaySmsNotifyRequestRepresentation.dump(gatewaySmsNotifyRequestRepresentation));
+                
+                await gatewayClient.SendDataToGateway(PATH_SMS_NOTIFY, gatewaySmsNotifyRequestRepresentation,
+                    cmSuffix, correlationId);
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(LogEvents.UserAuth, exception, "Error happened for requestId: {RequestId} for" +
+                                                               " sms Notify request", requestId);
+            }
+
+            return StatusCode(StatusCodes.Status202Accepted);
+
+
+        }
+        
+        [Authorize]
+        [HttpPost (PATH_SMS_ON_NOTIFY)]
+        public AcceptedResult SmsNotifyStatus(OnSmsNotifyRequest request)
+        {
+            logger.Log(LogLevel.Information,
+                LogEvents.SmsNotify, "On Sms Notify request received." +
+                                    $" RequestId:{request.requestId}, " +
+                                    $" Timestamp:{request.timestamp}," +
+                                    $" ResponseRequestId:{request.resp.RequestId}, ");
+            if (request.error != null)
+            {
+                logger.Log(LogLevel.Information,
+                    LogEvents.SmsNotify, $" Error Code:{request.error.Code}," +
+                                        $" Error Message:{request.error.Message}.");
+            }
+            else if (request.status != null)
+            {
+                logger.Log(LogLevel.Information,
+                    LogEvents.SmsNotify, $" Status:{request.status},");
+                
+            }
+
+            return Accepted();
+        }
+        
+        [NonAction]
+        public async Task<StatusCodeResult> IsAuthorised(String sessionId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, openMrsConfiguration.Url + WHO_AM_I);
+            request.Headers.Add("Cookie", OPENMRS_SESSION_ID_COOKIE_NAME + "=" + sessionId);
+
+            var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
+
+            return StatusCode(StatusCodes.Status200OK);
+        }
+        
+    }
+}

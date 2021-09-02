@@ -24,11 +24,11 @@ namespace In.ProjectEKA.HipService.OpenMrs
             }
 
             var result =
-                await _patientDal.LoadPatientsAsync(
+                await _patientDal.LoadPatientsAsyncWithDemographics(
                     request.Patient?.Name,
                     request.Patient?.Gender.ToOpenMrsGender(),
                     request.Patient?.YearOfBirth?.ToString());
-        
+
             return result
                     .Select(p => p.ToHipPatient(request.Patient?.Name))
                     .ToList()

@@ -21,7 +21,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         {
                 patientDal.Setup(e =>
                     e
-                        .LoadPatientsAsync(
+                        .LoadPatientsAsyncWithDemographics(
                             It.IsAny<string>(),
                             It.IsAny<OpenMrsGender?>(),
                             It.IsAny<string>()))
@@ -55,10 +55,10 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     patientName, patientGender, patientYob);
             var request = new DiscoveryRequest(patientEnquiry,"requestId", "transactionId", DateTime.Now);
             var repo = new OpenMrsPatientMatchingRepository(patientDal.Object);
-           
+
             var result = repo.Where(request);
 
-            patientDal.Verify( x => x.LoadPatientsAsync(patientName, openMrsGender, patientYob.ToString()), Times.Once);
+            patientDal.Verify( x => x.LoadPatientsAsyncWithDemographics(patientName, openMrsGender, patientYob.ToString()), Times.Once);
 
         }
 

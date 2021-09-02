@@ -37,18 +37,27 @@ namespace In.ProjectEKA.HipService.OpenMrs
             return Option.Some(hipPatient);
         }
 
-        public async Task<IQueryable<Patient>> PatientsWithVerifiedId(string name, AdministrativeGender? gender,
-            string yearOfBirth, string phoneNumber)
+        public async Task<IQueryable<Patient>> PatientsWithVerifiedId(string id, string name, AdministrativeGender? gender, string yearOfBirth, string phoneNumber)
         {
-            var fhirPatients = await _patientDal.LoadPatientsAsync(name, gender, yearOfBirth);
             List<Patient> result = new List<Patient>();
+
+            var fhirPatient = await _patientDal.LoadPatientsAsyncWithId(id);
+            if (fhirPatient.Capacity > 0)
+            {
+                var hipPatient = fhirPatient.First().ToHipPatient(fhirPatient.First().Name.ToString());
+                result.Add(hipPatient);
+                return result.ToList().AsQueryable();
+            }
+
+            var fhirPatients = await _patientDal.LoadPatientsAsyncWithDemographics(name, gender, yearOfBirth);
             foreach (var patient in fhirPatients)
             {
                 var hipPatient = patient.ToHipPatient(name);
                 var referenceNumber = hipPatient.Uuid;
                 var bahmniPhoneNumber = _phoneNumberRepository.GetPhoneNumber(referenceNumber).Result;
                 if (bahmniPhoneNumber != null && phoneNumber[^PHONE_NUMBER_LENGTH..]
-                    .Equals(bahmniPhoneNumber[^PHONE_NUMBER_LENGTH..]))
+                    .Equals(bahmniPhoneNumber[^PHONE_NUMBER_LENGTH..])) {
+                if (phoneNumber.Equals(bahmniPhoneNumber))
                 {
                     result.Add(hipPatient);
                 }

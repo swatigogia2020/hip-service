@@ -40,6 +40,15 @@
         }],
         "responses": [{ "inject": "<%- stringify('fetchmodesResponse.ejs') %>" }]
       },
+      {
+             "predicates": [{
+                "equals": {
+                  "method": "POST",
+                  "path": "/v0.5/patients/sms/notify"
+                }
+              }],
+              "responses": [{ "inject": "<%- stringify('smsNotifyResponse.ejs') %>" }]
+            },
     {
     "predicates": [{
         "equals": {
