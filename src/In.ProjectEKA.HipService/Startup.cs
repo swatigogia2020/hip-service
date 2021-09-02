@@ -1,5 +1,6 @@
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Link.Model;
+using In.ProjectEKA.HipService.SmsNotification;
 using In.ProjectEKA.HipService.UserAuth;
 using In.ProjectEKA.HipService.UserAuth.Database;
 
@@ -114,6 +115,9 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<ICareContextRepository, OpenMrsCareContextRepository>()
                 .AddScoped<IDiscoveryRequestRepository, DiscoveryRequestRepository>()
                 .AddScoped<IPatientDiscovery, PatientDiscovery>()
+                .AddScoped<IUserAuthService,UserAuthService>()
+                .AddScoped<ICareContextService,CareContextService>()
+                .AddScoped<ISmsNotificationService,SmsNotificationService>()
                 .AddScoped<IUserAuthService, UserAuthService>()
                 .AddScoped<ICareContextService, CareContextService>()
                 .AddScoped<LinkPatient>()
@@ -140,7 +144,6 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<IHealthInformationRepository, HealthInformationRepository>()
                 .AddSingleton(Configuration.GetSection("Gateway").Get<GatewayConfiguration>())
                 .AddSingleton(Configuration.GetSection("Bahmni").Get<BahmniConfiguration>())
-                .AddSingleton(Configuration.GetSection("Hip-Service").Get<HipConfiguration>())
                 .AddSingleton(Configuration.GetSection("Cors").Get<CorsConfiguration>())
                 .AddSingleton(new GatewayClient(HttpClient,
                     Configuration.GetSection("Gateway").Get<GatewayConfiguration>()))
