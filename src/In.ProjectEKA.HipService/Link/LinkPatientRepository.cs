@@ -120,7 +120,14 @@ namespace In.ProjectEKA.HipService.Link
             {
                 var linkRequest = await linkPatientContext.LinkedAccounts
                     .FirstOrDefaultAsync(request => request.PatientReferenceNumber.Equals(patientReferenceNumber));
-                return new Tuple<List<string>, Exception>(linkRequest.CareContexts, null);
+                   if (linkRequest != null)
+                   {
+                       return new Tuple<List<string>, Exception>(linkRequest.CareContexts, null);
+                   }
+                   else
+                   {
+                       return new Tuple<List<string>, Exception>(null, null);
+                   }
             }
             catch (Exception exception)
             {
