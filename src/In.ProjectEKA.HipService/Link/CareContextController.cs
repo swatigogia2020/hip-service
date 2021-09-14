@@ -125,6 +125,8 @@ namespace In.ProjectEKA.HipService.Link
         {
             var (careContexts, exception) =
                 await linkPatientRepository.GetLinkedCareContextsOfPatient(newContextRequest.PatientReferenceNumber);
+           if(careContexts != null)
+           {
             foreach (var context in newContextRequest.CareContexts)
             {
                 if (careContextService.IsLinkedContext(careContexts, context.Display))
@@ -135,6 +137,7 @@ namespace In.ProjectEKA.HipService.Link
                 {
                     await careContextService.CallAddContext(newContextRequest);
                 }
+            }
             }
 
             return StatusCode(StatusCodes.Status200OK);
