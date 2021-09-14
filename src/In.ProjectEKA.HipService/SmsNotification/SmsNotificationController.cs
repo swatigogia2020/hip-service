@@ -50,24 +50,6 @@ namespace In.ProjectEKA.HipService.SmsNotification
         [Route(PATH_HIP_SMS_NOTIFY)]
         public async Task<ActionResult> SendSMSNotification([FromHeader(Name = CORRELATION_ID)] string correlationId, [FromBody] SmsNotifyRequest smsNotifyRequest)
         {
-            if (Request != null)
-            {
-                if (Request.Cookies.ContainsKey(REPORTING_SESSION))
-                {
-                    string sessionId = Request.Cookies[REPORTING_SESSION];
-            
-                    Task<StatusCodeResult> statusCodeResult = IsAuthorised(sessionId);
-                    if (!statusCodeResult.Result.StatusCode.Equals(StatusCodes.Status200OK))
-                    {
-                        return statusCodeResult.Result;
-                    }
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status401Unauthorized);
-                }
-            }
-
             var (gatewaySmsNotifyRequestRepresentation, error) =
                 _smsNotificationService.SmsNotifyRequest(smsNotifyRequest, bahmniConfiguration);
             if (error != null)
@@ -120,21 +102,5 @@ namespace In.ProjectEKA.HipService.SmsNotification
 
             return Accepted();
         }
-        
-        [NonAction]
-        public async Task<StatusCodeResult> IsAuthorised(String sessionId)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, openMrsConfiguration.Url + WHO_AM_I);
-            request.Headers.Add("Cookie", OPENMRS_SESSION_ID_COOKIE_NAME + "=" + sessionId);
-
-            var response = await httpClient.SendAsync(request).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
-
-            return StatusCode(StatusCodes.Status200OK);
-        }
-        
     }
 }
