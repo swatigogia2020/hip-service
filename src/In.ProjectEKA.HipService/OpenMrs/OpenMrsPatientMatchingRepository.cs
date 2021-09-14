@@ -24,7 +24,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             }
 
             var result =
-                await _patientDal.LoadPatientsAsyncWithDemographics(
+                await _patientDal.LoadPatientsAsync(
                     request.Patient?.Name,
                     request.Patient?.Gender.ToOpenMrsGender(),
                     request.Patient?.YearOfBirth?.ToString());
