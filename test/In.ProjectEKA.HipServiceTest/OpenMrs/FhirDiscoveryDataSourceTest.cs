@@ -30,7 +30,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
 
             //When
-            var patients = await discoveryDataSource.LoadPatientsAsyncWithDemographics(null, null, null);
+            var patients = await discoveryDataSource.LoadPatientsAsync(null, null, null);
 
             //Then
             var firstPatient = patients[0];
@@ -60,7 +60,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
 
             //When
-            var patients = await discoveryDataSource.LoadPatientsAsyncWithDemographics(null, null, null);
+            var patients = await discoveryDataSource.LoadPatientsAsync(null, null, null);
 
             //Then
             patients.Should().BeEmpty();
@@ -83,7 +83,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
 
             //When
-            var patients = await discoveryDataSource.LoadPatientsAsyncWithDemographics(null, null, null);
+            var patients = await discoveryDataSource.LoadPatientsAsync(null, null, null);
 
             //Then
             patients.Count.Should().Be(0);
@@ -122,7 +122,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
 
             //When
-            var patients = await discoveryDataSource.LoadPatientsAsyncWithDemographics(name, gender, yearOfBrith);
+            var patients = await discoveryDataSource.LoadPatientsAsync(name, gender, yearOfBrith);
 
             //Then
             openmrsClientMock.Verify(client => client.GetAsync(expectedPath), Times.Once);
@@ -149,7 +149,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             var openmrsClient = new OpenMrsClient(httpClient, openmrsConfiguration);
             var discoveryDataSource = new FhirDiscoveryDataSource(openmrsClient);
             //When
-            var patients = await discoveryDataSource.LoadPatientsAsyncWithDemographics(null, null, null);
+            var patients = await discoveryDataSource.LoadPatientsAsync(null, null, null);
             //Then
             patients.Should().NotBeEmpty();
         }

@@ -37,19 +37,11 @@ namespace In.ProjectEKA.HipService.OpenMrs
             return Option.Some(hipPatient);
         }
 
-        public async Task<IQueryable<Patient>> PatientsWithVerifiedId(string id, string name, AdministrativeGender? gender, string yearOfBirth, string phoneNumber)
+        public async Task<IQueryable<Patient>> PatientsWithVerifiedId(string name, AdministrativeGender? gender, string yearOfBirth, string phoneNumber)
         {
             List<Patient> result = new List<Patient>();
+            var fhirPatients = await _patientDal.LoadPatientsAsync(name, gender, yearOfBirth);
 
-            var fhirPatient = await _patientDal.LoadPatientsAsyncWithId(id);
-            if (fhirPatient.Capacity > 0)
-            {
-                var hipPatient = fhirPatient.First().ToHipPatient(fhirPatient.First().Name.ToString());
-                result.Add(hipPatient);
-                return result.ToList().AsQueryable();
-            }
-
-            var fhirPatients = await _patientDal.LoadPatientsAsyncWithDemographics(name, gender, yearOfBirth);
             foreach (var patient in fhirPatients)
             {
                 var hipPatient = patient.ToHipPatient(name);

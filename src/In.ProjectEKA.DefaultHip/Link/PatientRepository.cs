@@ -10,7 +10,7 @@ namespace In.ProjectEKA.DefaultHip.Link
     using Optional;
     using System.Threading.Tasks;
     using Patient;
-    
+
     public class PatientRepository : IPatientRepository
     {
         private readonly string filePath;
@@ -40,7 +40,7 @@ namespace In.ProjectEKA.DefaultHip.Link
             return patientsInfo;
         }
 
-        public Task<IQueryable<Patient>> PatientsWithVerifiedId(string id, string name, AdministrativeGender? gender, string yearOfBirth,
+        public Task<IQueryable<Patient>> PatientsWithVerifiedId(string name, AdministrativeGender? gender, string yearOfBirth,
             string phoneNumber)
         {
             return null;

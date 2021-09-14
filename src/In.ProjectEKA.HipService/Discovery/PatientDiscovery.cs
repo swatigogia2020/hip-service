@@ -93,8 +93,7 @@ namespace In.ProjectEKA.HipService.Discovery
                     request.Patient?.VerifiedIdentifiers?
                         .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
                         ?.Value.ToString();
-                patients = await patientRepository.PatientsWithVerifiedId(request.Patient?.Id,
-                    request.Patient?.Name,
+                patients = await patientRepository.PatientsWithVerifiedId(request.Patient?.Name,
                     request.Patient?.Gender.ToOpenMrsGender(),
                     request.Patient?.YearOfBirth?.ToString(),
                     phoneNumber);
