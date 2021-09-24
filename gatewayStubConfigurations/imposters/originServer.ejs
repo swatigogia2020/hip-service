@@ -67,6 +67,15 @@
         }],
         "responses": [{ "inject": "<%- stringify('notifyContextResponse.ejs') %>" }]
         },
+        {
+        "predicates": [{
+        "equals": {
+        "method": "POST",
+        "path": "/v0.5/patients/status/on-notify"
+        }
+        }],
+        "responses": [{ "inject": "<%- stringify('statusOnNotify.ejs') %>" }]
+        },
       {
                    "predicates": [{
                       "equals": {

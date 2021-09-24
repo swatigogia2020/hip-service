@@ -1,3 +1,6 @@
+using In.ProjectEKA.HipService.Logger;
+using Microsoft.AspNetCore.Http;
+
 namespace In.ProjectEKA.HipService.Patient
 {
     using System;
@@ -17,12 +20,18 @@ namespace In.ProjectEKA.HipService.Patient
         private readonly IBackgroundJobClient backgroundJob;
         private readonly GatewayClient gatewayClient;
         private readonly ILogger<PatientController> logger;
+        private readonly IPatientNotificationService patientNotificationService;
+        private readonly GatewayConfiguration gatewayConfiguration;
 
-        public PatientController(IBackgroundJobClient backgroundJob, GatewayClient gatewayClient, ILogger<PatientController> logger)
+        public PatientController(IBackgroundJobClient backgroundJob, GatewayClient gatewayClient,
+            ILogger<PatientController> logger, IPatientNotificationService patientNotificationService,
+            GatewayConfiguration gatewayConfiguration)
         {
             this.backgroundJob = backgroundJob;
             this.gatewayClient = gatewayClient;
             this.logger = logger;
+            this.patientNotificationService = patientNotificationService;
+            this.gatewayConfiguration = gatewayConfiguration;
         }
 
         [HttpPost(PATH_PATIENT_PROFILE_SHARE)]
@@ -52,6 +61,39 @@ namespace In.ProjectEKA.HipService.Patient
                 gatewayResponse,
                 cmSuffix,
                 correlationId);
+        }
+
+        [Route(PATH_PATIENT_NOTIFY)]
+        public async Task<AcceptedResult> NotifyHip([FromHeader(Name = CORRELATION_ID)] string correlationId,
+            [FromBody] HipPatientStatusNotification hipPatientStatusNotification)
+        {
+            var cmSuffix = gatewayConfiguration.CmSuffix;
+            await patientNotificationService.Perform(hipPatientStatusNotification);
+            var gatewayResponse = new HipPatientNotifyConfirmation(
+                Guid.NewGuid().ToString(),
+                DateTime.Now.ToUniversalTime(),
+                new PatientNotifyAcknowledgement(Status.SUCCESS.ToString()), null,
+                new Resp(hipPatientStatusNotification.requestId.ToString()));
+            await gatewayClient.SendDataToGateway(PATH_PATIENT_ON_NOTIFY,
+                gatewayResponse,
+                cmSuffix,
+                correlationId);
+            return Accepted();
+        }
+
+        [HttpPost(PATH_PATIENT_ON_NOTIFY)]
+        public AcceptedResult PatientOnNotify(HipPatientNotifyConfirmation confirmation)
+        {
+            Log.Information("on-notify of patient received." +
+                            $" RequestId:{confirmation.RequestId}, " +
+                            $" Timestamp:{confirmation.Timestamp}");
+            if (confirmation.Error != null)
+                Log.Information($" Error Code:{confirmation.Error.Code}," +
+                                $" Error Message:{confirmation.Error.Message}");
+            else if (confirmation.Acknowledgement != null)
+                Log.Information($" Acknowledgment Status:{confirmation.Acknowledgement.Status}");
+            Log.Information($" Resp RequestId:{confirmation.Resp.RequestId}");
+            return Accepted();
         }
     }
 }
