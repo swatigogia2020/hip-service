@@ -80,20 +80,5 @@ namespace In.ProjectEKA.HipService.Patient
                 correlationId);
             return Accepted();
         }
-
-        [HttpPost(PATH_PATIENT_ON_NOTIFY)]
-        public AcceptedResult PatientOnNotify(HipPatientNotifyConfirmation confirmation)
-        {
-            Log.Information("on-notify of patient received." +
-                            $" RequestId:{confirmation.RequestId}, " +
-                            $" Timestamp:{confirmation.Timestamp}");
-            if (confirmation.Error != null)
-                Log.Information($" Error Code:{confirmation.Error.Code}," +
-                                $" Error Message:{confirmation.Error.Message}");
-            else if (confirmation.Acknowledgement != null)
-                Log.Information($" Acknowledgment Status:{confirmation.Acknowledgement.Status}");
-            Log.Information($" Resp RequestId:{confirmation.Resp.RequestId}");
-            return Accepted();
-        }
     }
 }
