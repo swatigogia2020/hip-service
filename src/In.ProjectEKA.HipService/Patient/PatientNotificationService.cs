@@ -1,24 +1,28 @@
+using System;
 using System.Threading.Tasks;
 using System.Web;
 using In.ProjectEKA.HipService.Common;
+using In.ProjectEKA.HipService.Link;
 using In.ProjectEKA.HipService.Logger;
 using In.ProjectEKA.HipService.OpenMrs;
 using In.ProjectEKA.HipService.Patient.Model;
 using In.ProjectEKA.HipService.UserAuth;
-using Microsoft.Extensions.Logging;
+using Action = In.ProjectEKA.HipService.Patient.Model.Action;
 
 namespace In.ProjectEKA.HipService.Patient
 {
     public class PatientNotificationService : IPatientNotificationService
     {
         private readonly IUserAuthRepository userAuthRepository;
+        private readonly ILinkPatientRepository linkPatientRepository;
         private readonly IOpenMrsClient openMrsClient;
 
         public PatientNotificationService(IUserAuthRepository userAuthRepository, IOpenMrsClient openMrsClient,
-            ILogger<PatientNotificationService> logger)
+            ILinkPatientRepository linkPatientRepository)
         {
             this.userAuthRepository = userAuthRepository;
             this.openMrsClient = openMrsClient;
+            this.linkPatientRepository = linkPatientRepository;
         }
 
         public async Task Perform(HipPatientStatusNotification hipPatientStatusNotification)
@@ -27,7 +31,10 @@ namespace In.ProjectEKA.HipService.Patient
             {
                 var healthId = hipPatientStatusNotification.notification.patient.id;
                 var status = hipPatientStatusNotification.notification.status.ToString();
+
                 DeleteHealthId(healthId);
+                await linkPatientRepository.DeleteLinkedAccounts(healthId);
+                await linkPatientRepository.DeleteLinkEnquires(healthId);
                 await RemoveHealthIdFromOpenMrs(healthId, status);
             }
         }

@@ -135,7 +135,34 @@ namespace In.ProjectEKA.HipService.Link
                 return new Tuple<List<string>, Exception>(null, exception);
             }
         }
-        
+
+        public async Task DeleteLinkedAccounts(string healthId)
+        {
+            var linkedAccounts = linkPatientContext.LinkedAccounts
+                .Where(request =>
+                    request.ConsentManagerUserId == healthId);
+            foreach (var linkedAccount in linkedAccounts)
+            {
+                linkPatientContext.Remove(linkedAccount);
+            }
+
+            await linkPatientContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteLinkEnquires(string healthId)
+        {
+            var linkEnquires = linkPatientContext.LinkEnquires.Include("CareContexts")
+                .Where(request =>
+                    request.ConsentManagerUserId == healthId);
+            foreach (var linkEnquire in linkEnquires)
+            {
+                linkPatientContext.Remove(linkEnquire);
+            }
+
+            await linkPatientContext.SaveChangesAsync();
+        }
+
+
         public async Task<Tuple<string, Exception>> GetHealthID(
             string patientReferenceNumber)
         {
