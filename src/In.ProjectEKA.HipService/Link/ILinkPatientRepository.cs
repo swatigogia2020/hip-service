@@ -1,4 +1,3 @@
-using System.Linq;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 
 namespace In.ProjectEKA.HipService.Link

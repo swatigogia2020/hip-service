@@ -32,20 +32,20 @@ namespace In.ProjectEKA.HipService.Patient
                 var healthId = hipPatientStatusNotification.notification.patient.id;
                 var status = hipPatientStatusNotification.notification.status.ToString();
 
-                DeleteHealthId(healthId);
-                await linkPatientRepository.DeleteLinkedAccounts(healthId);
-                await linkPatientRepository.DeleteLinkEnquires(healthId);
-                await RemoveHealthIdFromOpenMrs(healthId, status);
+                DeleteHealthIdInHip(healthId);
+                await RemoveHealthIdInOpenMrs(healthId, status);
             }
         }
 
-        private void DeleteHealthId(string healthId)
+        private void DeleteHealthIdInHip(string healthId)
         {
+            linkPatientRepository.DeleteLinkedAccounts(healthId);
+            linkPatientRepository.DeleteLinkEnquires(healthId);
             userAuthRepository.Delete(healthId);
             userAuthRepository.DeleteDemographics(healthId);
         }
 
-        private async Task RemoveHealthIdFromOpenMrs(string healthId, string status)
+        private async Task RemoveHealthIdInOpenMrs(string healthId, string status)
         {
             var path = $"{Constants.PATH_OPENMRS_HITYPE}existingPatients/status";
             var query = HttpUtility.ParseQueryString(string.Empty);
