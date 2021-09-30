@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace In.ProjectEKA.HipService.Consent
 {
     using System.Threading.Tasks;
@@ -33,6 +35,19 @@ namespace In.ProjectEKA.HipService.Consent
         {
             return await consentContext.ConsentArtefact
                 .FirstOrDefaultAsync(x => x.ConsentArtefactId == consentArtefactId);
+        }
+
+        public async Task DeleteConsentArtefact(string healthId)
+        {
+            var consents = consentContext.ConsentArtefact.AsEnumerable()
+                .Where(b => b.ConsentArtefact.Patient.Id.Equals(healthId))
+                .ToList();
+            foreach (var consent in consents)
+            {
+                consentContext.Remove(consent);
+            }
+
+            await consentContext.SaveChangesAsync();
         }
     }
 }

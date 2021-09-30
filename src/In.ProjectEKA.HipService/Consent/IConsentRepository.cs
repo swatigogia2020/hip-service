@@ -11,5 +11,6 @@ namespace In.ProjectEKA.HipService.Consent
         public Task UpdateAsync(string consentArtefactId, ConsentStatus status);
 
         public Task<Consent> GetFor(string consentArtefactId);
+        Task DeleteConsentArtefact(string healthId);
     }
 }

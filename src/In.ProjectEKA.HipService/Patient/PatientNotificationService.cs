@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using System.Web;
 using In.ProjectEKA.HipService.Common;
+using In.ProjectEKA.HipService.Consent;
+using In.ProjectEKA.HipService.Discovery;
 using In.ProjectEKA.HipService.Link;
 using In.ProjectEKA.HipService.Logger;
 using In.ProjectEKA.HipService.OpenMrs;
@@ -15,14 +17,18 @@ namespace In.ProjectEKA.HipService.Patient
     {
         private readonly IUserAuthRepository userAuthRepository;
         private readonly ILinkPatientRepository linkPatientRepository;
+        private readonly IDiscoveryRequestRepository discoveryRequestRepository;
+        private readonly IConsentRepository consentRepository;
         private readonly IOpenMrsClient openMrsClient;
 
         public PatientNotificationService(IUserAuthRepository userAuthRepository, IOpenMrsClient openMrsClient,
-            ILinkPatientRepository linkPatientRepository)
+            ILinkPatientRepository linkPatientRepository, IDiscoveryRequestRepository discoveryRequestRepository, IConsentRepository consentRepository)
         {
             this.userAuthRepository = userAuthRepository;
             this.openMrsClient = openMrsClient;
             this.linkPatientRepository = linkPatientRepository;
+            this.discoveryRequestRepository = discoveryRequestRepository;
+            this.consentRepository = consentRepository;
         }
 
         public async Task Perform(HipPatientStatusNotification hipPatientStatusNotification)
@@ -39,10 +45,12 @@ namespace In.ProjectEKA.HipService.Patient
 
         private void DeleteHealthIdInHip(string healthId)
         {
+            discoveryRequestRepository.DeleteDiscoveryRequest(healthId);
             linkPatientRepository.DeleteLinkedAccounts(healthId);
             linkPatientRepository.DeleteLinkEnquires(healthId);
             userAuthRepository.Delete(healthId);
             userAuthRepository.DeleteDemographics(healthId);
+            consentRepository.DeleteConsentArtefact(healthId);
         }
 
         private async Task RemoveHealthIdInOpenMrs(string healthId, string status)
