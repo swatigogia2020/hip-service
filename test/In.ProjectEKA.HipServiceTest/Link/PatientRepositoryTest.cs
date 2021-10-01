@@ -55,7 +55,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
 
             var patient = await repo.PatientWithAsync(patientIdentifier);
 
-            var patientValue = patient.ValueOr(new Patient());
+            var patientValue = patient.ValueOr(new HipLibrary.Patient.Model.Patient());
             patientDal.Verify( x => x.LoadPatientAsyncWithIdentifier(patientIdentifier), Times.Once);
             careContextRepository.Verify(x => x.GetCareContexts(patientValue.Uuid), Times.Once);
             patientValue.Name.Should().Be("test");

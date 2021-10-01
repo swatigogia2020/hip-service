@@ -64,6 +64,8 @@ namespace In.ProjectEKA.HipService.Common
         public const string MOBILE = "MOBILE";
 
         public const string DEEPLINK_URL = "https://link.to.health.records";
+        public const string PATH_PATIENT_NOTIFY = "/" + CURRENT_VERSION + "/patients/status/notify";
+        public const string PATH_PATIENT_ON_NOTIFY = "/" + CURRENT_VERSION + "/patients/status/on-notify";
 
         public const string PROTOCOL = "https";
         public const string NDHM_URL = "/ndhm-dev.bahmni-covid19.in";

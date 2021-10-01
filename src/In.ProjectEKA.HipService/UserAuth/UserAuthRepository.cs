@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Hangfire.Dashboard.Resources;
 using In.ProjectEKA.HipService.UserAuth.Database;
 using In.ProjectEKA.HipService.UserAuth.Model;
 using Microsoft.EntityFrameworkCore;
@@ -87,6 +88,24 @@ namespace In.ProjectEKA.HipService.UserAuth
                 Log.Fatal(e, e.StackTrace);
                 return false;
             }
+        }
+
+        public async Task Delete(string healthId)
+        {
+            var deleteRequest = await authContext.AuthConfirm
+                .FirstAsync(request =>
+                    request.HealthId == healthId);
+            authContext.Remove(deleteRequest);
+            await authContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteDemographics(string healthId)
+        {
+            var deleteRequest = await ndhmDemographicsContext.NdhmDemographics
+                .FirstAsync(request =>
+                    request.HealthId == healthId);
+            ndhmDemographicsContext.Remove(deleteRequest);
+            await ndhmDemographicsContext.SaveChangesAsync();
         }
 
         public async Task<Tuple<string, Exception>> GetAccessToken(

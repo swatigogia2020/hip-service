@@ -43,5 +43,7 @@ namespace In.ProjectEKA.HipService.Link
         bool Update(InitiatedLinkRequest linkRequest);
         Task<Tuple<Guid, Exception>> GetPatientUuid(string patientReferenceNumber);
         Task<Option<CareContextMap>> SaveCareContextMap(CareContextRepresentation careContextRepresentation);
+        Task DeleteLinkedAccounts(string healthId);
+        Task DeleteLinkEnquires(string healthId);
     }
 }
