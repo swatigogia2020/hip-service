@@ -33,12 +33,15 @@ namespace In.ProjectEKA.HipService.Patient
 
         public async Task Perform(HipPatientStatusNotification hipPatientStatusNotification)
         {
-            if (hipPatientStatusNotification.notification.status.ToString().Equals(Action.DELETED.ToString()))
+            var healthId = hipPatientStatusNotification.notification.patient.id;
+            var status = hipPatientStatusNotification.notification.status.ToString();
+            if (status.Equals(Action.DELETED.ToString()))
             {
-                var healthId = hipPatientStatusNotification.notification.patient.id;
-                var status = hipPatientStatusNotification.notification.status.ToString();
-
                 DeleteHealthIdInHip(healthId);
+                await RemoveHealthIdInOpenMrs(healthId, status);
+            }
+            if(status.Equals(Action.DEACTIVATED.ToString()))
+            {
                 await RemoveHealthIdInOpenMrs(healthId, status);
             }
         }
