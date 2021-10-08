@@ -66,7 +66,9 @@ namespace In.ProjectEKA.HipService.Patient
                 gatewayResponse,
                 cmSuffix,
                 correlationId);
-            return error == null ? Accepted() : BadRequest();
+            if(error == null)
+               return Accepted() 
+            return BadRequest();
         }
     }
 }
