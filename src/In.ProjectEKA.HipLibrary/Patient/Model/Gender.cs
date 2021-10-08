@@ -2,7 +2,7 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
 {
     public enum Gender
     {
-        M = 1,
+        M,
         F,
         O,
         U

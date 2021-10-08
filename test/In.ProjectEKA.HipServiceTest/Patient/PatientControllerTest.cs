@@ -71,7 +71,7 @@ namespace In.ProjectEKA.HipServiceTest.Patient
             var timestamp = DateTime.Now.ToUniversalTime();
             var identifier = new Identifier(IdentifierType.MOBILE, "9999999999");
             var address = new Address("string", "string", "string", "string");
-            var patient = new PatientDemographics("test t", Gender.M, "test@sbx", address, 2000, 0, 0,
+            var patient = new PatientDemographics("test t", "M", "test@sbx", address, 2000, 0, 0,
                 new List<Identifier>() {identifier}, "1234-5678");
             var profile = new Profile("12345", patient);
             var shareProfileRequest = new ShareProfileRequest(requestId, timestamp, profile);
@@ -102,7 +102,7 @@ namespace In.ProjectEKA.HipServiceTest.Patient
             var timestamp = DateTime.Now.ToUniversalTime();
             var identifier = new Identifier(IdentifierType.MOBILE, "9999999999");
             var address = new Address("string", "string", "string", "string");
-            var patient = new PatientDemographics(null, Gender.M, "test@sbx", address, 2000, 0, 0,
+            var patient = new PatientDemographics(null, "M", "test@sbx", address, 2000, 0, 0,
                 new List<Identifier>() {identifier}, "1234-5678");
             var profile = new Profile("12345", patient);
             var shareProfileRequest = new ShareProfileRequest(requestId, timestamp, profile);

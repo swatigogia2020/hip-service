@@ -9,7 +9,7 @@ namespace In.ProjectEKA.HipService.Patient.Model
         public string HealthId { get; }
         public string HealthIdNumber { get; }
         public string Name { get; }
-        public Gender Gender { get; }
+        public string Gender { get; }
         public Address Address { get; }
         public int YearOfBirth { get; }
         public int DayOfBirth { get; }
@@ -17,7 +17,7 @@ namespace In.ProjectEKA.HipService.Patient.Model
         public List<Identifier> Identifiers { get; }
 
         public PatientDemographics(string name,
-            Gender gender,
+            string gender,
             string healthId,
             Address address,
             int yearOfBirth,
