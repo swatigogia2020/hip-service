@@ -35,13 +35,9 @@ namespace In.ProjectEKA.HipService.Patient
         {
             var healthId = hipPatientStatusNotification.notification.patient.id;
             var status = hipPatientStatusNotification.notification.status.ToString();
-            if (status.Equals(Action.DELETED.ToString()))
+            if (Enum.IsDefined(typeof(Action), status))
             {
-                DeleteHealthIdInHip(healthId);
-                await RemoveHealthIdInOpenMrs(healthId, status);
-            }
-            if(status.Equals(Action.DEACTIVATED.ToString()))
-            {
+                if (status.Equals(Action.DELETED.ToString())) DeleteHealthIdInHip(healthId);
                 await RemoveHealthIdInOpenMrs(healthId, status);
             }
         }
