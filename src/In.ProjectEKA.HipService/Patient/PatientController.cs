@@ -1,84 +1,73 @@
-using In.ProjectEKA.HipService.Logger;
-using Microsoft.AspNetCore.Http;
-
 namespace In.ProjectEKA.HipService.Patient
 {
     using System;
     using System.Threading.Tasks;
     using Gateway;
-    using Hangfire;
     using HipLibrary.Patient.Model;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
     using Model;
-    using Newtonsoft.Json.Linq;
     using static Common.Constants;
 
     [ApiController]
     public class PatientController : ControllerBase
     {
-        private readonly IBackgroundJobClient backgroundJob;
-        private readonly GatewayClient gatewayClient;
-        private readonly ILogger<PatientController> logger;
-        private readonly IPatientNotificationService patientNotificationService;
-        private readonly GatewayConfiguration gatewayConfiguration;
+        private readonly GatewayClient _gatewayClient;
+        private readonly IPatientNotificationService _patientNotificationService;
+        private readonly GatewayConfiguration _gatewayConfiguration;
+        private readonly IPatientProfileService _patientProfileService;
 
-        public PatientController(IBackgroundJobClient backgroundJob, GatewayClient gatewayClient,
-            ILogger<PatientController> logger, IPatientNotificationService patientNotificationService,
-            GatewayConfiguration gatewayConfiguration)
+        public PatientController(GatewayClient gatewayClient, IPatientNotificationService patientNotificationService,
+            GatewayConfiguration gatewayConfiguration, IPatientProfileService patientProfileService)
         {
-            this.backgroundJob = backgroundJob;
-            this.gatewayClient = gatewayClient;
-            this.logger = logger;
-            this.patientNotificationService = patientNotificationService;
-            this.gatewayConfiguration = gatewayConfiguration;
-        }
-
-        [HttpPost(PATH_PATIENT_PROFILE_SHARE)]
-        public AcceptedResult PatientProfile(
-            [FromHeader(Name = CORRELATION_ID)] string correlationId,
-            JObject request)
-        {
-            backgroundJob.Enqueue(() => ShareResponseFor(request,correlationId));
-            return Accepted();
-        }
-        
-        [NonAction]
-        public async Task ShareResponseFor(JObject request, String correlationId)
-        {
-            var patientProfileRequest = request.ToObject<PatientProfile>();
-            logger.LogInformation("Patient Details: {@PatientProfile}", patientProfileRequest);
-            logger.LogInformation($"Patient Details: {patientProfileRequest.PatientDetails.UserDemographics.HealthId}");
-            var cmSuffix = patientProfileRequest.PatientDetails.UserDemographics.HealthId.Substring(
-                patientProfileRequest.PatientDetails.UserDemographics.HealthId.LastIndexOf("@", StringComparison.Ordinal) + 1);
-            var gatewayResponse = new PatientProfileAcknowledgementResponse(
-                Guid.NewGuid(),
-                DateTime.Now.ToUniversalTime(),
-                new Acknowledgement(patientProfileRequest.PatientDetails.UserDemographics.HealthId, Status.SUCCESS),
-                new Resp(patientProfileRequest.RequestId),
-                null);
-            await gatewayClient.SendDataToGateway(PATH_PATIENT_PROFILE_ON_SHARE,
-                gatewayResponse,
-                cmSuffix,
-                correlationId);
+            _gatewayClient = gatewayClient;
+            _patientNotificationService = patientNotificationService;
+            _gatewayConfiguration = gatewayConfiguration;
+            _patientProfileService = patientProfileService;
         }
 
         [Route(PATH_PATIENT_NOTIFY)]
         public async Task<AcceptedResult> NotifyHip([FromHeader(Name = CORRELATION_ID)] string correlationId,
             [FromBody] HipPatientStatusNotification hipPatientStatusNotification)
         {
-            var cmSuffix = gatewayConfiguration.CmSuffix;
-            await patientNotificationService.Perform(hipPatientStatusNotification);
+            var cmSuffix = _gatewayConfiguration.CmSuffix;
+            await _patientNotificationService.Perform(hipPatientStatusNotification);
             var gatewayResponse = new HipPatientNotifyConfirmation(
                 Guid.NewGuid().ToString(),
                 DateTime.Now.ToUniversalTime(),
                 new PatientNotifyAcknowledgement(Status.SUCCESS.ToString()), null,
                 new Resp(hipPatientStatusNotification.requestId.ToString()));
-            await gatewayClient.SendDataToGateway(PATH_PATIENT_ON_NOTIFY,
+            await _gatewayClient.SendDataToGateway(PATH_PATIENT_ON_NOTIFY,
                 gatewayResponse,
                 cmSuffix,
                 correlationId);
             return Accepted();
         }
+
+        [Route(PATH_PROFILE_SHARE)]
+        public async Task<ActionResult> StoreDetails([FromHeader(Name = CORRELATION_ID)] string correlationId,
+            [FromBody] ShareProfileRequest shareProfileRequest)
+        {
+            var cmSuffix = _gatewayConfiguration.CmSuffix;
+            var status = Status.SUCCESS; 
+            Error error = null;
+            if (!_patientProfileService.IsValidRequest(shareProfileRequest))
+            {
+                status = Status.FALIURE;
+                error = new Error(ErrorCode.BadRequest, "Invalid Request Format");
+            }
+
+            if(error == null) await _patientProfileService.SavePatient(shareProfileRequest);
+            var gatewayResponse = new ProfileShareConfirmation(
+                Guid.NewGuid().ToString(),
+                DateTime.Now.ToUniversalTime(),
+                new ProfileShareAcknowledgement(status.ToString(),shareProfileRequest.Profile.PatientDemographics.HealthId), error,
+                new Resp(shareProfileRequest.RequestId));
+            await _gatewayClient.SendDataToGateway(PATH_PATIENT_PROFILE_ON_SHARE,
+                gatewayResponse,
+                cmSuffix,
+                correlationId);
+            return error != null ? BadRequest() : Accepted();
+        }
+        
     }
 }
