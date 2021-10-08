@@ -67,7 +67,7 @@ namespace In.ProjectEKA.HipService.Patient
                 cmSuffix,
                 correlationId);
             if(error == null)
-               return Accepted() 
+               return Accepted(); 
             return BadRequest();
         }
     }
