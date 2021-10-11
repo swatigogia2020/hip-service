@@ -24,6 +24,7 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
         HeartBeat = 3432,
         InvalidHealthId = 3433,
         DuplicateAuthConfirmRequest = 3434,
-        GatewayTimedOut = 3435
+        GatewayTimedOut = 3435,
+        BadRequest = 3400
     }
 }
