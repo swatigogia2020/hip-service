@@ -7,7 +7,9 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
             Type = type;
             Value = value;
         }
+        
         public IdentifierType Type { get; }
+        
         public string Value { get; }
     }
 }
