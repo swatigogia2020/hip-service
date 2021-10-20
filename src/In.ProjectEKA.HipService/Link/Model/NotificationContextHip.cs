@@ -2,11 +2,11 @@ namespace In.ProjectEKA.HipService.Link.Model
 {
     public class NotificationContextHip
     {
-        public string Id { get; }
+        public string id { get; }
 
         public NotificationContextHip(string id)
         {
-            Id = id;
+            this.id = id;
         }
     }
 }

@@ -5,25 +5,25 @@ namespace In.ProjectEKA.HipService.Link.Model
 {
     public class NotificationContext
     {
-        public NotificationPatientContext Patient { get; }
+        public NotificationPatientContext patient { get; }
 
-        public NotificationCareContext NotificationCareContext { get; }
+        public NotificationCareContext careContext { get; }
 
-        public List<string> HiTypes { get; }
+        public List<string> hiTypes { get; }
 
-        public DateTime Date { get; }
+        public DateTime date { get; }
 
-        public NotificationContextHip Hip { get; }
+        public NotificationContextHip hip { get; }
 
 
-        public NotificationContext(NotificationPatientContext patient, NotificationCareContext notificationCareContext,
+        public NotificationContext(NotificationPatientContext patient, NotificationCareContext careContext,
             List<string> hiTypes, DateTime dateTime, NotificationContextHip hip)
         {
-            Patient = patient;
-            NotificationCareContext = notificationCareContext;
-            HiTypes = hiTypes;
-            Date = dateTime;
-            Hip = hip;
+            this.patient = patient;
+            this.careContext = careContext;
+            this.hiTypes = hiTypes;
+            date = dateTime;
+            this.hip = hip;
         }
     }
 }
