@@ -132,7 +132,7 @@ namespace In.ProjectEKA.HipService.Link
             var patient = new NotificationPatientContext(id);
             var careContext = new NotificationCareContext(patientReference, careContextReference);
             var hip = new NotificationContextHip(hipId);
-            var date = notifyContextRequest.Date;
+            var date = DateTime.Now.ToUniversalTime();
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
             var notification = new NotificationContext(patient, careContext, hiTypes, date, hip);
@@ -151,7 +151,6 @@ namespace In.ProjectEKA.HipService.Link
                     .Cast<HiType>()
                     .Select(v => v.ToString())
                     .ToList(),
-                DateTime.Now,
                 bahmniConfiguration.Id
             );
             request.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(notifyContext),

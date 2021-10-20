@@ -82,7 +82,7 @@ namespace In.ProjectEKA.HipService.Link
                 careContextService.NotificationContextResponse(notifyContextRequest);
             if (error != null)
                 return StatusCode(StatusCodes.Status400BadRequest, error);
-            Guid requestId = gatewayNotificationContextRepresentation.RequestId;
+            Guid requestId = gatewayNotificationContextRepresentation.requestId;
             var cmSuffix = gatewayConfiguration.CmSuffix;
             try
             {
