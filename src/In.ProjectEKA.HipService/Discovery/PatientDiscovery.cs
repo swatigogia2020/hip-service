@@ -45,14 +45,14 @@ namespace In.ProjectEKA.HipService.Discovery
         public virtual async Task<ValueTuple<DiscoveryRepresentation, ErrorRepresentation>> PatientFor(
             DiscoveryRequest request)
         {
-            if (await AlreadyExists(request.TransactionId))
-            {
-                logger.Log(LogLevel.Error, LogEvents.Discovery,
-                    "Discovery Request already exists for {request.TransactionId}.");
-                return (null,
-                    new ErrorRepresentation(new Error(ErrorCode.DuplicateDiscoveryRequest,
-                        "Discovery Request already exists")));
-            }
+            // if (await AlreadyExists(request.TransactionId))
+            // {
+            //     logger.Log(LogLevel.Error, LogEvents.Discovery,
+            //         "Discovery Request already exists for {request.TransactionId}.");
+            //     return (null,
+            //         new ErrorRepresentation(new Error(ErrorCode.DuplicateDiscoveryRequest,
+            //             "Discovery Request already exists")));
+            // }
 
             var (linkedAccounts, exception) = await linkPatientRepository.GetLinkedCareContexts(request.Patient.Id);
 
@@ -86,7 +86,6 @@ namespace In.ProjectEKA.HipService.Discovery
             }
 
             IQueryable<HipLibrary.Patient.Model.Patient> patients;
-
             try
             {
                 var phoneNumber =
@@ -99,6 +98,7 @@ namespace In.ProjectEKA.HipService.Discovery
                     request.Patient?.YearOfBirth?.ToString(),
                     phoneNumber);
             }
+
             catch (OpenMrsConnectionException)
             {
                 return GetError(ErrorCode.OpenMrsConnection, ErrorMessage.HipConnection);
@@ -124,7 +124,8 @@ namespace In.ProjectEKA.HipService.Discovery
             }
 
             var (patientEnquiryRepresentation, error) =
-                DiscoveryUseCase.DiscoverPatient(Filter.Do(patients, request).AsQueryable());
+                DiscoveryUseCase.DiscoverPatient(Filter.DoNot(patients, request));
+            Log.Error("patientEnquiryRepresentation ~~~~~~~~~~~~~~~~> " + patientEnquiryRepresentation);
             if (patientEnquiryRepresentation == null)
             {
                 Log.Information($"No matching unique patient found for transaction {request.TransactionId}.", error);

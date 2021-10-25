@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 using Hl7.Fhir.Serialization;
+using In.ProjectEKA.HipService.Logger;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
@@ -18,7 +19,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
         public async Task<List<Patient>> LoadPatientsAsyncWithId(string healthId){
             var path = DiscoveryPathConstants.OnPatientPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
-            if (healthId != null) {
+            if (healthId != null)
+            {
                 query["identifier"] = healthId;
             }
             if (query.ToString() != ""){

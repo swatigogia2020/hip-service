@@ -1,3 +1,5 @@
+using In.ProjectEKA.HipService.Logger;
+
 namespace In.ProjectEKA.HipService.Discovery
 {
     using System.Collections.Generic;
@@ -21,6 +23,7 @@ namespace In.ProjectEKA.HipService.Discovery
 
         private static PatientWithRank<Patient> RankPatient(Patient patient, DiscoveryRequest request)
         {
+            Log.Error("RankPatient ~~~~~~~~~~~~~~~~~~~~~~~~~~> " + patient);
             return RanksFor(request, patient).Aggregate((rank, withRank) => rank + withRank);
         }
 
@@ -56,8 +59,9 @@ namespace In.ProjectEKA.HipService.Discovery
         public static IEnumerable<PatientEnquiryRepresentation> Do(IEnumerable<Patient> patients,
             DiscoveryRequest request)
         {
-            var temp =patients
-                .AsEnumerable()
+            Log.Error("Not Here");
+            var temp = patients
+                    .AsEnumerable()
                 .Where(ExpressionFor(request.Patient.Name, request.Patient.YearOfBirth, request.Patient.Gender))
                 .Select(patientInfo => RankPatient(patientInfo, request))
                 .GroupBy(rankedPatient => rankedPatient.Rank.Score)
@@ -66,14 +70,13 @@ namespace In.ProjectEKA.HipService.Discovery
                 .SelectMany(group => group.Select(rankedPatient =>
                 {
                     var careContexts = rankedPatient.Patient.CareContexts ?? new List<CareContextRepresentation>();
-
                     var careContextRepresentations = careContexts
                         .Select(program =>
                             new CareContextRepresentation(
                                 program.ReferenceNumber,
                                 program.Display))
                         .ToList();
-
+                
                     return new PatientEnquiryRepresentation(
                         rankedPatient.Patient.Identifier,
                         $"{rankedPatient.Patient.Name}",
@@ -81,6 +84,25 @@ namespace In.ProjectEKA.HipService.Discovery
                         rankedPatient.Meta.Select(meta => meta.Field));
                 }));
             return temp;
+        }
+        
+        public static PatientEnquiryRepresentation DoNot(IEnumerable<Patient> patients,
+            DiscoveryRequest request)
+        {
+            var patient = patients.First();
+            var careContexts = patient.CareContexts ?? new List<CareContextRepresentation>();
+            var careContextRepresentations = careContexts
+                .Select(program =>
+                    new CareContextRepresentation(
+                        program.ReferenceNumber,
+                        program.Display))
+                .ToList();
+            return new PatientEnquiryRepresentation(
+                request.Patient.Id,
+                $"{request.Patient.Name}",
+                careContextRepresentations,
+                Enumerable.Empty<string>()
+                );
         }
 
         internal enum IdentifierTypeExt

@@ -1,3 +1,5 @@
+using In.ProjectEKA.HipService.Logger;
+
 namespace In.ProjectEKA.HipService.Discovery.Matcher
 {
     using System;
@@ -15,10 +17,14 @@ namespace In.ProjectEKA.HipService.Discovery.Matcher
 
         public static Func<Patient, bool> ExpressionFor(string name, ushort? yearOfBirth, Gender? gender)
         {
+            Log.Error("name" + name);
+            Log.Error("yearOfBirth" + yearOfBirth);
+            Log.Error("gender" + gender);
             if (yearOfBirth == null && gender == null)
             {
                 return _ => false;
             }
+            Log.Error("GenderExpression(gender).And(NameExpression(name)).And(AgeExpression(yearOfBirth)).Compile()" + GenderExpression(gender).And(NameExpression(name)).And(AgeExpression(yearOfBirth)));
             return GenderExpression(gender).And(NameExpression(name)).And(AgeExpression(yearOfBirth)).Compile();
         }
 
