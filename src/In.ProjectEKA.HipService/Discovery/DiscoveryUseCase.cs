@@ -10,14 +10,14 @@ namespace In.ProjectEKA.HipService.Discovery
     public static class DiscoveryUseCase
     {
         public static ValueTuple<PatientEnquiryRepresentation, ErrorRepresentation> DiscoverPatient(
-            PatientEnquiryRepresentation patients)
+            IEnumerable<PatientEnquiryRepresentation> patients)
         {
-            // if (!patients.Any())
-            //     return (null, new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "No patient found")));
-            //
-            // if (patients.Count() == 1)
-            //     return (patients.First(), null);
-            //
+            if (!patients.Any())
+                return (null, new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "No patient found")));
+
+            if (patients.Count() == 1)
+                return (patients.First(), null);
+
             return (null,
                 new ErrorRepresentation(new Error(ErrorCode.MultiplePatientsFound, "Multiple patients found")));
         }

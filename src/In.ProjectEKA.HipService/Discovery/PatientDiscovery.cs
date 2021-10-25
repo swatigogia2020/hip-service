@@ -45,14 +45,14 @@ namespace In.ProjectEKA.HipService.Discovery
         public virtual async Task<ValueTuple<DiscoveryRepresentation, ErrorRepresentation>> PatientFor(
             DiscoveryRequest request)
         {
-            // if (await AlreadyExists(request.TransactionId))
-            // {
-            //     logger.Log(LogLevel.Error, LogEvents.Discovery,
-            //         "Discovery Request already exists for {request.TransactionId}.");
-            //     return (null,
-            //         new ErrorRepresentation(new Error(ErrorCode.DuplicateDiscoveryRequest,
-            //             "Discovery Request already exists")));
-            // }
+            if (await AlreadyExists(request.TransactionId))
+            {
+                logger.Log(LogLevel.Error, LogEvents.Discovery,
+                    "Discovery Request already exists for {request.TransactionId}.");
+                return (null,
+                    new ErrorRepresentation(new Error(ErrorCode.DuplicateDiscoveryRequest,
+                        "Discovery Request already exists")));
+            }
 
             var (linkedAccounts, exception) = await linkPatientRepository.GetLinkedCareContexts(request.Patient.Id);
 
@@ -86,17 +86,22 @@ namespace In.ProjectEKA.HipService.Discovery
             }
 
             IQueryable<HipLibrary.Patient.Model.Patient> patients;
+            var healthIdBasedPatients = true;
             try
             {
-                var phoneNumber =
-                    request.Patient?.VerifiedIdentifiers?
+                var phoneNumber = request.Patient?.VerifiedIdentifiers?
                         .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
                         ?.Value.ToString();
                 var healthId = request.Patient?.Id ?? null;
-                patients = await patientRepository.PatientsWithVerifiedId(healthId, request.Patient?.Name,
-                    request.Patient?.Gender.ToOpenMrsGender(),
-                    request.Patient?.YearOfBirth?.ToString(),
-                    phoneNumber);
+                patients = await patientRepository.PatientsWithVerifiedId(healthId);
+                if (!patients.Any())
+                {
+                    healthIdBasedPatients = false;
+                    patients = await patientRepository.PatientsWithDemographics(request.Patient?.Name,
+                        request.Patient?.Gender.ToOpenMrsGender(),
+                        request.Patient?.YearOfBirth?.ToString(),
+                        phoneNumber);
+                }
             }
 
             catch (OpenMrsConnectionException)
@@ -123,9 +128,14 @@ namespace In.ProjectEKA.HipService.Discovery
                 return GetError(ErrorCode.CareContextConfiguration, ErrorMessage.HipConfiguration);
             }
 
+            IEnumerable<PatientEnquiryRepresentation> patientEnquiry = new List<PatientEnquiryRepresentation>();
+
+            patientEnquiry = healthIdBasedPatients ? Filter.HealthIdRecords(patients, request)
+                                                   : Filter.DemographicRecords(patients, request);
+
             var (patientEnquiryRepresentation, error) =
-                DiscoveryUseCase.DiscoverPatient(Filter.DoNot(patients, request));
-            Log.Error("patientEnquiryRepresentation ~~~~~~~~~~~~~~~~> " + patientEnquiryRepresentation);
+                DiscoveryUseCase.DiscoverPatient(patientEnquiry);
+
             if (patientEnquiryRepresentation == null)
             {
                 Log.Information($"No matching unique patient found for transaction {request.TransactionId}.", error);

@@ -45,5 +45,15 @@ namespace In.ProjectEKA.DefaultHip.Link
         {
             return null;
         }
+
+        public Task<IQueryable<Patient>> PatientsWithVerifiedId(string healthId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IQueryable<Patient>> PatientsWithDemographics(string name, AdministrativeGender? gender, string yearOfBirth, string phoneNumber)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
