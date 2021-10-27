@@ -86,25 +86,27 @@ namespace In.ProjectEKA.HipService.Discovery
             }
 
             IQueryable<HipLibrary.Patient.Model.Patient> patients = null;
-            var healthIdBasedPatients = true;
+            IEnumerable<PatientEnquiryRepresentation> patientEnquiry = new List<PatientEnquiryRepresentation>();
+
             try
             {
                 var phoneNumber = request.Patient?.VerifiedIdentifiers?
                         .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
                         ?.Value.ToString();
-                var healthId = request.Patient?.Id ?? null;
 
+                var healthId = request.Patient?.Id ?? null;
                 if (healthId != null) {
                     patients = await patientRepository.PatientsWithVerifiedId(healthId);
+                    if(patients.Any()) patientEnquiry = Filter.HealthIdRecords(patients, request);
                 }
 
-                if (patients == null)
+                if (!patients.Any())
                 {
-                    healthIdBasedPatients = false;
                     patients = await patientRepository.PatientsWithDemographics(request.Patient?.Name,
                         request.Patient?.Gender.ToOpenMrsGender(),
                         request.Patient?.YearOfBirth?.ToString(),
                         phoneNumber);
+                    if(patients.Any()) patientEnquiry = Filter.DemographicRecords(patients, request);
                 }
             }
 
@@ -131,11 +133,6 @@ namespace In.ProjectEKA.HipService.Discovery
                     LogEvents.Discovery, $"Could not get care contexts for transaction {request.TransactionId}.", e);
                 return GetError(ErrorCode.CareContextConfiguration, ErrorMessage.HipConfiguration);
             }
-
-            IEnumerable<PatientEnquiryRepresentation> patientEnquiry = new List<PatientEnquiryRepresentation>();
-
-            patientEnquiry = healthIdBasedPatients ? Filter.HealthIdRecords(patients, request)
-                                                   : Filter.DemographicRecords(patients, request);
 
             var (patientEnquiryRepresentation, error) =
                 DiscoveryUseCase.DiscoverPatient(patientEnquiry);

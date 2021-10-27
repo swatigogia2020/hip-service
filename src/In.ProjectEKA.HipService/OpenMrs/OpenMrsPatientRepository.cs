@@ -40,9 +40,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
         public async Task<IQueryable<Patient>> PatientsWithVerifiedId(string healthId)
         {
             var result = new List<Patient>();
-            if (healthId == null) return null;
             var fhirPatient = await _patientDal.LoadPatientsAsyncWithId(healthId);
-            if (fhirPatient.Capacity <= 0) return null;
+            if (fhirPatient.Capacity <= 0) return new List<Patient>().AsQueryable();
             var hipPatient = fhirPatient.First().ToHipPatient(fhirPatient.First().Name.ToString());
             result.Add(hipPatient);
             return result.ToList().AsQueryable();
