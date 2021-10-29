@@ -93,7 +93,7 @@ namespace In.ProjectEKA.HipServiceTest.Link
 
             var hiTypes = new List<string>();
             hiTypes.Add("Medication");
-            var notifyContextRequest = new NotifyContextRequest("123", "swjs", "wew", hiTypes, new DateTime(), "456");
+            var notifyContextRequest = new NotifyContextRequest("123", "swjs", "wew", hiTypes, "456");
             var onNotifyContextRequest =
                 new HipLinkContextConfirmation(requestId.ToString(), timeStamp, addContextsAcknowledgement, error,
                     resp);
