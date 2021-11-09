@@ -5,12 +5,13 @@ namespace In.ProjectEKA.DefaultHip.Link
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using HipLibrary.Patient;
     using HipLibrary.Patient.Model;
     using Optional;
     using System.Threading.Tasks;
     using Patient;
 
-    public class PatientRepository
+    public class PatientRepository : IPatientRepository
     {
         private readonly string filePath;
 
@@ -37,6 +38,12 @@ namespace In.ProjectEKA.DefaultHip.Link
         {
             var patientsInfo = FileReader.ReadJson(filePath);
             return patientsInfo;
+        }
+
+        public Task<IQueryable<Patient>> PatientsWithVerifiedId(string name, AdministrativeGender? gender, string yearOfBirth,
+            string phoneNumber)
+        {
+            return null;
         }
     }
 }

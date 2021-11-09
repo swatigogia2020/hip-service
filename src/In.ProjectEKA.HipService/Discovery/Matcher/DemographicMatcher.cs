@@ -1,5 +1,3 @@
-using In.ProjectEKA.HipService.Logger;
-
 namespace In.ProjectEKA.HipService.Discovery.Matcher
 {
     using System;
