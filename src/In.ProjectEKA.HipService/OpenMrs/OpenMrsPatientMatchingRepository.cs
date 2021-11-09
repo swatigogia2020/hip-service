@@ -28,6 +28,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
                     request.Patient?.Name,
                     request.Patient?.Gender.ToOpenMrsGender(),
                     request.Patient?.YearOfBirth?.ToString());
+
             return result
                     .Select(p => p.ToHipPatient(request.Patient?.Name))
                     .ToList()

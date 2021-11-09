@@ -36,7 +36,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 .Append(BuildLinda())
                 .Append(BuildPatient(null, Gender.M, Linda.PhoneNumber, 0));
 
-            var filteredPatients = Filter.DemographicRecords(patients, discoveryRequest);
+            var filteredPatients = Filter.Do(patients, discoveryRequest);
 
             filteredPatients.Count().Should().Be(1);
         }
@@ -62,7 +62,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var discoveryRequest = BuildDiscoveryRequest(Linda.Name, Linda.Sex, Linda.PhoneNumber, Linda.YearOfBirth);
             var patients = Patient().GenerateLazy(0).Append(BuildPatient(recordedName, recordedGender, recordedPhoneNumber, recordedYearOfBirth));
 
-            var filteredPatients = Filter.DemographicRecords(patients, discoveryRequest);
+            var filteredPatients = Filter.Do(patients, discoveryRequest);
 
             if (isExpectedToMatch)
             {
@@ -97,7 +97,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var discoveryRequest = BuildDiscoveryRequest(requestName, requestGender, requestPhoneNumber, requestYearOfBirth);
             var patients = Patient().GenerateLazy(0).Append(BuildPatient(Linda.Name, Linda.Sex, Linda.PhoneNumber, Linda.YearOfBirth));
 
-            var filteredPatients = Filter.DemographicRecords(patients, discoveryRequest);
+            var filteredPatients = Filter.Do(patients, discoveryRequest);
 
             if (isExpectedToMatch)
             {
@@ -115,7 +115,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var discoveryRequest = BuildDiscoveryRequest(Linda.Name, Linda.Sex, Linda.PhoneNumber, Linda.YearOfBirth);
             var patients = Patient().GenerateLazy(0).Append(BuildPatient(Linda.Name, Linda.Sex, John.PhoneNumber, Linda.YearOfBirth));
 
-            var filteredPatients = Filter.DemographicRecords(patients, discoveryRequest);
+            var filteredPatients = Filter.Do(patients, discoveryRequest);
 
             filteredPatients.Count().Should().Be(1);
         }
@@ -135,7 +135,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var discoveryRequest = BuildDiscoveryRequest(requestName, Linda.Sex, Linda.PhoneNumber, Linda.YearOfBirth);
             var patients = Patient().GenerateLazy(0).Append(BuildPatient(recordedName, Linda.Sex, John.PhoneNumber, Linda.YearOfBirth));
 
-            var filteredPatients = Filter.DemographicRecords(patients, discoveryRequest);
+            var filteredPatients = Filter.Do(patients, discoveryRequest);
 
             filteredPatients.Count().Should().Be(1);
         }
@@ -149,7 +149,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 .Append(BuildPatient("Lunda", Linda.Sex, Linda.PhoneNumber, Linda.YearOfBirth))
                 .Append(BuildPatient(null, Gender.M, Linda.PhoneNumber, 0));
 
-            var filteredPatients = Filter.DemographicRecords(patients, discoveryRequest);
+            var filteredPatients = Filter.Do(patients, discoveryRequest);
 
             filteredPatients.Count().Should().Be(0);
         }
@@ -163,7 +163,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 .Append(BuildLinda())
                 .Append(BuildLinda());
 
-            var filteredPatients = Filter.DemographicRecords(patients, discoveryRequest);
+            var filteredPatients = Filter.Do(patients, discoveryRequest);
 
             filteredPatients.Count().Should().Be(2);
         }
@@ -177,7 +177,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 .Append(BuildPatient(null, Linda.Sex, Linda.PhoneNumber, 0))
                 .Append(BuildPatient(null, Gender.M, Linda.PhoneNumber, 0));
 
-            var filteredPatients = Filter.DemographicRecords(patients, discoveryRequest);
+            var filteredPatients = Filter.Do(patients, discoveryRequest);
 
             filteredPatients.Count().Should().Be(1);
         }

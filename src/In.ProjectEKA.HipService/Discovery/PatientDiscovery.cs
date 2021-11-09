@@ -85,31 +85,19 @@ namespace In.ProjectEKA.HipService.Discovery
                     .ValueOr(Task.FromResult(GetError(ErrorCode.NoPatientFound, ErrorMessage.NoPatientFound)));
             }
 
-            IQueryable<HipLibrary.Patient.Model.Patient> patients = null;
-            IEnumerable<PatientEnquiryRepresentation> patientEnquiry = new List<PatientEnquiryRepresentation>();
+            IQueryable<HipLibrary.Patient.Model.Patient> patients;
 
             try
             {
-                var phoneNumber = request.Patient?.VerifiedIdentifiers?
+                var phoneNumber =
+                    request.Patient?.VerifiedIdentifiers?
                         .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
                         ?.Value.ToString();
-
-                var healthId = request.Patient?.Id ?? null;
-                if (healthId != null) {
-                    patients = await patientRepository.PatientsWithVerifiedId(healthId);
-                    if(patients.Any()) patientEnquiry = Filter.HealthIdRecords(patients, request);
-                }
-
-                if (!patients.Any())
-                {
-                    patients = await patientRepository.PatientsWithDemographics(request.Patient?.Name,
-                        request.Patient?.Gender.ToOpenMrsGender(),
-                        request.Patient?.YearOfBirth?.ToString(),
-                        phoneNumber);
-                    if(patients.Any()) patientEnquiry = Filter.DemographicRecords(patients, request);
-                }
+                patients = await patientRepository.PatientsWithVerifiedId(request.Patient?.Name,
+                    request.Patient?.Gender.ToOpenMrsGender(),
+                    request.Patient?.YearOfBirth?.ToString(),
+                    phoneNumber);
             }
-
             catch (OpenMrsConnectionException)
             {
                 return GetError(ErrorCode.OpenMrsConnection, ErrorMessage.HipConnection);
@@ -135,8 +123,7 @@ namespace In.ProjectEKA.HipService.Discovery
             }
 
             var (patientEnquiryRepresentation, error) =
-                DiscoveryUseCase.DiscoverPatient(patientEnquiry);
-
+                DiscoveryUseCase.DiscoverPatient(Filter.Do(patients, request).AsQueryable());
             if (patientEnquiryRepresentation == null)
             {
                 Log.Information($"No matching unique patient found for transaction {request.TransactionId}.", error);
