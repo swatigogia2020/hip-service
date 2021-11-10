@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Hl7.Fhir.Model;
 using In.ProjectEKA.HipLibrary.Patient.Model;
-using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.Link;
 using In.ProjectEKA.HipService.Link.Model;
@@ -13,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using static In.ProjectEKA.HipService.Common.Constants;
-using Patient = In.ProjectEKA.HipService.Link.Model.Patient;
 using Task = System.Threading.Tasks.Task;
 
 
