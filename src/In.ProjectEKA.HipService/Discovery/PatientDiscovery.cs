@@ -45,14 +45,14 @@ namespace In.ProjectEKA.HipService.Discovery
         public virtual async Task<ValueTuple<DiscoveryRepresentation, ErrorRepresentation>> PatientFor(
             DiscoveryRequest request)
         {
-            if (await AlreadyExists(request.TransactionId))
-            {
-                logger.Log(LogLevel.Error, LogEvents.Discovery,
-                    "Discovery Request already exists for {request.TransactionId}.");
-                return (null,
-                    new ErrorRepresentation(new Error(ErrorCode.DuplicateDiscoveryRequest,
-                        "Discovery Request already exists")));
-            }
+            // if (await AlreadyExists(request.TransactionId))
+            // {
+            //     logger.Log(LogLevel.Error, LogEvents.Discovery,
+            //         "Discovery Request already exists for {request.TransactionId}.");
+            //     return (null,
+            //         new ErrorRepresentation(new Error(ErrorCode.DuplicateDiscoveryRequest,
+            //             "Discovery Request already exists")));
+            // }
 
             var (linkedAccounts, exception) = await linkPatientRepository.GetLinkedCareContexts(request.Patient.Id);
 
@@ -104,14 +104,11 @@ namespace In.ProjectEKA.HipService.Discovery
                 if (healthId != null) {
                     Log.Information("~~> Executing records with healthId block for healthId " + healthId);
                     patients = await patientRepository.PatientsWithVerifiedId(healthId);
-                    Log.Information("Patients found with healthId :-> Name->" + patients.First().Name);
-                    Log.Information("Phone Number" + patients.First().PhoneNumber);
-
+                    if (patients.Any()) {
+                        Log.Information("Patients found with healthId :-> Name->" + patients.First().Name);
+                        Log.Information("Phone Number" + patients.First().PhoneNumber);
+                    }
                     if(patients.Any()) patientEnquiry = Filter.HealthIdRecords(patients, request);
-                    Log.Information("Patient Enquiry -> " + patientEnquiry);
-                    var enquiryRepresentation = patientEnquiry.GetEnumerator().Current;
-                    if (enquiryRepresentation != null)
-                        Log.Information("Patient Enquiry -> " + enquiryRepresentation.CareContexts);
                 }
 
                 if (!patients.Any())
@@ -121,11 +118,12 @@ namespace In.ProjectEKA.HipService.Discovery
                         request.Patient?.Gender.ToOpenMrsGender(),
                         request.Patient?.YearOfBirth?.ToString(),
                         phoneNumber);
-                    Log.Information("Patients found with demographics :-> Name->" + patients.First().Name);
-                    Log.Information("Phone Number" + patients.First().PhoneNumber);
-                    if(patients.Any()) patientEnquiry = Filter.DemographicRecords(patients, request);
-                    Log.Information("Patient Enquiry -> " + patientEnquiry);
-                    Log.Information("Patient Enquiry -> " + patientEnquiry.GetEnumerator().Current.CareContexts);
+                    if (patients.Any())
+                    {
+                        Log.Information("Patients found with demographics :-> Name->" + patients.First().Name);
+                        Log.Information("Phone Number" + patients.First().PhoneNumber);
+                        patientEnquiry = Filter.DemographicRecords(patients, request);
+                    }
                 }
                 Log.Information("Result patient Count ~~~~~~~~~~~~~> " + patients.Count());
             }
@@ -154,11 +152,13 @@ namespace In.ProjectEKA.HipService.Discovery
             }
 
             var (patientEnquiryRepresentation, error) = DiscoveryUseCase.DiscoverPatient(patientEnquiry);
+            if (error != null){
+                Log.Information("We got error as ~~~~~~~~~~~~> " + error.Error.Message);
+            }
             if (patientEnquiryRepresentation != null) {
                 Log.Information("patientEnquiryRepresentation ~~~~~~~> " + patientEnquiryRepresentation);   
             }
-            if (patientEnquiryRepresentation == null)
-            {
+            if (patientEnquiryRepresentation == null) {
                 Log.Information($"No matching unique patient found for transaction {request.TransactionId}.", error);
                 return (null, error);
             }

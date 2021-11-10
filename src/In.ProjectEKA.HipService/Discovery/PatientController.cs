@@ -61,7 +61,7 @@
             try
             {
                 var (response, error) = await patientDiscovery.PatientFor(request);
-                Log.Information("PatientFor executed successfully" + response.Patient.Display);
+                Log.Information("PatientFor executed successfully" + response);
                 var gatewayDiscoveryRepresentation = new GatewayDiscoveryRepresentation(
                     response?.Patient,
                     Guid.NewGuid(),
