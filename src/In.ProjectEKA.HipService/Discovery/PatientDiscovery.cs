@@ -42,6 +42,12 @@ namespace In.ProjectEKA.HipService.Discovery
             this.logger = logger;
         }
 
+        private ValueTuple<DiscoveryRepresentation, ErrorRepresentation> GetError(ErrorCode errorCode,
+            string errorMessage)
+        {
+            return (null, new ErrorRepresentation(new Error(errorCode, errorMessage)));
+        }
+
         public virtual async Task<ValueTuple<DiscoveryRepresentation, ErrorRepresentation>> PatientFor(
             DiscoveryRequest request)
         {
@@ -79,7 +85,7 @@ namespace In.ProjectEKA.HipService.Discovery
                             request.Patient.Id,
                             patient.Identifier));
                         return (new DiscoveryRepresentation(patient.ToPatientEnquiryRepresentation(
-                            GetUnlinkedCareContexts(linkedCareContexts, patient))),
+                                GetUnlinkedCareContexts(linkedCareContexts, patient))),
                             (ErrorRepresentation) null);
                     })
                     .ValueOr(Task.FromResult(GetError(ErrorCode.NoPatientFound, ErrorMessage.NoPatientFound)));
@@ -91,8 +97,8 @@ namespace In.ProjectEKA.HipService.Discovery
             try
             {
                 var phoneNumber = request.Patient?.VerifiedIdentifiers?
-                        .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
-                        ?.Value.ToString();
+                    .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
+                    ?.Value.ToString();
                 var healthId = request.Patient?.Id ?? null;
                 
                 if (healthId != null) {
@@ -113,7 +119,8 @@ namespace In.ProjectEKA.HipService.Discovery
 
                 if (!patients.Any())
                 {
-                    Log.Information("~~> Executing records with demographics ");
+                    Log.Information("Executing records with demographics as below ~~> ");
+                    Log.Information(request.Patient?.Name + " " + request.Patient?.Gender.ToOpenMrsGender() + " " + request.Patient?.YearOfBirth?.ToString() + " " + phoneNumber);
                     patients = await patientRepository.PatientsWithDemographics(request.Patient?.Name,
                         request.Patient?.Gender.ToOpenMrsGender(),
                         request.Patient?.YearOfBirth?.ToString(),
@@ -139,7 +146,7 @@ namespace In.ProjectEKA.HipService.Discovery
                     var careContexts = await careContextRepository.GetCareContexts(patient.Uuid);
                     foreach (var careContext in careContexts)
                     {
-                       await linkPatientRepository.SaveCareContextMap(careContext);
+                        await linkPatientRepository.SaveCareContextMap(careContext);
                     }
                     patient.CareContexts = careContexts;
                 }
@@ -166,12 +173,6 @@ namespace In.ProjectEKA.HipService.Discovery
             await discoveryRequestRepository.Add(new Model.DiscoveryRequest(request.TransactionId,
                 request.Patient.Id, patientEnquiryRepresentation.ReferenceNumber));
             return (new DiscoveryRepresentation(patientEnquiryRepresentation), null);
-        }
-
-        private ValueTuple<DiscoveryRepresentation, ErrorRepresentation> GetError(ErrorCode errorCode,
-            string errorMessage)
-        {
-            return (null, new ErrorRepresentation(new Error(errorCode, errorMessage)));
         }
 
         private async Task<bool> AlreadyExists(string transactionId)
