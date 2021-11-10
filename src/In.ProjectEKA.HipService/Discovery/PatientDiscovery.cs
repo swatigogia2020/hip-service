@@ -42,6 +42,12 @@ namespace In.ProjectEKA.HipService.Discovery
             this.logger = logger;
         }
 
+        private ValueTuple<DiscoveryRepresentation, ErrorRepresentation> GetError(ErrorCode errorCode,
+            string errorMessage)
+        {
+            return (null, new ErrorRepresentation(new Error(errorCode, errorMessage)));
+        }
+
         public virtual async Task<ValueTuple<DiscoveryRepresentation, ErrorRepresentation>> PatientFor(
             DiscoveryRequest request)
         {
@@ -79,24 +85,54 @@ namespace In.ProjectEKA.HipService.Discovery
                             request.Patient.Id,
                             patient.Identifier));
                         return (new DiscoveryRepresentation(patient.ToPatientEnquiryRepresentation(
-                            GetUnlinkedCareContexts(linkedCareContexts, patient))),
+                                GetUnlinkedCareContexts(linkedCareContexts, patient))),
                             (ErrorRepresentation) null);
                     })
                     .ValueOr(Task.FromResult(GetError(ErrorCode.NoPatientFound, ErrorMessage.NoPatientFound)));
             }
 
-            IQueryable<HipLibrary.Patient.Model.Patient> patients;
+            IQueryable<HipLibrary.Patient.Model.Patient> patients = null;
+            IEnumerable<PatientEnquiryRepresentation> patientEnquiry = new List<PatientEnquiryRepresentation>();
 
             try
             {
-                var phoneNumber =
-                    request.Patient?.VerifiedIdentifiers?
-                        .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
-                        ?.Value.ToString();
-                patients = await patientRepository.PatientsWithVerifiedId(request.Patient?.Name,
-                    request.Patient?.Gender.ToOpenMrsGender(),
-                    request.Patient?.YearOfBirth?.ToString(),
-                    phoneNumber);
+                var phoneNumber = request.Patient?.VerifiedIdentifiers?
+                    .FirstOrDefault(identifier => identifier.Type.Equals(IdentifierType.MOBILE))
+                    ?.Value.ToString();
+                var healthId = request.Patient?.Id ?? null;
+                
+                if (healthId != null) {
+                    Log.Information("~~> User name -> " + request.Patient?.Name + " healthId found -> " + healthId);
+                } else {
+                    Log.Information("~~> No healthId found for this user " + request.Patient?.Name);
+                }
+
+                if (healthId != null) {
+                    Log.Information("~~> Executing records with healthId block for healthId " + healthId);
+                    patients = await patientRepository.PatientsWithVerifiedId(healthId);
+                    if (patients.Any()) {
+                        Log.Information("Patients found with healthId :-> Name->" + patients.First().Name);
+                        Log.Information("Phone Number" + patients.First().PhoneNumber);
+                    }
+                    if(patients.Any()) patientEnquiry = Filter.HealthIdRecords(patients, request);
+                }
+
+                if (!patients.Any())
+                {
+                    Log.Information("Executing records with demographics as below ~~> ");
+                    Log.Information(request.Patient?.Name + " " + request.Patient?.Gender.ToOpenMrsGender() + " " + request.Patient?.YearOfBirth?.ToString() + " " + phoneNumber);
+                    patients = await patientRepository.PatientsWithDemographics(request.Patient?.Name,
+                        request.Patient?.Gender.ToOpenMrsGender(),
+                        request.Patient?.YearOfBirth?.ToString(),
+                        phoneNumber);
+                    if (patients.Any())
+                    {
+                        Log.Information("Patients found with demographics :-> Name->" + patients.First().Name);
+                        Log.Information("Phone Number" + patients.First().PhoneNumber);
+                        patientEnquiry = Filter.DemographicRecords(patients, request);
+                    }
+                }
+                Log.Information("Result patient Count ~~~~~~~~~~~~~> " + patients.Count());
             }
             catch (OpenMrsConnectionException)
             {
@@ -110,7 +146,7 @@ namespace In.ProjectEKA.HipService.Discovery
                     var careContexts = await careContextRepository.GetCareContexts(patient.Uuid);
                     foreach (var careContext in careContexts)
                     {
-                       await linkPatientRepository.SaveCareContextMap(careContext);
+                        await linkPatientRepository.SaveCareContextMap(careContext);
                     }
                     patient.CareContexts = careContexts;
                 }
@@ -122,10 +158,14 @@ namespace In.ProjectEKA.HipService.Discovery
                 return GetError(ErrorCode.CareContextConfiguration, ErrorMessage.HipConfiguration);
             }
 
-            var (patientEnquiryRepresentation, error) =
-                DiscoveryUseCase.DiscoverPatient(Filter.Do(patients, request).AsQueryable());
-            if (patientEnquiryRepresentation == null)
-            {
+            var (patientEnquiryRepresentation, error) = DiscoveryUseCase.DiscoverPatient(patientEnquiry);
+            if (error != null){
+                Log.Information("We got error as ~~~~~~~~~~~~> " + error.Error.Message);
+            }
+            if (patientEnquiryRepresentation != null) {
+                Log.Information("patientEnquiryRepresentation ~~~~~~~> " + patientEnquiryRepresentation);   
+            }
+            if (patientEnquiryRepresentation == null) {
                 Log.Information($"No matching unique patient found for transaction {request.TransactionId}.", error);
                 return (null, error);
             }
@@ -133,12 +173,6 @@ namespace In.ProjectEKA.HipService.Discovery
             await discoveryRequestRepository.Add(new Model.DiscoveryRequest(request.TransactionId,
                 request.Patient.Id, patientEnquiryRepresentation.ReferenceNumber));
             return (new DiscoveryRepresentation(patientEnquiryRepresentation), null);
-        }
-
-        private ValueTuple<DiscoveryRepresentation, ErrorRepresentation> GetError(ErrorCode errorCode,
-            string errorMessage)
-        {
-            return (null, new ErrorRepresentation(new Error(errorCode, errorMessage)));
         }
 
         private async Task<bool> AlreadyExists(string transactionId)

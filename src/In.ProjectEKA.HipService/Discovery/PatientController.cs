@@ -43,6 +43,9 @@
             [FromBody] DiscoveryRequest request)
         {
             Log.Information($"discovery request received for {request.Patient.Id} with {request.RequestId}.");
+            Log.Information("Started Execution");
+            Log.Information("calling GetPatientCareContext Method, Patient Name -> " + request.Patient.Name);
+            Log.Information("Correlation Id -----> " + correlationId);
             backgroundJob.Enqueue(() => GetPatientCareContext(request, correlationId));
             return Accepted();
         }
@@ -50,11 +53,15 @@
         [NonAction]
         public async Task GetPatientCareContext(DiscoveryRequest request, string correlationId)
         {
+            Log.Information("In GetPatientCareContext Method -----> ");
             var patientId = request.Patient.Id;
+            Log.Information("Patient Id -----> " + patientId);
             var cmSuffix = patientId.Substring(patientId.LastIndexOf("@", StringComparison.Ordinal) + 1);
+            Log.Information("CM suffix -----> " + cmSuffix);
             try
             {
                 var (response, error) = await patientDiscovery.PatientFor(request);
+                Log.Information("PatientFor executed successfully" + response);
                 var gatewayDiscoveryRepresentation = new GatewayDiscoveryRepresentation(
                     response?.Patient,
                     Guid.NewGuid(),
@@ -64,6 +71,8 @@
                     new DiscoveryResponse(request.RequestId,
                         error == null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
                         error == null ? SuccessMessage : ErrorMessage));
+                Log.Information("new GatewayDiscoveryRepresentation" + gatewayDiscoveryRepresentation);
+                Log.Information("Sending data to gateway");
                 Log.Information($"Response about to be send for {request.RequestId} with {@response?.Patient}");
                 await gatewayClient.SendDataToGateway(PATH_ON_DISCOVER, gatewayDiscoveryRepresentation, cmSuffix,
                     correlationId);

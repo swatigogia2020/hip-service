@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace In.ProjectEKA.HipService.Discovery
 {
     using System;
@@ -7,7 +9,7 @@ namespace In.ProjectEKA.HipService.Discovery
     public static class DiscoveryUseCase
     {
         public static ValueTuple<PatientEnquiryRepresentation, ErrorRepresentation> DiscoverPatient(
-            IQueryable<PatientEnquiryRepresentation> patients)
+            IEnumerable<PatientEnquiryRepresentation> patients)
         {
             if (!patients.Any())
                 return (null, new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "No patient found")));
