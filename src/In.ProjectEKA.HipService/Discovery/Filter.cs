@@ -1,3 +1,6 @@
+using System.Collections.Immutable;
+using In.ProjectEKA.HipService.Logger;
+
 namespace In.ProjectEKA.HipService.Discovery
 {
     using System.Collections.Generic;
@@ -72,6 +75,13 @@ namespace In.ProjectEKA.HipService.Discovery
                                 program.Display))
                         .ToList();
 
+                    Log.Information("rankedPatient.Patient.Identifier ~~~~~~~~~~~~~~~~~~~~> " + rankedPatient.Patient.Identifier);
+                    Log.Information("rankedPatient.Patient.Name ~~~~~~~~~~~~~~~~~~~~> " + rankedPatient.Patient.Name);
+                    Log.Information("careContextRepresentations ~~~~~~~~~~~~~~~~~~~~> " + careContextRepresentations);
+                    Log.Information("careContextRepresentations.Count ~~~~~~~~~~~~~~~~~~~~> " + careContextRepresentations.Count);
+                    Log.Information("rankedPatient.Meta.Select(meta => meta.Field)) ~~~~~~~~~~~~~~~~~~~~> " + rankedPatient.Meta.Select(meta => meta.Field));
+                    // Log.Information("rankedPatient.Meta ~~~~~~~~~~~~~~~~~~~~> " + rankedPatient.Meta.GetEnumerator());
+
                     return new PatientEnquiryRepresentation(
                         rankedPatient.Patient.Identifier,
                         $"{rankedPatient.Patient.Name}",
@@ -91,6 +101,10 @@ namespace In.ProjectEKA.HipService.Discovery
                     new CareContextRepresentation(
                         program.ReferenceNumber,
                         program.Display)).ToList();
+            Log.Information("rankedPatient.Patient.Identifier ~~~~~~~~~~~~~~~~~~~~> " + patient.Identifier);
+            Log.Information("rankedPatient.Patient.Name ~~~~~~~~~~~~~~~~~~~~> " + patient.Name);
+            Log.Information("careContextRepresentations ~~~~~~~~~~~~~~~~~~~~> " + careContextRepresentations);
+            Log.Information("careContextRepresentations.Count ~~~~~~~~~~~~~~~~~~~~> " + careContextRepresentations.Count);
             var enumerable = new [] {
                 new PatientEnquiryRepresentation(
                     request.Patient.Id,

@@ -93,6 +93,7 @@ namespace In.ProjectEKA.HipService.Discovery
 
             IQueryable<HipLibrary.Patient.Model.Patient> patients = null;
             IEnumerable<PatientEnquiryRepresentation> patientEnquiry = new List<PatientEnquiryRepresentation>();
+            var healthIdRecords = false; 
 
             try
             {
@@ -102,19 +103,19 @@ namespace In.ProjectEKA.HipService.Discovery
                 var healthId = request.Patient?.Id ?? null;
                 
                 if (healthId != null) {
-                    Log.Information("~~> User name -> " + request.Patient?.Name + " healthId found -> " + healthId);
+                    Log.Information("User name -> " + request.Patient?.Name + " healthId found -> " + healthId);
                 } else {
-                    Log.Information("~~> No healthId found for this user " + request.Patient?.Name);
+                    Log.Information("No healthId found for this user " + request.Patient?.Name);
                 }
 
                 if (healthId != null) {
-                    Log.Information("~~> Executing records with healthId block for healthId " + healthId);
+                    Log.Information("Executing records with healthId block for healthId " + healthId);
                     patients = await patientRepository.PatientsWithVerifiedId(healthId);
                     if (patients.Any()) {
-                        Log.Information("Patients found with healthId :-> Name->" + patients.First().Name);
+                        healthIdRecords = true;
+                        Log.Information("Patients found with healthId :-> Name->" + patients.First());
                         Log.Information("Phone Number" + patients.First().PhoneNumber);
                     }
-                    if(patients.Any()) patientEnquiry = Filter.HealthIdRecords(patients, request);
                 }
 
                 if (!patients.Any())
@@ -127,9 +128,9 @@ namespace In.ProjectEKA.HipService.Discovery
                         phoneNumber);
                     if (patients.Any())
                     {
+                        healthIdRecords = false;
                         Log.Information("Patients found with demographics :-> Name->" + patients.First().Name);
                         Log.Information("Phone Number" + patients.First().PhoneNumber);
-                        patientEnquiry = Filter.DemographicRecords(patients, request);
                     }
                 }
                 Log.Information("Result patient Count ~~~~~~~~~~~~~> " + patients.Count());
@@ -146,16 +147,25 @@ namespace In.ProjectEKA.HipService.Discovery
                     var careContexts = await careContextRepository.GetCareContexts(patient.Uuid);
                     foreach (var careContext in careContexts)
                     {
+                        Log.Information("careContext Display ~~~~~~~~~~> " + careContext.Display);
+                        Log.Information("careContext Type ~~~~~~~~~~> " + careContext.Type);
+                        Log.Information("careContext Reference Number ~~~~~~~~~~> " + careContext.ReferenceNumber);
                         await linkPatientRepository.SaveCareContextMap(careContext);
                     }
                     patient.CareContexts = careContexts;
                 }
             }
+
             catch (OpenMrsFormatException e)
             {
                 logger.Log(LogLevel.Error,
                     LogEvents.Discovery, $"Could not get care contexts for transaction {request.TransactionId}.", e);
                 return GetError(ErrorCode.CareContextConfiguration, ErrorMessage.HipConfiguration);
+            }
+
+            if (patients.Any()){
+                patientEnquiry = healthIdRecords ? Filter.HealthIdRecords(patients, request)
+                                                 : Filter.DemographicRecords(patients, request);   
             }
 
             var (patientEnquiryRepresentation, error) = DiscoveryUseCase.DiscoverPatient(patientEnquiry);
