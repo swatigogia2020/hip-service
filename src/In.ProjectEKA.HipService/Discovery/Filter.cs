@@ -93,8 +93,8 @@ namespace In.ProjectEKA.HipService.Discovery
                         program.Display)).ToList();
             var enumerable = new [] {
                 new PatientEnquiryRepresentation(
-                    request.Patient.Id,
-                    $"{request.Patient.Name}",
+                    patient.Identifier,
+                    request.Patient.Name,
                     careContextRepresentations,
                     Enumerable.Empty<string>()
                 ) };
