@@ -107,8 +107,8 @@ namespace In.ProjectEKA.HipService.Discovery
             Log.Information("careContextRepresentations.Count ~~~~~~~~~~~~~~~~~~~~> " + careContextRepresentations.Count);
             var enumerable = new [] {
                 new PatientEnquiryRepresentation(
-                    request.Patient.Id,
-                    $"{request.Patient.Name}",
+                    patient.Identifier,
+                    request.Patient.Name,
                     careContextRepresentations,
                     Enumerable.Empty<string>()
                 ) };
