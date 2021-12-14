@@ -1,3 +1,5 @@
+This is a forked repo from ProjectEKA/hip-service and includes all the ABDM features build on top of it.
+
 ## :hospital: Health Information Provider
 
 > Clinical establishments which generate or store customer data in
