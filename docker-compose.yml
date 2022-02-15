@@ -9,9 +9,18 @@ services:
       - rabbitmq
       - otp
     environment: 
-      - HEALTH_CHECK_DURATION=5000
-      - Gateway:clientSecret=93ef283e-1968-46ab-8731-cfccda83680a
-      - OpenMrs:url=$BAHMNI_URL #example: https://192.168.33.10/openmrs/
+      Gateway:clientSecret: 
+      Gateway:clientId: 
+      Gateway:url: https://dev.abdm.gov.in/gateway
+      OpenMrs:url: 
+      OpenMrs:password:
+      Gateway:cmSuffix: 
+      OtpService:BaseUrl:
+      hip:url:
+      HEALTH_CHECK_DURATION: 
+      Cors:allowedOrigins: 
+      Hip-Service:Url:
+      Bahmni:Id: 
   otp:
     image: "ganesan92/otp-service"
     depends_on:
