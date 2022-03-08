@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using In.ProjectEKA.HipService.DataFlow;
 using In.ProjectEKA.HipService.UserAuth.Model;
 using Optional;
 using static In.ProjectEKA.HipService.Common.Constants;
+using Identifier = In.ProjectEKA.HipService.UserAuth.Model.Identifier;
 
 namespace In.ProjectEKA.HipService.UserAuth
 {
@@ -110,11 +112,21 @@ namespace In.ProjectEKA.HipService.UserAuth
             return UserAuthMap.HealthIdToTransactionId.ContainsKey(healthId);
         }
 
+        public static string getAbhaNumber(List<Identifier> identifiers)
+        {
+            foreach (var identifier in identifiers)
+            {
+                if (identifier.type == "HEALTH_NUMBER")
+                    return identifier.value;
+            }
+            return null;
+        }
+
         public async Task<Tuple<AuthConfirm, ErrorRepresentation>> OnAuthConfirmResponse(
             OnAuthConfirmRequest onAuthConfirmRequest)
         {
             var accessToken = onAuthConfirmRequest.auth.accessToken;
-            var healthId = onAuthConfirmRequest.auth.patient.id;
+            var healthId = onAuthConfirmRequest.auth.patient.id ?? getAbhaNumber(onAuthConfirmRequest.auth.patient.identifiers);
             var authConfirm = new AuthConfirm(healthId, accessToken);
             var savedAuthConfirm = userAuthRepository.Get(healthId).Result;
             if (savedAuthConfirm.Equals(Option.Some<AuthConfirm>(null)))
