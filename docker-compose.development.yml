@@ -12,6 +12,8 @@ services:
     image: "ganesan92/otp-service"
     depends_on:
       - db
+    environment:
+      whitelisted:numbers: ""
   db:
     image: "postgres:latest"
     environment:
@@ -22,6 +24,7 @@ services:
     volumes:
       - postgresql:/var/lib/postgresql
       - postgresql_data:/var/lib/postgresql/data
+      - ./db-init.sql:/docker-entrypoint-initdb.d/db-init.sql
   rabbitmq:
     image: "rabbitmq:3"
     ports:
@@ -36,6 +39,31 @@ services:
       - ./logs:/var/log
     networks:
       - elk
+  
+  hip:
+    container_name: hip
+    image: "bahmnicovid19/health-information-provider"
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+      - otp
+      - rabbitmq
+    volumes:
+      - ./:/shared
+    environment:
+      Gateway:clientSecret: 
+      Gateway:clientId: 
+      Gateway:url: https://dev.abdm.gov.in/gateway
+      OpenMrs:url: <host_url>/openmrs/
+      OpenMrs:password: 
+      Gateway:cmSuffix: sbx
+      OtpService:BaseUrl: http://otp
+      hip:url: http://hip:8000
+      HEALTH_CHECK_DURATION: 30000
+      Cors:allowedOrigins: "<host_url"
+      Hip-Service:Url: <host_url>/provider
+      Bahmni:Id: <hip_id>
   
 volumes:
   postgresql:
