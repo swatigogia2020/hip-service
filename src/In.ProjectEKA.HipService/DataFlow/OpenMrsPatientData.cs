@@ -65,8 +65,10 @@ namespace In.ProjectEKA.HipService.DataFlow
                 !string.IsNullOrEmpty(fromDate)
             )
             {
+                var careContexName = grantedContext.Split(" / ");
                 query["patientId"] = consentId;
-                query["visitType"] = grantedContext;
+                query["visitType"] = careContexName[0];
+                query["visitStartDate"] = careContexName[1];
                 query["fromDate"] = fromDate;
                 query["toDate"] = DateTime.Parse(toDate).AddDays(1).ToString("yyyy-MM-dd");
             }
