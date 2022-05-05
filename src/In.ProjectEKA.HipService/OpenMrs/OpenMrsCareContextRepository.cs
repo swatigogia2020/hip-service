@@ -47,7 +47,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
                     careContextReferenceNumber = "";
                 }
                 else
-                    careContextReferenceNumber = "Appointment with " + careContextReferenceNumber;
+                    careContextReferenceNumber = "Consultation/meeting with " + careContextReferenceNumber;
                 careContexts.Add(new CareContextRepresentation(careContextName, careContextReferenceNumber,
                     careContextType));
             }
