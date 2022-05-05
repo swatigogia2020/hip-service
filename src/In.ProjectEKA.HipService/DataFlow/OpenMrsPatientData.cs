@@ -38,18 +38,19 @@ namespace In.ProjectEKA.HipService.DataFlow
             string fromDate, string hiType)
         {
             if (!hiTypeToRootElement.ContainsKey(hiType)) return new List<string>();
-            if (!IsValidProgramCareContext(careContextReference))
-                return await GetForVisits(hiType, patientUuid, careContextReference, toDate, fromDate);
-            var programName = careContextReference
-                .Substring(0, careContextReference.IndexOf("(", StringComparison.Ordinal))
-                .Trim();
-            var indexOfClosingBracket = careContextReference.IndexOf(")", StringComparison.Ordinal);
-            var indexOfColon = careContextReference.IndexOf(":", StringComparison.Ordinal);
-            var programId = careContextReference
-                .Substring(indexOfColon + 1, indexOfClosingBracket - indexOfColon - 1)
-                .Trim();
-
-            return await GetForPrograms(hiType, patientUuid, programName, programId, toDate, fromDate);
+            if (IsValidProgramCareContext(careContextReference))
+            {
+                var programName = careContextReference
+                    .Substring(0, careContextReference.IndexOf("(", StringComparison.Ordinal))
+                    .Trim();
+                var indexOfClosingBracket = careContextReference.IndexOf(")", StringComparison.Ordinal);
+                var indexOfColon = careContextReference.IndexOf(":", StringComparison.Ordinal);
+                var programId = careContextReference
+                    .Substring(indexOfColon + 1, indexOfClosingBracket - indexOfColon - 1)
+                    .Trim();
+                return await GetForPrograms(hiType, patientUuid, programName, programId, toDate, fromDate);
+            }
+            return await GetForVisits(hiType, patientUuid, careContextReference, toDate, fromDate);
         }
 
         private async Task<List<string>> GetForVisits(string hiType, string consentId, string grantedContext,
