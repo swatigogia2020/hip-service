@@ -38,8 +38,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
 
             //Then
             combinedCareContexts.Count().Should().Be(1);
-            combinedCareContexts[0].ReferenceNumber.Should().Be("OPD");
-            combinedCareContexts[0].Display.Should().Be("");
+            combinedCareContexts[0].ReferenceNumber.Should().Be("OPD / 2020-01-01 12:00:00");
+            combinedCareContexts[0].Display.Should().Be("Appointment with DOCTOR");
         }
 
         [Fact]
@@ -75,8 +75,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
 
         string ProgramEnrollmentSampleFull = @"[{
             ""careContextType"": ""VISIT_TYPE"",
-            ""careContextName"": ""OPD"",
-            ""careContextReference"": """"}]";
+            ""careContextName"": ""OPD / 2020-01-01 12:00:00"",
+            ""careContextReference"": ""DOCTOR""}]";
 
 
         private const string EmptySample = @"[]
