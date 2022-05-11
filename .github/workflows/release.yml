@@ -23,17 +23,17 @@ jobs:
       - name: Docker Registry
         env:
           DOCKER_REGISTRY_URL: docker.io
-          DOCKER_PASSWORD: ${{ secrets.SE_DOCKER_PASSWORD }}
-          DOCKER_USERNAME: ${{ secrets.SE_DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REGISTRY_URL
       - name: Build docker image
         env:
-          CONTAINER_REPO_NAME: health-information-provider
-          DOCKER_USERNAME: ${{ secrets.SE_DOCKER_USERNAME }}
+          CONTAINER_REPO_NAME: hip
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: docker build -t $DOCKER_USERNAME/$CONTAINER_REPO_NAME:$RELEASE_VERSION .
       - name: Push Docker Container to Registry
         env:
-          CONTAINER_REPO_NAME: health-information-provider
-          DOCKER_USERNAME: ${{ secrets.SE_DOCKER_USERNAME }}
+          CONTAINER_REPO_NAME: hip
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: docker push $DOCKER_USERNAME/$CONTAINER_REPO_NAME:$RELEASE_VERSION
