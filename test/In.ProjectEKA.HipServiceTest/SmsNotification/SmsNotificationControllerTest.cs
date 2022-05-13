@@ -106,7 +106,6 @@ namespace In.ProjectEKA.HipServiceTest.SmsNotification
         {
             var timeStamp = DateTime.Now.ToUniversalTime();
             var requestId = Guid.NewGuid();
-            var cmSuffix = "sbx";
             var phoneNo = "123456789";
             var receiverName = "abc";
             var careContexxtInfo = "xyz";
@@ -129,7 +128,6 @@ namespace In.ProjectEKA.HipServiceTest.SmsNotification
             var requestId = Guid.NewGuid();
             var error = new Error(ErrorCode.GatewayTimedOut, "Gateway timed out");
             var resp = new Resp("123");
-            var cmSuffix = "sbx";
             var correlationId = Uuid.Generate().ToString();
             var smsNotificationAcknowledgement = new SmsNotificationAcknowledgement("success");
 
@@ -143,7 +141,6 @@ namespace In.ProjectEKA.HipServiceTest.SmsNotification
         [Fact]
         private bool shouldReturnSmsNotification()
         {
-            var cmSuffix = "sbx";
             var phoneNo = "123456789";
             var receiverName = "abc";
             var careContexxtInfo = "xyz";
@@ -165,7 +162,6 @@ namespace In.ProjectEKA.HipServiceTest.SmsNotification
             var requestId = Guid.NewGuid();
             var error = new Error(ErrorCode.GatewayTimedOut, "Gateway timed out");
             var resp = new Resp("123");
-            var cmSuffix = "sbx";
             var correlationId = Uuid.Generate().ToString();
             var smsNotificationAcknowledgement = new SmsNotificationAcknowledgement("success");
 
