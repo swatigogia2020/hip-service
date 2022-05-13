@@ -42,7 +42,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         }
 
         [Fact]
-        private async void PatientRepositoryWhereQuery_InvokesPatientDalWithExpectedParameters()
+        private void PatientRepositoryWhereQuery_InvokesPatientDalWithExpectedParameters()
         {
             const string  patientName = "patient name";
             Gender? patientGender = Gender.F;
@@ -63,7 +63,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         }
 
         [Fact]
-        private async void PatientRepositoryWhereQuery_ReturnsAnHIPPatientWithExpectedValues_WhenPatientFoundInOpenMrs()
+        private void PatientRepositoryWhereQuery_ReturnsAnHIPPatientWithExpectedValues_WhenPatientFoundInOpenMrs()
         {
             const string  patientSearchedName = "patient name";
             Gender? patientGender = Gender.F;
@@ -84,7 +84,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         }
 
         [Fact]
-        private async void PatientRepositoryWhereQuery_ReturnsAnHIPPatientWithSearchedNameInstedOfFoundName_WhenPatientFoundInOpenMrs()
+        private void PatientRepositoryWhereQuery_ReturnsAnHIPPatientWithSearchedNameInstedOfFoundName_WhenPatientFoundInOpenMrs()
         {
             const string patientSearchedName = "patient name";
             Gender? patientGender = Gender.F;

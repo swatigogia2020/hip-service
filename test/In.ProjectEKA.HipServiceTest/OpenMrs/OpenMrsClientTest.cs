@@ -14,7 +14,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
     public class OpenMrsClientTest
     {
         [Fact]
-        public async Task ShouldThrowErrorIfGetAsyncReturnsNonSuccessStatusCode()
+        public void ShouldThrowErrorIfGetAsyncReturnsNonSuccessStatusCode()
         {
             //Given
             var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
@@ -48,7 +48,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async Task ShouldThrowExceptionAndLogIfAnyExceptionIsThrown()
+        public void ShouldThrowExceptionAndLogIfAnyExceptionIsThrown()
         {
             //Given
             var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
