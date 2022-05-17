@@ -28,7 +28,7 @@ namespace In.ProjectEKA.HipService.DataFlow
             this.openMrsClient = openMrsClient;
         }
 
-        private static bool IsValidProgramCareContext(string careContextName)
+        private static bool IsProgramCareContext(string careContextName)
         {
             string pattern = @"\(ID Number:(\d+)\)";
             return Regex.Match(careContextName, pattern).Success;
@@ -38,19 +38,17 @@ namespace In.ProjectEKA.HipService.DataFlow
             string fromDate, string hiType)
         {
             if (!hiTypeToRootElement.ContainsKey(hiType)) return new List<string>();
-            if (IsValidProgramCareContext(careContextReference))
-            {
-                var programName = careContextReference
-                    .Substring(0, careContextReference.IndexOf("(", StringComparison.Ordinal))
-                    .Trim();
-                var indexOfClosingBracket = careContextReference.IndexOf(")", StringComparison.Ordinal);
-                var indexOfColon = careContextReference.IndexOf(":", StringComparison.Ordinal);
-                var programId = careContextReference
-                    .Substring(indexOfColon + 1, indexOfClosingBracket - indexOfColon - 1)
-                    .Trim();
-                return await GetForPrograms(hiType, patientUuid, programName, programId, toDate, fromDate);
-            }
-            return await GetForVisits(hiType, patientUuid, careContextReference, toDate, fromDate);
+            if (!IsProgramCareContext(careContextReference))
+                return await GetForVisits(hiType, patientUuid, careContextReference, toDate, fromDate);
+            var programName = careContextReference
+                .Substring(0, careContextReference.IndexOf("(", StringComparison.Ordinal))
+                .Trim();
+            var indexOfClosingBracket = careContextReference.IndexOf(")", StringComparison.Ordinal);
+            var indexOfColon = careContextReference.IndexOf(":", StringComparison.Ordinal);
+            var programId = careContextReference
+                .Substring(indexOfColon + 1, indexOfClosingBracket - indexOfColon - 1)
+                .Trim();
+            return await GetForPrograms(hiType, patientUuid, programName, programId, toDate, fromDate);
         }
 
         private async Task<List<string>> GetForVisits(string hiType, string consentId, string grantedContext,
