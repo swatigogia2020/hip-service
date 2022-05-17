@@ -354,7 +354,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         #region Ensure the job will be triggered by the background worker
 
         [Fact]
-        public async void ShouldAddTheDiscoveryTaskToTheBackgroundJobList()
+        public void ShouldAddTheDiscoveryTaskToTheBackgroundJobList()
         {
             var correlationId = Uuid.Generate().ToString();
             //Given

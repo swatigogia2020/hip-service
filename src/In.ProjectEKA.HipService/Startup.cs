@@ -273,6 +273,10 @@ namespace In.ProjectEKA.HipService
             dataFlowContext.Database.Migrate();
             var consentContext = serviceScope.ServiceProvider.GetService<ConsentContext>();
             consentContext.Database.Migrate();
+            var authContext = serviceScope.ServiceProvider.GetService<AuthContext>();
+            authContext.Database.Migrate();
+            var ndhmContext = serviceScope.ServiceProvider.GetService<NdhmDemographicsContext>();
+            ndhmContext.Database.Migrate();
         }
 
         private static bool CheckRoleInAccessToken(JwtSecurityToken accessToken)
