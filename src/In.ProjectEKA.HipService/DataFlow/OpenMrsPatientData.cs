@@ -28,7 +28,7 @@ namespace In.ProjectEKA.HipService.DataFlow
             this.openMrsClient = openMrsClient;
         }
 
-        private static bool IsValidProgramCareContext(string careContextName)
+        private static bool IsProgramCareContext(string careContextName)
         {
             string pattern = @"\(ID Number:(\d+)\)";
             return Regex.Match(careContextName, pattern).Success;
@@ -38,7 +38,7 @@ namespace In.ProjectEKA.HipService.DataFlow
             string fromDate, string hiType)
         {
             if (!hiTypeToRootElement.ContainsKey(hiType)) return new List<string>();
-            if (!IsValidProgramCareContext(careContextReference))
+            if (!IsProgramCareContext(careContextReference))
                 return await GetForVisits(hiType, patientUuid, careContextReference, toDate, fromDate);
             var programName = careContextReference
                 .Substring(0, careContextReference.IndexOf("(", StringComparison.Ordinal))
@@ -48,7 +48,6 @@ namespace In.ProjectEKA.HipService.DataFlow
             var programId = careContextReference
                 .Substring(indexOfColon + 1, indexOfClosingBracket - indexOfColon - 1)
                 .Trim();
-
             return await GetForPrograms(hiType, patientUuid, programName, programId, toDate, fromDate);
         }
 
@@ -65,8 +64,10 @@ namespace In.ProjectEKA.HipService.DataFlow
                 !string.IsNullOrEmpty(fromDate)
             )
             {
+                var careContexName = grantedContext.Split(" / ");
                 query["patientId"] = consentId;
-                query["visitType"] = grantedContext;
+                query["visitType"] = careContexName[0];
+                query["visitStartDate"] = careContexName[1];
                 query["fromDate"] = fromDate;
                 query["toDate"] = DateTime.Parse(toDate).AddDays(1).ToString("yyyy-MM-dd");
             }
