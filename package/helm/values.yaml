@@ -1,0 +1,36 @@
+replicaCount: 1
+
+metadata:
+  labels:
+    environment: dev
+
+image:
+  repository: bahmniindiadistro
+  name: hip
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 8000
+
+config:
+  GATEWAY_URL: "https://dev.abdm.gov.in/gateway"
+  BAHMNI_URL: ""
+  GATEWAY_CMSUFFIX: "sbx"
+  OTPSERVICE_URL: "http://otp"
+  HIP_URL: "http://hip:8000"
+  HEALTH_CHECK_DURATION: 30000
+  CORS_ALLOWED_ORIGIN: ""
+  BAHMNI_ID: "Bahmni"
+  $CONNECTION_STRING: "Host=db;Port=5432;Username=postgres;Password=welcome;Database=hipservice"
+
+
+secrets:
+  GATEWAY_CLIENT_SECRET: ""
+  GATEWAY_CLIENT_ID: ""
+  OPENMRS_PASSWORD: ""
+
+
+
+autoscaling:
+  enabled: false

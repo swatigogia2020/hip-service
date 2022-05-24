@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-config
+data:
+ 
+  GATEWAY_URL: "{{ .Values.config.GATEWAY_URL }}"
+  BAHMNI_URL: "{{ .Values.config.BAHMNI_URL }}"
+  GATEWAY_CMSUFFIX: "{{ .Values.config.GATEWAY_CMSUFFIX }}"
+  OTPSERVICE_URL: "{{ .Values.config.OTPSERVICE_URL }}"
+  HIP_URL: "{{ .Values.config.HIP_URL }}"
+  HEALTH_CHECK_DURATION: "{{ .Values.config.HEALTH_CHECK_DURATION }}"
+  CORS_ALLOWED_ORIGIN: "{{ .Values.config.CORS_ALLOWED_ORIGIN }}"
+  BAHMNI_ID: "{{ .Values.config.BAHMNI_ID }}"
+  CONNECTION_STRING: "{{ .Values.config.CONNECTION_STRING }}"
