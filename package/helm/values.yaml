@@ -22,7 +22,10 @@ config:
   HEALTH_CHECK_DURATION: 30000
   CORS_ALLOWED_ORIGIN: ""
   BAHMNI_ID: "Bahmni"
-  CONNECTION_STRING: "Host=db;Port=5432;Username=postgres;Password=welcome;Database=hipservice"
+  CONNECTION_STRING: "Host=bahmni-dev-postgresql;Port=5432;Username=postgres;Password=welcome;Database=hipservice"
+  RABBITMQ_HOST: "bahmni-dev-rabbitm"
+  RABBITMQ_USERNAME: "bahmni"
+  RABBITMQ_PASSWORD: "bahmni"
 
 
 secrets:

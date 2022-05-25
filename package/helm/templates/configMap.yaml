@@ -13,3 +13,6 @@ data:
   Cors__allowedOrigins: "{{ .Values.config.CORS_ALLOWED_ORIGIN }}"
   Bahmni__Id: "{{ .Values.config.BAHMNI_ID }}"
   ConnectionStrings__DefaultConnection: "{{ .Values.config.CONNECTION_STRING }}"
+  rabbit__HostName: "{{ .Values.config.RABBITMQ_HOST }}"
+  rabbit__UserName: "{{ .Values.config.RABBITMQ_USERNAME }}"
+  rabbit__Password: "{{ .Values.config.RABBITMQ_PASSWORD }}"
