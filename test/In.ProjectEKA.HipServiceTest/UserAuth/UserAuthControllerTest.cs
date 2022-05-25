@@ -209,7 +209,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             {
                 new Identifier("MOBILE", "+919800083232")
             };
-            var patient = new AuthConfirmPatient("hinapatel@sbx", "Hina Patel", "F", "1998",
+            var patient = new AuthConfirmPatient("hinapatel@sbx", "Hina Patel", "F", 1998,1,1,
                 address, identifiers);
             UserAuthMap.RequestIdToAccessToken.Add(requestId, "12");
             UserAuthMap.RequestIdToPatientDetails.Add(requestId, patient);
