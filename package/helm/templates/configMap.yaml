@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-config
+data:
+
+  Gateway__url: "{{ .Values.config.GATEWAY_URL }}"
+  OpenMrs__url: "{{ .Values.config.BAHMNI_URL }}"
+  Gateway__cmSuffix: "{{ .Values.config.GATEWAY_CMSUFFIX }}"
+  OtpService__BaseUrl: "{{ .Values.config.OTPSERVICE_URL }}"
+  hip__url: "{{ .Values.config.HIP_URL }}"
+  HEALTH_CHECK_DURATION: "{{ .Values.config.HEALTH_CHECK_DURATION }}"
+  Cors__allowedOrigins: "{{ .Values.config.CORS_ALLOWED_ORIGIN }}"
+  Bahmni__Id: "{{ .Values.config.BAHMNI_ID }}"
+  ConnectionStrings__DefaultConnection: "{{ .Values.config.CONNECTION_STRING }}"
+  rabbit__HostName: "{{ .Values.config.RABBITMQ_HOST }}"
+  rabbit__UserName: "{{ .Values.config.RABBITMQ_USERNAME }}"
+  rabbit__Password: "{{ .Values.config.RABBITMQ_PASSWORD }}"
