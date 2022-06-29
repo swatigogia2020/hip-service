@@ -17,7 +17,7 @@ config:
   GATEWAY_URL: "https://dev.abdm.gov.in/gateway"
   BAHMNI_URL: ""
   GATEWAY_CMSUFFIX: "sbx"
-  OTPSERVICE_URL: "http://otp"
+  OTPSERVICE_URL: "http://otp-service:8092"
   HIP_URL: "http://hip:8000"
   HEALTH_CHECK_DURATION: 30000
   CORS_ALLOWED_ORIGIN: ""
