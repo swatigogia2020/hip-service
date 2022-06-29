@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace In.ProjectEKA.HipService.Link
 {
     using System;
@@ -20,6 +22,7 @@ namespace In.ProjectEKA.HipService.Link
         private readonly IPatientRepository patientRepository;
         private readonly IPatientVerification patientVerification;
         private readonly ReferenceNumberGenerator referenceNumberGenerator;
+        private readonly ILogger<LinkPatient> logger;
 
         public LinkPatient(
             ILinkPatientRepository linkPatientRepository,
@@ -27,7 +30,8 @@ namespace In.ProjectEKA.HipService.Link
             IPatientVerification patientVerification,
             ReferenceNumberGenerator referenceNumberGenerator,
             IDiscoveryRequestRepository discoveryRequestRepository,
-            IOptions<OtpServiceConfiguration> otpService)
+            IOptions<OtpServiceConfiguration> otpService,
+            ILogger<LinkPatient> logger)
         {
             this.linkPatientRepository = linkPatientRepository;
             this.patientRepository = patientRepository;
@@ -35,6 +39,7 @@ namespace In.ProjectEKA.HipService.Link
             this.referenceNumberGenerator = referenceNumberGenerator;
             this.discoveryRequestRepository = discoveryRequestRepository;
             this.otpService = otpService;
+            this.logger = logger;
         }
 
         public virtual async Task<ValueTuple<PatientLinkEnquiryRepresentation, ErrorRepresentation>> LinkPatients(
@@ -76,6 +81,11 @@ namespace In.ProjectEKA.HipService.Link
                     new Communication(CommunicationMode.MOBILE, patient.PhoneNumber),
                     new OtpGenerationDetail(otpService.Value.SenderSystemName,
                         OtpAction.LINK_PATIENT_CARECONTEXT.ToString()));
+                logger.Log(LogLevel.Warning,"Hip service calling otp service with comm value: "+session.Communication.Value);
+                logger.Log(LogLevel.Warning,"Comm mode: "+session.Communication.Mode);
+                logger.Log(LogLevel.Warning,"OtpGenerationDetail action: "+session.GenerationDetail.Action);
+                logger.Log(LogLevel.Warning,"OtpGenerationDetail systemname: "+session.GenerationDetail.SystemName);
+                logger.Log(LogLevel.Warning,"linkrefnumber action: "+session.SessionId);
                 var otpGeneration = await patientVerification.SendTokenFor(session);
                 if (otpGeneration != null)
                     return (null,

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace In.ProjectEKA.HipServiceTest.Link
 {
     using System;
@@ -44,6 +46,8 @@ namespace In.ProjectEKA.HipServiceTest.Link
         private readonly Mock<IPatientRepository> patientRepository = new Mock<IPatientRepository>();
         private readonly Mock<IPatientVerification> patientVerification = new Mock<IPatientVerification>();
         private readonly Mock<ReferenceNumberGenerator> guidGenerator = new Mock<ReferenceNumberGenerator>();
+        private readonly Mock<ILogger<LinkPatient>> logger =
+            new Mock<ILogger<LinkPatient>>();
 
         public LinkPatientTest()
         {
@@ -54,7 +58,8 @@ namespace In.ProjectEKA.HipServiceTest.Link
                 patientVerification.Object,
                 guidGenerator.Object,
                 discoveryRequestRepository.Object,
-                otpServiceConfigurations);
+                otpServiceConfigurations,
+                logger.Object);
         }
 
         [Fact]
