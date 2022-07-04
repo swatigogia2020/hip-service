@@ -210,7 +210,11 @@ namespace In.ProjectEKA.HipService.UserAuth
                             "Response about to be send for requestId: {RequestId} with transactionId: {TransactionId}",
                             requestId, RequestIdToTransactionIdMap[requestId]
                         );
-                        if (!HealthIdToTransactionId.ContainsKey(authInitRequest.healthId))
+                        if (HealthIdToTransactionId.ContainsKey(authInitRequest.healthId))
+                        {
+                            HealthIdToTransactionId[authInitRequest.healthId] = RequestIdToTransactionIdMap[requestId];
+                        }
+                        else
                         {
                             HealthIdToTransactionId.Add(authInitRequest.healthId,
                                 RequestIdToTransactionIdMap[requestId]);
