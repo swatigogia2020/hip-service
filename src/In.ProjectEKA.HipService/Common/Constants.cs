@@ -37,7 +37,7 @@ namespace In.ProjectEKA.HipService.Common
         public static readonly string PATH_PATIENT_PROFILE_OPENMRS = "ws/rest/v1/bahmnicore/patientprofile";
         public static readonly string PATH_OPENMRS_IDENTIFIER_TYPE = "ws/rest/v1/idgen/identifiertype";
         public static readonly string PATH_OPENMRS_ATTRIBUTE_TYPE =
-            "/ws/rest/v1/personattributetype?q=primaryContact&v=default";
+            "/ws/rest/v1/personattributetype?q=phoneNumber&v=default";
         public static readonly string PATH_OPENMRS_EXISTING_HEALTHID = PATH_OPENMRS_HITYPE + "existingPatients/";
         public static readonly string CONFIG_KEY = "OpenMrs";
 
