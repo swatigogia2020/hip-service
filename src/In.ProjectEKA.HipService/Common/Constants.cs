@@ -73,9 +73,5 @@ namespace In.ProjectEKA.HipService.Common
         public const string PATH_PATIENT_ON_NOTIFY = "/" + CURRENT_VERSION + "/patients/status/on-notify";
         public const string PATH_PROFILE_SHARE = "/" + CURRENT_VERSION + "/patients/profile/share";
         public const string PATH_PROFILE_ON_SHARE = "/" + CURRENT_VERSION + "/patients/profile/on-share";
-
-        public const string PROTOCOL = "https";
-        public const string NDHM_URL = "/ndhm-dev.bahmni-covid19.in";
-        public const string HIP_URL = PROTOCOL + ":/" + NDHM_URL + "/hiprovider";
     }
 }
