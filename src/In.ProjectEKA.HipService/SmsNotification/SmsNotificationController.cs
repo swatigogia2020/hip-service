@@ -1,13 +1,12 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Hl7.Fhir.Model;
+using In.ProjectEKA.HipLibrary.Patient.Model;
 using In.ProjectEKA.HipService.Common;
 using In.ProjectEKA.HipService.Common.Model;
 using In.ProjectEKA.HipService.Gateway;
 using In.ProjectEKA.HipService.OpenMrs;
 using In.ProjectEKA.HipService.SmsNotification.Model;
-using In.ProjectEKA.HipService.UserAuth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -66,14 +65,15 @@ namespace In.ProjectEKA.HipService.SmsNotification
                 
                 await gatewayClient.SendDataToGateway(PATH_SMS_NOTIFY, gatewaySmsNotifyRequestRepresentation,
                     cmSuffix, correlationId);
+                return Accepted();
             }
             catch (Exception exception)
             {
                 logger.LogError(LogEvents.UserAuth, exception, "Error happened for requestId: {RequestId} for" +
                                                                " sms Notify request", requestId);
             }
-
-            return StatusCode(StatusCodes.Status202Accepted);
+            return StatusCode(StatusCodes.Status504GatewayTimeout,
+                new ErrorRepresentation(new Error(ErrorCode.GatewayTimedOut, "Gateway timed out")));
 
 
         }
