@@ -144,7 +144,7 @@ namespace In.ProjectEKA.HipServiceTest.UserAuth
             var gatewayAuthInitRequestRepresentation =
                 new GatewayAuthInitRequestRepresentation(requestId, timeStamp, query);
             var correlationId = Uuid.Generate().ToString();
-            var transactionId = new Guid().ToString();
+            var transactionId = Guid.Empty.ToString();
             var auth = new Auth(transactionId, new Meta("string", new DateTime()), Mode.MOBILE_OTP);
             var authOnInitRequest =
                 new AuthOnInitRequest(requestId, timeStamp, auth, null, new Resp(requestId.ToString()));
